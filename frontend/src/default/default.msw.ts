@@ -6,7 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 import { faker } from "@faker-js/faker";
-import { HttpResponse, delay, http } from "msw";
+import { http, HttpResponse, delay } from "msw";
 
 export const getGetSamplesMock = () =>
 	Array.from(

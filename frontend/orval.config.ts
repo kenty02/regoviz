@@ -1,4 +1,4 @@
-import {defineConfig} from "orval";
+import { defineConfig } from "orval";
 
 export default defineConfig({
 	regoviz: {
@@ -13,11 +13,11 @@ export default defineConfig({
 				query: {
 					useSuspenseQuery: true,
 					useSuspenseInfiniteQuery: true,
-				}
-			}
+				},
+			},
 		},
 		hooks: {
-			afterAllFilesWrite: "npx @biomejs/biome format --write ./src",
+			afterAllFilesWrite: "npx @biomejs/biome check --apply-unsafe ./src",
 		},
 	},
 });

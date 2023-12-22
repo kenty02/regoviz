@@ -40,11 +40,11 @@ import type { Sample } from "../model/sample";
 export const getSamples = (
 	options?: AxiosRequestConfig,
 ): Promise<AxiosResponse<Sample[]>> => {
-	return axios.default.get(`/samples`, options);
+	return axios.default.get("/samples", options);
 };
 
 export const getGetSamplesQueryKey = () => {
-	return [`/samples`] as const;
+	return ["/samples"] as const;
 };
 
 export const getGetSamplesQueryOptions = <
@@ -218,11 +218,11 @@ export const useGetSamplesSuspenseInfinite = <
 export const getRules = (
 	options?: AxiosRequestConfig,
 ): Promise<AxiosResponse<Rule[]>> => {
-	return axios.default.get(`/rules`, options);
+	return axios.default.get("/rules", options);
 };
 
 export const getGetRulesQueryKey = () => {
-	return [`/rules`] as const;
+	return ["/rules"] as const;
 };
 
 export const getGetRulesQueryOptions = <
@@ -389,14 +389,14 @@ export const getDepTreeText = (
 	params: GetDepTreeTextParams,
 	options?: AxiosRequestConfig,
 ): Promise<AxiosResponse<GetDepTreeText200>> => {
-	return axios.default.get(`/depTreeText`, {
+	return axios.default.get("/depTreeText", {
 		...options,
 		params: { ...params, ...options?.params },
 	});
 };
 
 export const getGetDepTreeTextQueryKey = (params: GetDepTreeTextParams) => {
-	return [`/depTreeText`, ...(params ? [params] : [])] as const;
+	return ["/depTreeText", ...(params ? [params] : [])] as const;
 };
 
 export const getGetDepTreeTextQueryOptions = <
@@ -592,14 +592,14 @@ export const getFlowchart = (
 	params: GetFlowchartParams,
 	options?: AxiosRequestConfig,
 ): Promise<AxiosResponse<GetFlowchart200>> => {
-	return axios.default.get(`/flowchart`, {
+	return axios.default.get("/flowchart", {
 		...options,
 		params: { ...params, ...options?.params },
 	});
 };
 
 export const getGetFlowchartQueryKey = (params: GetFlowchartParams) => {
-	return [`/flowchart`, ...(params ? [params] : [])] as const;
+	return ["/flowchart", ...(params ? [params] : [])] as const;
 };
 
 export const getGetFlowchartQueryOptions = <
@@ -795,7 +795,7 @@ export const postVarTrace = (
 	params: PostVarTraceParams,
 	options?: AxiosRequestConfig,
 ): Promise<AxiosResponse<PostVarTrace200>> => {
-	return axios.default.post(`/varTrace`, undefined, {
+	return axios.default.post("/varTrace", undefined, {
 		...options,
 		params: { ...params, ...options?.params },
 	});
@@ -858,14 +858,14 @@ export const getAst = (
 	params: GetAstParams,
 	options?: AxiosRequestConfig,
 ): Promise<AxiosResponse<GetAst200>> => {
-	return axios.default.get(`/ast`, {
+	return axios.default.get("/ast", {
 		...options,
 		params: { ...params, ...options?.params },
 	});
 };
 
 export const getGetAstQueryKey = (params: GetAstParams) => {
-	return [`/ast`, ...(params ? [params] : [])] as const;
+	return ["/ast", ...(params ? [params] : [])] as const;
 };
 
 export const getGetAstQueryOptions = <

@@ -1,11 +1,11 @@
-import React, { Suspense } from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App.tsx";
-import "./index.css";
-import { ErrorBoundary } from "react-error-boundary";
-import { Fallback } from "./components/fallback.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as axios from "axios";
+import React, { Suspense } from "react";
+import ReactDOM from "react-dom/client";
+import { ErrorBoundary } from "react-error-boundary";
+import App from "./App.tsx";
+import { Fallback } from "./components/fallback.tsx";
+import "./index.css";
 
 async function enableMocking() {
 	if (process.env.NODE_ENV !== "development") {

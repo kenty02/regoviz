@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../opa-explorer/.idea/opa-explorer.iml" filepath="$PROJECT_DIR$/../opa-explorer/.idea/opa-explorer.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/vizrego-poc.iml" filepath="$PROJECT_DIR$/.idea/vizrego-poc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/vizrego.iml" filepath="$PROJECT_DIR$/.idea/vizrego.iml" />
     </modules>
   </component>
 </project>

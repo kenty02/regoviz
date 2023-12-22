@@ -1,6 +1,8 @@
-import {ReactNode, useState} from "react";
+import { ReactNode, useState } from "react";
 
-import {DepGraph} from "./components/dep-graph.tsx";
+import ReactJson from "@microlink/react-json-view";
+import { atom, useAtom, useAtomValue } from "jotai";
+import { DepGraph } from "./components/dep-graph.tsx";
 import {
 	useGetAstSuspense,
 	useGetDepTreeTextSuspense,
@@ -8,9 +10,7 @@ import {
 	useGetSamplesSuspense,
 	usePostVarTrace,
 } from "./default/default.ts";
-import {atom, useAtom, useAtomValue} from "jotai";
-import {Sample} from "./model";
-import ReactJson from "@microlink/react-json-view";
+import { Sample } from "./model";
 
 export const Heading = ({ children }: { children: ReactNode }) => {
 	return (
@@ -49,7 +49,9 @@ function SampleFileViewer() {
 			{selectedSample && (
 				<>
 					<div>サンプルファイルの内容</div>
-					<div className={"outline whitespace-pre-wrap"}>{selectedSample.content}</div>
+					<div className={"outline whitespace-pre-wrap"}>
+						{selectedSample.content}
+					</div>
 				</>
 			)}
 		</>
@@ -92,7 +94,7 @@ function VarTraceViewer() {
 	const [commands, setCommands] = useState("");
 	const mutation = usePostVarTrace();
 	const onExecuteClick = () => {
-		mutation.mutateAsync({
+		void mutation.mutateAsync({
 			params: {
 				sampleName: selectedSample.file_name,
 				commands,
@@ -104,7 +106,9 @@ function VarTraceViewer() {
 	return (
 		<>
 			<Heading>変数トレース</Heading>
-			<div className={"whitespace-pre-wrap"}>{mutation.data?.data.result ?? "Press Execute to get output"}</div>
+			<div className={"whitespace-pre-wrap"}>
+				{mutation.data?.data.result ?? "Press Execute to get output"}
+			</div>
 
 			<label>Input</label>
 			<input
@@ -161,7 +165,9 @@ function FlowchartViewer() {
 	return (
 		<>
 			<Heading>フローチャート</Heading>
-			<a href={data.data.result} target={"_blank"} rel={"noreferrer"}>{data.data.result}</a>
+			<a href={data.data.result} target={"_blank"} rel={"noreferrer"}>
+				{data.data.result}
+			</a>
 		</>
 	);
 }
