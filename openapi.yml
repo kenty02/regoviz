@@ -1,0 +1,172 @@
+openapi: 3.0.3
+info:
+  title: regoviz
+  description: api for regoviz
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:8080'
+paths:
+  /samples:
+    get:
+      responses:
+        '200':
+          description: A list of samples
+          content:
+            application/json:
+              schema:
+                type: array
+                description: List of sample files
+                items:
+                  $ref: '#/components/schemas/Sample'
+
+  /rules:
+    get:
+      responses:
+        '200':
+          description: A list of rules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rule'
+  /depTreeText:
+    get:
+        parameters:
+          - in: query
+            name: module
+            schema:
+                type: string
+            description: The module string to analyze
+            required: true
+        responses:
+            '200':
+              description: Dependency tree of given module
+              content:
+                  application/json:
+                    schema:
+                        type: object
+                        properties:
+                          result:
+                              type: string
+                              description: The generated dependency tree
+                        required:
+                            - result
+
+  /flowchart:
+    get:
+        parameters:
+          - in: query
+            name: sampleName
+            schema:
+                type: string
+            description: The sample name to analyze
+            required: true
+        responses:
+            '200':
+              description: Flowchart mermaid url of given sample
+              content:
+                  application/json:
+                    schema:
+                        type: object
+                        properties:
+                          result:
+                              type: string
+                              description: The generated flowchart mermaid url
+                        required:
+                            - result
+  /varTrace:
+    post:
+        parameters:
+          - in: query
+            name: sampleName
+            schema:
+                type: string
+            description: The sample name to analyze
+            required: true
+          - in: query
+            name: commands
+            schema:
+                type: string
+            description: The commands to analyze
+            required: true
+          - in: query
+            name: input
+            schema:
+                type: string
+            description: The input to policy
+            required: true
+          - in: query
+            name: query
+            schema:
+              type: string
+            description: The query to policy
+            required: true
+        responses:
+            '200':
+              description: Variable trace of given sample
+              content:
+                  application/json:
+                    schema:
+                        type: object
+                        properties:
+                          result:
+                              type: string
+                              description: The output of variable trace
+                        required:
+                            - result
+  # returns as string of given file
+  /ast:
+    get:
+      parameters:
+        - in: query
+          name: module
+          schema:
+            type: string
+          description: The module string to analyze
+          required: true
+      responses:
+        '200':
+          description: AST of given module
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    description: The generated AST
+                required: [result]
+
+components:
+  schemas:
+    Rule:
+      type: object
+      properties:
+        rule_id:
+          type: string
+          description: The ID of the rule.
+        dependent_rules:
+          type: array
+          description: List of rule IDs this rule is dependent on.
+          items:
+            type: string
+        start_line:
+          type: integer
+          format: int32
+          description: The start line of the rule in the source code.
+        end_line:
+          type: integer
+          format: int32
+          description: The end line of the rule in the source code.
+      required: [rule_id, dependent_rules, start_line, end_line]
+    Sample:
+        type: object
+        properties:
+          file_name:
+            type: string
+            description: The name of the sample file.
+          content:
+            type: string
+            description: The content of the sample file.
+        required: [file_name, content]
