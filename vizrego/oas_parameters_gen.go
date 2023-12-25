@@ -72,27 +72,27 @@ func decodeAstGetParams(args [0]string, argsEscaped bool, r *http.Request) (para
 
 // DepTreeTextGetParams is parameters of GET /depTreeText operation.
 type DepTreeTextGetParams struct {
-	// The module string to analyze.
-	Module string
+	// The sample name to analyze.
+	SampleName string
 }
 
 func unpackDepTreeTextGetParams(packed middleware.Parameters) (params DepTreeTextGetParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "module",
+			Name: "sampleName",
 			In:   "query",
 		}
-		params.Module = packed[key].(string)
+		params.SampleName = packed[key].(string)
 	}
 	return params
 }
 
 func decodeDepTreeTextGetParams(args [0]string, argsEscaped bool, r *http.Request) (params DepTreeTextGetParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode query: module.
+	// Decode query: sampleName.
 	if err := func() error {
 		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "module",
+			Name:    "sampleName",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
@@ -109,7 +109,7 @@ func decodeDepTreeTextGetParams(args [0]string, argsEscaped bool, r *http.Reques
 					return err
 				}
 
-				params.Module = c
+				params.SampleName = c
 				return nil
 			}); err != nil {
 				return err
@@ -120,7 +120,7 @@ func decodeDepTreeTextGetParams(args [0]string, argsEscaped bool, r *http.Reques
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "module",
+			Name: "sampleName",
 			In:   "query",
 			Err:  err,
 		}
@@ -132,6 +132,8 @@ func decodeDepTreeTextGetParams(args [0]string, argsEscaped bool, r *http.Reques
 type FlowchartGetParams struct {
 	// The sample name to analyze.
 	SampleName string
+	// Whether to return the editable flowchart mermaid url.
+	Edit OptBool
 }
 
 func unpackFlowchartGetParams(packed middleware.Parameters) (params FlowchartGetParams) {
@@ -141,6 +143,15 @@ func unpackFlowchartGetParams(packed middleware.Parameters) (params FlowchartGet
 			In:   "query",
 		}
 		params.SampleName = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "edit",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Edit = v.(OptBool)
+		}
 	}
 	return params
 }
@@ -183,6 +194,47 @@ func decodeFlowchartGetParams(args [0]string, argsEscaped bool, r *http.Request)
 			Err:  err,
 		}
 	}
+	// Decode query: edit.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "edit",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotEditVal bool
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToBool(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotEditVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Edit.SetTo(paramsDotEditVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "edit",
+			In:   "query",
+			Err:  err,
+		}
+	}
 	return params, nil
 }
 
@@ -193,7 +245,9 @@ type VarTracePostParams struct {
 	// The commands to analyze.
 	Commands string
 	// The input to policy.
-	Input string
+	Input OptString
+	// The data to policy.
+	Data OptString
 	// The query to policy.
 	Query string
 }
@@ -218,7 +272,18 @@ func unpackVarTracePostParams(packed middleware.Parameters) (params VarTracePost
 			Name: "input",
 			In:   "query",
 		}
-		params.Input = packed[key].(string)
+		if v, ok := packed[key]; ok {
+			params.Input = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "data",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Data = v.(OptString)
+		}
 	}
 	{
 		key := middleware.ParameterKey{
@@ -314,28 +379,74 @@ func decodeVarTracePostParams(args [0]string, argsEscaped bool, r *http.Request)
 
 		if err := q.HasParam(cfg); err == nil {
 			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				val, err := d.DecodeValue()
-				if err != nil {
+				var paramsDotInputVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotInputVal = c
+					return nil
+				}(); err != nil {
 					return err
 				}
-
-				c, err := conv.ToString(val)
-				if err != nil {
-					return err
-				}
-
-				params.Input = c
+				params.Input.SetTo(paramsDotInputVal)
 				return nil
 			}); err != nil {
 				return err
 			}
-		} else {
-			return validate.ErrFieldRequired
 		}
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "input",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: data.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "data",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotDataVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotDataVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Data.SetTo(paramsDotDataVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "data",
 			In:   "query",
 			Err:  err,
 		}

@@ -34,10 +34,10 @@ paths:
     get:
         parameters:
           - in: query
-            name: module
+            name: sampleName
             schema:
-                type: string
-            description: The module string to analyze
+              type: string
+            description: The sample name to analyze
             required: true
         responses:
             '200':
@@ -62,6 +62,12 @@ paths:
                 type: string
             description: The sample name to analyze
             required: true
+          - in: query
+            name: edit
+            schema:
+                type: boolean
+            description: Whether to return the editable flowchart mermaid url
+            required: false
         responses:
             '200':
               description: Flowchart mermaid url of given sample
@@ -95,7 +101,13 @@ paths:
             schema:
                 type: string
             description: The input to policy
-            required: true
+            required: false
+          - in: query
+            name: data
+            schema:
+                type: string
+            description: The data to policy
+            required: false
           - in: query
             name: query
             schema:

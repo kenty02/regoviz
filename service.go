@@ -27,17 +27,28 @@ func (p *vizRegoService) FlowchartGet(ctx context.Context, params vizrego.Flowch
 	}
 
 	mermaid := getMermaidFlowchart(plan)
-	url := getMermaidUrl(mermaid)
+	url, err := getMermaidUrl(mermaid, params.Edit.Or(false))
+	if err != nil {
+		return nil, err
+	}
 
 	// return modJson
 	return &vizrego.FlowchartGetOK{Result: url}, nil
 }
 
-func (p *vizRegoService) VarTracePost(ctx context.Context, params vizrego.VarTracePostParams) (*vizrego.VarTracePostOK, error) {
+func (p *vizRegoService) VarTracePost(_ context.Context, params vizrego.VarTracePostParams) (*vizrego.VarTracePostOK, error) {
 	// convert params.Input  to map[string]interface{}
 	var input map[string]interface{}
-	if err := json.Unmarshal([]byte(params.Input), &input); err != nil {
-		return nil, err
+	if inputParam, ok := params.Input.Get(); ok {
+		if err := json.Unmarshal([]byte(inputParam), &input); err != nil {
+			return nil, err
+		}
+	}
+	var data map[string]interface{}
+	if dataParam, ok := params.Data.Get(); ok {
+		if err := json.Unmarshal([]byte(dataParam), &data); err != nil {
+			return nil, err
+		}
 	}
 	query := params.Query
 	var commands []interface{}
@@ -50,6 +61,10 @@ func (p *vizRegoService) VarTracePost(ctx context.Context, params vizrego.VarTra
 		for _, commandStr := range commandsStrs {
 			commandStr = strings.TrimSpace(commandStr)
 			if commandStr == "" {
+				continue
+			}
+			// skip # comments
+			if strings.HasPrefix(commandStr, "#") {
 				continue
 			}
 			commandStrs := strings.Split(commandStr, " ")
@@ -85,7 +100,7 @@ func (p *vizRegoService) VarTracePost(ctx context.Context, params vizrego.VarTra
 	if err != nil {
 		return nil, err
 	}
-	result, err := regoVarTrace(sample, query, input, commands)
+	result, err := regoVarTrace(sample, query, input, data, commands)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +111,7 @@ func NewService() vizrego.Handler {
 	return &vizRegoService{}
 }
 
-func (p *vizRegoService) SamplesGet(ctx context.Context) ([]vizrego.Sample, error) {
+func (p *vizRegoService) SamplesGet(_ context.Context) ([]vizrego.Sample, error) {
 	// find .rego files in samples directory and return them
 	files, err := os.ReadDir("samples")
 	if err != nil {
@@ -119,12 +134,12 @@ func (p *vizRegoService) SamplesGet(ctx context.Context) ([]vizrego.Sample, erro
 	return samples, nil
 }
 
-func (p *vizRegoService) RulesGet(ctx context.Context) ([]vizrego.Rule, error) {
+func (p *vizRegoService) RulesGet(_ context.Context) ([]vizrego.Rule, error) {
 	// not implemented
 	return nil, error(nil)
 }
 
-func (p *vizRegoService) AstGet(ctx context.Context, params vizrego.AstGetParams) (*vizrego.AstGetOK, error) {
+func (p *vizRegoService) AstGet(_ context.Context, params vizrego.AstGetParams) (*vizrego.AstGetOK, error) {
 	// compile module
 	mod, err := compileRego(params.Module)
 
@@ -193,7 +208,12 @@ func (p *vizRegoService) DepTreeTextGet(ctx context.Context, params vizrego.DepT
 	//resultString := sb.String()
 	//return &vizrego.DepTreeTextGetOK{Result: resultString}, nil
 
-	plan, err := plan(ctx, params.Module, false)
+	sample, err := readSample(params.SampleName)
+	if err != nil {
+		return nil, err
+	}
+
+	plan, err := plan(ctx, sample, false)
 	if err != nil {
 		return nil, err
 	}

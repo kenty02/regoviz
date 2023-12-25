@@ -233,15 +233,15 @@ func (c *Client) sendDepTreeTextGet(ctx context.Context, params DepTreeTextGetPa
 	stage = "EncodeQueryParams"
 	q := uri.NewQueryEncoder()
 	{
-		// Encode "module" parameter.
+		// Encode "sampleName" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "module",
+			Name:    "sampleName",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
 
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			return e.EncodeValue(conv.StringToString(params.Module))
+			return e.EncodeValue(conv.StringToString(params.SampleName))
 		}); err != nil {
 			return res, errors.Wrap(err, "encode query")
 		}
@@ -329,6 +329,23 @@ func (c *Client) sendFlowchartGet(ctx context.Context, params FlowchartGetParams
 
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
 			return e.EncodeValue(conv.StringToString(params.SampleName))
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "edit" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "edit",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Edit.Get(); ok {
+				return e.EncodeValue(conv.BoolToString(val))
+			}
+			return nil
 		}); err != nil {
 			return res, errors.Wrap(err, "encode query")
 		}
@@ -581,7 +598,27 @@ func (c *Client) sendVarTracePost(ctx context.Context, params VarTracePostParams
 		}
 
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			return e.EncodeValue(conv.StringToString(params.Input))
+			if val, ok := params.Input.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "data" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "data",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Data.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
 		}); err != nil {
 			return res, errors.Wrap(err, "encode query")
 		}

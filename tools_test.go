@@ -160,13 +160,17 @@ func TestGetMermaidFlowchart(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	pseudoCode := getMermaidFlowchart(plan)
+	mermaid := getMermaidFlowchart(plan)
 
-	fmt.Println(getMermaidUrl(pseudoCode))
-	fmt.Println(pseudoCode)
+	url, err := getMermaidUrl(mermaid, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(url)
+	fmt.Println(mermaid)
 
-	if len(pseudoCode) < 1 {
-		t.Fatal("pseudoCode is too short")
+	if len(mermaid) < 1 {
+		t.Fatal("mermaid is too short")
 	}
 }
 
@@ -325,7 +329,7 @@ allow {
 			varName:    "role",
 		},
 	}
-	result, err := regoVarTrace(rego, query, input, commands)
+	result, err := regoVarTrace(rego, query, input, nil, commands)
 	if err != nil {
 		t.Fatal(err)
 	}

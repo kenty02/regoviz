@@ -75,10 +75,10 @@ func plan(ctx context.Context, rego string, print bool) (*ir.Policy, error) {
 		return nil, err
 	}
 
-	bundle := compiler.Bundle()
+	compiledBundle := compiler.Bundle()
 	var policy ir.Policy
 
-	if err := json.Unmarshal(bundle.PlanModules[0].Raw, &policy); err != nil {
+	if err := json.Unmarshal(compiledBundle.PlanModules[0].Raw, &policy); err != nil {
 		return nil, err
 	}
 
@@ -274,7 +274,7 @@ type MermaidState struct {
 	PanZoom       bool          `json:"panZoom"`
 }
 
-func getMermaidUrl(code string) string {
+func getMermaidUrl(code string, edit bool) (string, error) {
 	state := MermaidState{
 		Code: code,
 		Mermaid: MermaidConfig{
@@ -297,19 +297,36 @@ func getMermaidUrl(code string) string {
 	// compress code
 	var b bytes.Buffer
 	w := zlib.NewWriter(&b)
-	w.Write([]byte(st))
-	w.Close()
+	_, err = w.Write(st)
+	if err != nil {
+		return "", nil
+	}
+	err = w.Close()
+	if err != nil {
+		return "", err
+	}
+
 	// encode to base64
 	sEnc := base64.StdEncoding.EncodeToString(b.Bytes())
 	// create url
-	return "https://mermaid.live/edit#pako:" + sEnc
+	var baseUrl string
+	if edit {
+		baseUrl = "https://mermaid.live/edit#pako:"
+	} else {
+		baseUrl = "https://mermaid.live/view#pako:"
+	}
+	return baseUrl + sEnc, nil
 }
 
-func evalRegoWithPrint(code, query string, input map[string]interface{}, data map[string]interface{}) (*rego.ResultSet, string, error) {
+func evalRegoWithPrint(code, query string, input, data map[string]interface{}) (*rego.ResultSet, string, error) {
 	var buf bytes.Buffer
 
+	maybeInputFunc := func(r *rego.Rego) {}
 	maybeStoreFunc := func(r *rego.Rego) {}
 
+	if input != nil {
+		maybeInputFunc = rego.Input(input)
+	}
 	if data != nil {
 		// Manually create the storage layer. inmem.NewFromObject returns an
 		// in-memory store containing the supplied data.
@@ -319,7 +336,7 @@ func evalRegoWithPrint(code, query string, input map[string]interface{}, data ma
 	r := rego.New(
 		rego.Query(query),
 		rego.Module("example.rego", code),
-		rego.Input(input),
+		maybeInputFunc,
 		rego.EnablePrintStatements(true),
 		rego.PrintHook(topdown.NewPrintHook(&buf)),
 		maybeStoreFunc,
@@ -403,7 +420,7 @@ var varRe = regexp.MustCompile(varPattern)
 var vtPattern = `VTBEGIN ([A-Za-z_][A-Za-z_0-9]*) (.+) VTEND`
 var vtRe = regexp.MustCompile(vtPattern)
 
-func regoVarTrace(code, query string, input map[string]interface{}, commands []interface{}) (string, error) {
+func regoVarTrace(code, query string, input, data map[string]interface{}, commands []interface{}) (string, error) {
 	lines := strings.Split(code, "\n")
 	var sb strings.Builder
 	var showVarsCommands []ShowVarsCommand
@@ -482,7 +499,7 @@ func regoVarTrace(code, query string, input map[string]interface{}, commands []i
 			{command.varLineNum, fmt.Sprintf(";print(\"VTBEGIN %s\", %s, \"VTEND\");false", command.varName, command.varName), false},
 		}
 		injectedCode := injectCode(modifiedCode, cis)
-		_, printed, err := evalRegoWithPrint(injectedCode, query, input, nil)
+		_, printed, err := evalRegoWithPrint(injectedCode, query, input, data)
 		if err != nil {
 			return "", err
 		}

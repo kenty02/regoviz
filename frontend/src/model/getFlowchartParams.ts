@@ -11,4 +11,8 @@ export type GetFlowchartParams = {
 	 * The sample name to analyze
 	 */
 	sampleName: string;
+	/**
+	 * Whether to return the editable flowchart mermaid url
+	 */
+	edit?: boolean;
 };

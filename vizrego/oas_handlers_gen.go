@@ -182,9 +182,9 @@ func (s *Server) handleDepTreeTextGetRequest(args [0]string, argsEscaped bool, w
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "module",
+					Name: "sampleName",
 					In:   "query",
-				}: params.Module,
+				}: params.SampleName,
 			},
 			Raw: r,
 		}
@@ -288,6 +288,10 @@ func (s *Server) handleFlowchartGetRequest(args [0]string, argsEscaped bool, w h
 					Name: "sampleName",
 					In:   "query",
 				}: params.SampleName,
+				{
+					Name: "edit",
+					In:   "query",
+				}: params.Edit,
 			},
 			Raw: r,
 		}
@@ -567,6 +571,10 @@ func (s *Server) handleVarTracePostRequest(args [0]string, argsEscaped bool, w h
 					Name: "input",
 					In:   "query",
 				}: params.Input,
+				{
+					Name: "data",
+					In:   "query",
+				}: params.Data,
 				{
 					Name: "query",
 					In:   "query",

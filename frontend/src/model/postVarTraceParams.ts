@@ -18,7 +18,11 @@ export type PostVarTraceParams = {
 	/**
 	 * The input to policy
 	 */
-	input: string;
+	input?: string;
+	/**
+	 * The data to policy
+	 */
+	data?: string;
 	/**
 	 * The query to policy
 	 */
