@@ -19,7 +19,11 @@ async function enableMocking() {
 }
 
 enableMocking().then(() => {
-	axios.default.defaults.baseURL = "http://localhost:8080";
+	axios.default.defaults.baseURL = import.meta.env.VITE_API_URL;
+	// set auth token
+	axios.default.defaults.headers.common.Authorization = `Bearer ${
+		import.meta.env.VITE_API_TOKEN
+	}`;
 	// biome-ignore lint/style/noNonNullAssertion: This is a React thing, not a Biome thing.
 	ReactDOM.createRoot(document.getElementById("root")!).render(
 		<React.StrictMode>
