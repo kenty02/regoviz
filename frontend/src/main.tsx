@@ -1,10 +1,9 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ComponentPreviews, useInitial } from "@/dev";
+import { DevSupport } from "@react-buddy/ide-toolbox";
 import * as axios from "axios";
-import React, { Suspense } from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
-import { ErrorBoundary } from "react-error-boundary";
-import App from "./App.tsx";
-import { Fallback } from "./components/fallback.tsx";
+import { App } from "./App.tsx";
 import "./index.css";
 
 async function enableMocking() {
@@ -20,18 +19,16 @@ async function enableMocking() {
 }
 
 enableMocking().then(() => {
-	const queryClient = new QueryClient();
 	axios.default.defaults.baseURL = "http://localhost:8080";
 	// biome-ignore lint/style/noNonNullAssertion: This is a React thing, not a Biome thing.
 	ReactDOM.createRoot(document.getElementById("root")!).render(
 		<React.StrictMode>
-			<Suspense fallback={"Loading..."}>
-				<ErrorBoundary FallbackComponent={Fallback}>
-					<QueryClientProvider client={queryClient}>
-						<App />
-					</QueryClientProvider>
-				</ErrorBoundary>
-			</Suspense>
+			<DevSupport
+				ComponentPreviews={ComponentPreviews}
+				useInitialHook={useInitial}
+			>
+				<App />
+			</DevSupport>
 		</React.StrictMode>,
 	);
 });

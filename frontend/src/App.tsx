@@ -1,8 +1,26 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, Suspense, useEffect, useState } from "react";
 
+import { Fallback } from "@/components/fallback.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import {
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
+} from "@/components/ui/tabs.tsx";
+import { Textarea } from "@/components/ui/textarea.tsx";
 import ReactJson from "@microlink/react-json-view";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { atom, useAtom, useAtomValue } from "jotai";
-import { DepGraph } from "./components/dep-graph.tsx";
+import { ErrorBoundary } from "react-error-boundary";
 import {
 	useGetAstSuspense,
 	useGetDepTreeTextSuspense,
@@ -25,6 +43,12 @@ function SampleFileViewer() {
 	const { data } = useGetSamplesSuspense();
 	const files = data.data;
 	const [selectedSample, setSelectedSample] = useAtom(selectedSampleAtom);
+	useEffect(() => {
+		// auto select first sample
+		if (selectedSample == null && files.length > 0) {
+			setSelectedSample(files[0]);
+		}
+	});
 	const onSampleClick = (file: Sample) => {
 		setSelectedSample(file);
 	};
@@ -49,7 +73,12 @@ function SampleFileViewer() {
 			{selectedSample && (
 				<>
 					<div>サンプルファイルの内容</div>
-					<div className={"outline whitespace-pre-wrap"}>
+					<div
+						className={
+							"font-mono whitespace-pre-wrap bg-gray-100 p-2 w-full h-96 overflow-auto" +
+							" border-2 border-gray-300 rounded-md outline-none"
+						}
+					>
 						{selectedSample.content}
 					</div>
 				</>
@@ -72,14 +101,7 @@ function AstViewer() {
 
 	return (
 		<>
-			<Heading>AST</Heading>
-			<button
-				type={"button"}
-				className={"btn btn-primary"}
-				onClick={onCopyClick}
-			>
-				Copy
-			</button>
+			<Button onClick={onCopyClick}>Copy</Button>
 			<ReactJson src={ast} theme={"monokai"} />
 		</>
 	);
@@ -90,51 +112,51 @@ function VarTraceViewer() {
 		throw new Error("selectedSample is null");
 	}
 	const [input, setInput] = useState("");
+	const [data, setData] = useState("");
 	const [query, setQuery] = useState("");
-	const [commands, setCommands] = useState("");
+	const [commands, setCommands] = useState(`# ここにコマンドを入力してください
+# 例：
+# showVars 8 role
+# fixVar 8 role "hoge"`);
 	const mutation = usePostVarTrace();
 	const onExecuteClick = () => {
 		void mutation.mutateAsync({
 			params: {
 				sampleName: selectedSample.file_name,
 				commands,
-				input,
+				input: input.length > 0 ? input : undefined,
+				data: data.length > 0 ? data : undefined,
 				query,
 			},
 		});
 	};
 	return (
 		<>
-			<Heading>変数トレース</Heading>
 			<div className={"whitespace-pre-wrap"}>
 				{mutation.data?.data.result ?? "Press Execute to get output"}
 			</div>
 
-			<label>Input</label>
-			<input
-				type={"text"}
+			<Textarea
+				placeholder={"Input"}
 				value={input}
 				onChange={(e) => setInput(e.target.value)}
 			/>
-			<label>Query</label>
-			<input
-				type={"text"}
+			<Textarea
+				placeholder={"Data"}
+				value={data}
+				onChange={(e) => setData(e.target.value)}
+			/>
+			<Input
+				placeholder={"Query"}
 				value={query}
 				onChange={(e) => setQuery(e.target.value)}
 			/>
-			<label>Commands</label>
-			<input
-				type={"text"}
+			<Textarea
+				placeholder={"Commands"}
 				value={commands}
 				onChange={(e) => setCommands(e.target.value)}
 			/>
-			<button
-				type="button"
-				className={"btn btn-primary"}
-				onClick={onExecuteClick}
-			>
-				Execute
-			</button>
+			<Button onClick={onExecuteClick}>Execute</Button>
 		</>
 	);
 }
@@ -144,13 +166,20 @@ function DepTreeViewer() {
 		throw new Error("selectedSample is null");
 	}
 	const { data: depTreeData } = useGetDepTreeTextSuspense({
-		module: selectedSample.content,
+		sampleName: selectedSample.file_name,
 	});
 
 	return (
 		<>
-			<Heading>依存関係木</Heading>
-			<div className={"whitespace-pre-wrap"}>{depTreeData.data.result}</div>
+			<div
+				className={
+					"font-mono whitespace-pre-wrap" +
+					" bg-gray-100 p-2 w-full" +
+					" overflow-auto border-2 border-gray-300 rounded-md outline-none"
+				}
+			>
+				{depTreeData.data.result}
+			</div>
 		</>
 	);
 }
@@ -164,31 +193,104 @@ function FlowchartViewer() {
 	});
 	return (
 		<>
-			<Heading>フローチャート</Heading>
-			<a href={data.data.result} target={"_blank"} rel={"noreferrer"}>
-				{data.data.result}
-			</a>
+			<Button className={"bg-pink-400"} asChild>
+				<a href={data.data.result} target={"_blank"} rel={"noreferrer"}>
+					Open
+				</a>
+			</Button>
+			<iframe
+				className={"w-full h-1/2"}
+				src={data.data.result}
+				title={"flowchart"}
+			/>
 		</>
 	);
 }
-function App() {
+
+export function App() {
+	const queryClient = new QueryClient();
+	return (
+		<Suspense fallback={"Loading..."}>
+			<ErrorBoundary FallbackComponent={Fallback}>
+				<QueryClientProvider client={queryClient}>
+					<AppInner />
+				</QueryClientProvider>
+			</ErrorBoundary>
+		</Suspense>
+	);
+}
+
+function AppInner() {
 	const selectedSample = useAtomValue(selectedSampleAtom);
 	const isSampleSelected = !!selectedSample;
 
 	return (
 		<>
-			<SampleFileViewer />
+			<div className={"my-6"}>
+				<SampleFileViewer />
+			</div>
 			{isSampleSelected && (
 				<>
-					<VarTraceViewer />
-					<DepTreeViewer />
-					<FlowchartViewer />
-					<AstViewer />
+					<Tabs defaultValue="varTrace" className="w-screen mx-4">
+						<TabsList className="grid w-full grid-cols-4">
+							<TabsTrigger value={"varTrace"}>変数トレース</TabsTrigger>
+							<TabsTrigger value={"depTree"}>依存関係木</TabsTrigger>
+							<TabsTrigger value={"flowchart"}>フローチャート</TabsTrigger>
+							<TabsTrigger value={"ast"}>AST</TabsTrigger>
+						</TabsList>
+						<TabsContent value={"varTrace"}>
+							<Card>
+								<CardHeader>
+									<CardTitle>変数トレース</CardTitle>
+									<CardDescription>
+										特定の変数の値を表示・固定できます
+									</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<VarTraceViewer />
+								</CardContent>
+							</Card>
+						</TabsContent>
+						<TabsContent value={"depTree"}>
+							<Card>
+								<CardHeader>
+									<CardTitle>依存関係木</CardTitle>
+									<CardDescription>
+										変数の依存関係を木構造で表示します
+									</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<DepTreeViewer />
+								</CardContent>
+							</Card>
+						</TabsContent>
+						<TabsContent value={"flowchart"}>
+							<Card>
+								<CardHeader>
+									<CardTitle>フローチャート</CardTitle>
+									<CardDescription>
+										変数の依存関係をフローチャートで表示します
+									</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<FlowchartViewer />
+								</CardContent>
+							</Card>
+						</TabsContent>
+						<TabsContent value={"ast"}>
+							<Card>
+								<CardHeader>
+									<CardTitle>AST</CardTitle>
+									<CardDescription>抽象構文木を表示します</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<AstViewer />
+								</CardContent>
+							</Card>
+						</TabsContent>
+					</Tabs>
 				</>
 			)}
-
-			<Heading>DepGraph Frontend Example</Heading>
-			<DepGraph />
 		</>
 	);
 }
