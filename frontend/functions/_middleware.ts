@@ -1,6 +1,6 @@
 import { CFP_ALLOWED_PATHS } from "./constants";
-import { getCookieKeyValue } from "./utils";
 import { getTemplate } from "./template";
+import { getCookieKeyValue } from "./utils";
 
 export async function onRequest(context: {
 	request: Request;
