@@ -10,6 +10,6 @@
 		}
 	},
 	"files": {
-		"ignore": ["public/mockServiceWorker.js", "dist/**/*"]
+		"ignore": ["public/mockServiceWorker.js", "dist/**/*", ".wrangler/**/*"]
 	}
 }
