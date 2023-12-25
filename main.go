@@ -32,9 +32,6 @@ func authHandler(h http.Handler) http.Handler {
 }
 func main() {
 	err := godotenv.Load(".env.local")
-	if err != nil {
-		log.Fatal("Error loading .env.local file")
-	}
 	// Create service instance.
 	service := NewService()
 	// Create generated server.
