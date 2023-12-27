@@ -14,6 +14,9 @@ export const getGetSamplesMock = () =>
 		(_, i) => i + 1,
 	).map(() => ({
 		content: faker.word.sample(),
+		default_data: { default: faker.word.sample() },
+		default_inputs: { default: faker.word.sample() },
+		default_queries: { default: faker.word.sample() },
 		file_name: faker.word.sample(),
 	}));
 

@@ -20,3 +20,6 @@ export * from "./postVarTrace200";
 export * from "./postVarTraceParams";
 export * from "./rule";
 export * from "./sample";
+export * from "./sampleDefaultData";
+export * from "./sampleDefaultInputs";
+export * from "./sampleDefaultQueries";

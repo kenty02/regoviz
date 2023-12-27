@@ -17,7 +17,7 @@ type vizRegoService struct {
 }
 
 func (p *vizRegoService) FlowchartGet(ctx context.Context, params vizrego.FlowchartGetParams) (*vizrego.FlowchartGetOK, error) {
-	sample, err := readSample(params.SampleName)
+	sample, err := readSample(params.SampleName, "samples")
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (p *vizRegoService) VarTracePost(_ context.Context, params vizrego.VarTrace
 		}
 	}
 
-	sample, err := readSample(params.SampleName)
+	sample, err := readSample(params.SampleName, "samples")
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +208,7 @@ func (p *vizRegoService) DepTreeTextGet(ctx context.Context, params vizrego.DepT
 	//resultString := sb.String()
 	//return &vizrego.DepTreeTextGetOK{Result: resultString}, nil
 
-	sample, err := readSample(params.SampleName)
+	sample, err := readSample(params.SampleName, "samples")
 	if err != nil {
 		return nil, err
 	}

@@ -5,10 +5,19 @@
  * api for regoviz
  * OpenAPI spec version: 1.0.0
  */
+import type { SampleDefaultData } from "./sampleDefaultData";
+import type { SampleDefaultInputs } from "./sampleDefaultInputs";
+import type { SampleDefaultQueries } from "./sampleDefaultQueries";
 
 export interface Sample {
 	/** The content of the sample file. */
 	content: string;
+	/** List of default data for the sample. */
+	default_data: SampleDefaultData;
+	/** List of default inputs for the sample. */
+	default_inputs: SampleDefaultInputs;
+	/** List of default queries for the sample. */
+	default_queries: SampleDefaultQueries;
 	/** The name of the sample file. */
 	file_name: string;
 }

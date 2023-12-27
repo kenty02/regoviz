@@ -197,6 +197,12 @@ type Sample struct {
 	FileName string `json:"file_name"`
 	// The content of the sample file.
 	Content string `json:"content"`
+	// List of default inputs for the sample.
+	DefaultInputs SampleDefaultInputs `json:"default_inputs"`
+	// List of default data for the sample.
+	DefaultData SampleDefaultData `json:"default_data"`
+	// List of default queries for the sample.
+	DefaultQueries SampleDefaultQueries `json:"default_queries"`
 }
 
 // GetFileName returns the value of FileName.
@@ -209,6 +215,21 @@ func (s *Sample) GetContent() string {
 	return s.Content
 }
 
+// GetDefaultInputs returns the value of DefaultInputs.
+func (s *Sample) GetDefaultInputs() SampleDefaultInputs {
+	return s.DefaultInputs
+}
+
+// GetDefaultData returns the value of DefaultData.
+func (s *Sample) GetDefaultData() SampleDefaultData {
+	return s.DefaultData
+}
+
+// GetDefaultQueries returns the value of DefaultQueries.
+func (s *Sample) GetDefaultQueries() SampleDefaultQueries {
+	return s.DefaultQueries
+}
+
 // SetFileName sets the value of FileName.
 func (s *Sample) SetFileName(val string) {
 	s.FileName = val
@@ -217,6 +238,132 @@ func (s *Sample) SetFileName(val string) {
 // SetContent sets the value of Content.
 func (s *Sample) SetContent(val string) {
 	s.Content = val
+}
+
+// SetDefaultInputs sets the value of DefaultInputs.
+func (s *Sample) SetDefaultInputs(val SampleDefaultInputs) {
+	s.DefaultInputs = val
+}
+
+// SetDefaultData sets the value of DefaultData.
+func (s *Sample) SetDefaultData(val SampleDefaultData) {
+	s.DefaultData = val
+}
+
+// SetDefaultQueries sets the value of DefaultQueries.
+func (s *Sample) SetDefaultQueries(val SampleDefaultQueries) {
+	s.DefaultQueries = val
+}
+
+// List of default data for the sample.
+type SampleDefaultData struct {
+	Default         string `json:"default"`
+	AdditionalProps SampleDefaultDataAdditional
+}
+
+// GetDefault returns the value of Default.
+func (s *SampleDefaultData) GetDefault() string {
+	return s.Default
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *SampleDefaultData) GetAdditionalProps() SampleDefaultDataAdditional {
+	return s.AdditionalProps
+}
+
+// SetDefault sets the value of Default.
+func (s *SampleDefaultData) SetDefault(val string) {
+	s.Default = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *SampleDefaultData) SetAdditionalProps(val SampleDefaultDataAdditional) {
+	s.AdditionalProps = val
+}
+
+type SampleDefaultDataAdditional map[string]string
+
+func (s *SampleDefaultDataAdditional) init() SampleDefaultDataAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]string{}
+		*s = m
+	}
+	return m
+}
+
+// List of default inputs for the sample.
+type SampleDefaultInputs struct {
+	Default         string `json:"default"`
+	AdditionalProps SampleDefaultInputsAdditional
+}
+
+// GetDefault returns the value of Default.
+func (s *SampleDefaultInputs) GetDefault() string {
+	return s.Default
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *SampleDefaultInputs) GetAdditionalProps() SampleDefaultInputsAdditional {
+	return s.AdditionalProps
+}
+
+// SetDefault sets the value of Default.
+func (s *SampleDefaultInputs) SetDefault(val string) {
+	s.Default = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *SampleDefaultInputs) SetAdditionalProps(val SampleDefaultInputsAdditional) {
+	s.AdditionalProps = val
+}
+
+type SampleDefaultInputsAdditional map[string]string
+
+func (s *SampleDefaultInputsAdditional) init() SampleDefaultInputsAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]string{}
+		*s = m
+	}
+	return m
+}
+
+// List of default queries for the sample.
+type SampleDefaultQueries struct {
+	Default         string `json:"default"`
+	AdditionalProps SampleDefaultQueriesAdditional
+}
+
+// GetDefault returns the value of Default.
+func (s *SampleDefaultQueries) GetDefault() string {
+	return s.Default
+}
+
+// GetAdditionalProps returns the value of AdditionalProps.
+func (s *SampleDefaultQueries) GetAdditionalProps() SampleDefaultQueriesAdditional {
+	return s.AdditionalProps
+}
+
+// SetDefault sets the value of Default.
+func (s *SampleDefaultQueries) SetDefault(val string) {
+	s.Default = val
+}
+
+// SetAdditionalProps sets the value of AdditionalProps.
+func (s *SampleDefaultQueries) SetAdditionalProps(val SampleDefaultQueriesAdditional) {
+	s.AdditionalProps = val
+}
+
+type SampleDefaultQueriesAdditional map[string]string
+
+func (s *SampleDefaultQueriesAdditional) init() SampleDefaultQueriesAdditional {
+	m := *s
+	if m == nil {
+		m = map[string]string{}
+		*s = m
+	}
+	return m
 }
 
 type VarTracePostOK struct {
