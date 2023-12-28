@@ -10,12 +10,12 @@ import (
 	"log"
 	"net/http"
 	"os"
-	vizrego "vizrego-poc/vizrego"
+	"regoviz/api"
 )
 
 type SecurityHandler struct{}
 
-func (s SecurityHandler) HandleBearerAuth(ctx context.Context, operationName string, t vizrego.BearerAuth) (context.Context, error) {
+func (s SecurityHandler) HandleBearerAuth(ctx context.Context, _ string, t api.BearerAuth) (context.Context, error) {
 	// get token from env
 	token := os.Getenv("TOKEN")
 	if token == "" {
@@ -48,8 +48,8 @@ func main() {
 	// Create service instance.
 	service := NewService()
 
-	var securityHandler vizrego.SecurityHandler = SecurityHandler{}
-	srv, err := vizrego.NewServer(service, securityHandler)
+	var securityHandler api.SecurityHandler = SecurityHandler{}
+	srv, err := api.NewServer(service, securityHandler)
 	if err != nil {
 		log.Fatal(err)
 	}

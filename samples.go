@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	api "regoviz/api"
 	"strings"
-	api "vizrego-poc/vizrego"
 )
 
 func processFile(ext string, dataMap *map[string]map[string]string, path string) error {

@@ -1,11 +1,11 @@
 import { ComponentPreviews, useInitial } from "@/dev";
 import { DevSupport } from "@react-buddy/ide-toolbox";
+import * as Sentry from "@sentry/react";
 import * as axios from "axios";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App.tsx";
 import "./index.css";
-import * as Sentry from "@sentry/react";
 
 Sentry.init({
 	dsn: "https://beca4591b31766452455fcee833cd232@o4504839999848448.ingest.sentry.io/4506472334426112",

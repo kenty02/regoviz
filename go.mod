@@ -1,11 +1,13 @@
-module vizrego-poc
+module regoviz
 
 go 1.21
 
 require (
 	github.com/deckarep/golang-set/v2 v2.5.0
+	github.com/getsentry/sentry-go v0.25.0
 	github.com/go-faster/errors v0.7.0
 	github.com/go-faster/jx v1.1.0
+	github.com/joho/godotenv v1.5.1
 	github.com/ogen-go/ogen v0.79.1
 	github.com/open-policy-agent/opa v0.59.0
 	github.com/rs/cors v1.10.1
@@ -22,7 +24,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/fatih/color v1.16.0 // indirect
-	github.com/getsentry/sentry-go v0.25.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-faster/yaml v0.4.6 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
@@ -32,7 +33,6 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.4.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect

@@ -5,18 +5,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"regoviz/api"
 	"strconv"
 	"strings"
 	"sync"
-	vizrego "vizrego-poc/vizrego"
 )
 
-type vizRegoService struct {
+type regovizService struct {
 	id  int64
 	mux sync.Mutex
 }
 
-func (p *vizRegoService) FlowchartGet(ctx context.Context, params vizrego.FlowchartGetParams) (*vizrego.FlowchartGetOK, error) {
+func (p *regovizService) FlowchartGet(ctx context.Context, params api.FlowchartGetParams) (*api.FlowchartGetOK, error) {
 	sample, err := readSample(params.SampleName, "samples")
 	if err != nil {
 		return nil, err
@@ -33,10 +33,10 @@ func (p *vizRegoService) FlowchartGet(ctx context.Context, params vizrego.Flowch
 	}
 
 	// return modJson
-	return &vizrego.FlowchartGetOK{Result: url}, nil
+	return &api.FlowchartGetOK{Result: url}, nil
 }
 
-func (p *vizRegoService) VarTracePost(_ context.Context, params vizrego.VarTracePostParams) (*vizrego.VarTracePostOK, error) {
+func (p *regovizService) VarTracePost(_ context.Context, params api.VarTracePostParams) (*api.VarTracePostOK, error) {
 	// convert params.Input  to map[string]interface{}
 	var input map[string]interface{}
 	if inputParam, ok := params.Input.Get(); ok {
@@ -104,20 +104,20 @@ func (p *vizRegoService) VarTracePost(_ context.Context, params vizrego.VarTrace
 	if err != nil {
 		return nil, err
 	}
-	return &vizrego.VarTracePostOK{Result: result}, nil
+	return &api.VarTracePostOK{Result: result}, nil
 }
 
-func NewService() vizrego.Handler {
-	return &vizRegoService{}
+func NewService() api.Handler {
+	return &regovizService{}
 }
 
-func (p *vizRegoService) SamplesGet(_ context.Context) ([]vizrego.Sample, error) {
+func (p *regovizService) SamplesGet(_ context.Context) ([]api.Sample, error) {
 	// find .rego files in samples directory and return them
 	files, err := os.ReadDir("samples")
 	if err != nil {
 		return nil, err
 	}
-	var samples []vizrego.Sample
+	var samples []api.Sample
 	for _, file := range files {
 		if strings.HasSuffix(file.Name(), ".rego") {
 			// read content
@@ -125,7 +125,7 @@ func (p *vizRegoService) SamplesGet(_ context.Context) ([]vizrego.Sample, error)
 			if err != nil {
 				return nil, err
 			}
-			samples = append(samples, vizrego.Sample{
+			samples = append(samples, api.Sample{
 				FileName: file.Name(),
 				Content:  string(content),
 			})
@@ -134,12 +134,12 @@ func (p *vizRegoService) SamplesGet(_ context.Context) ([]vizrego.Sample, error)
 	return samples, nil
 }
 
-func (p *vizRegoService) RulesGet(_ context.Context) ([]vizrego.Rule, error) {
+func (p *regovizService) RulesGet(_ context.Context) ([]api.Rule, error) {
 	// not implemented
 	return nil, error(nil)
 }
 
-func (p *vizRegoService) AstGet(_ context.Context, params vizrego.AstGetParams) (*vizrego.AstGetOK, error) {
+func (p *regovizService) AstGet(_ context.Context, params api.AstGetParams) (*api.AstGetOK, error) {
 	// compile module
 	mod, err := compileRego(params.Module)
 
@@ -155,10 +155,10 @@ func (p *vizRegoService) AstGet(_ context.Context, params vizrego.AstGetParams) 
 	}
 
 	// return modJson
-	return &vizrego.AstGetOK{Result: string([]byte(modJson))}, nil
+	return &api.AstGetOK{Result: string([]byte(modJson))}, nil
 }
 
-func (p *vizRegoService) DepTreeTextGet(ctx context.Context, params vizrego.DepTreeTextGetParams) (*vizrego.DepTreeTextGetOK, error) {
+func (p *regovizService) DepTreeTextGet(ctx context.Context, params api.DepTreeTextGetParams) (*api.DepTreeTextGetOK, error) {
 	//// compile module
 	//mod, err := compileRego(params.Module)
 	//
@@ -206,7 +206,7 @@ func (p *vizRegoService) DepTreeTextGet(ctx context.Context, params vizrego.DepT
 	//}
 	//
 	//resultString := sb.String()
-	//return &vizrego.DepTreeTextGetOK{Result: resultString}, nil
+	//return &api.DepTreeTextGetOK{Result: resultString}, nil
 
 	sample, err := readSample(params.SampleName, "samples")
 	if err != nil {
@@ -218,5 +218,5 @@ func (p *vizRegoService) DepTreeTextGet(ctx context.Context, params vizrego.DepT
 		return nil, err
 	}
 	treeMap := getDepTreePretty(plan)
-	return &vizrego.DepTreeTextGetOK{Result: treeMap}, nil
+	return &api.DepTreeTextGetOK{Result: treeMap}, nil
 }

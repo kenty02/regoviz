@@ -1,4 +1,4 @@
-# vizrego
+# regoviz
 
 ## Getting Started
 
