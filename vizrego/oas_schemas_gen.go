@@ -17,6 +17,20 @@ func (s *AstGetOK) SetResult(val string) {
 	s.Result = val
 }
 
+type BearerAuth struct {
+	Token string
+}
+
+// GetToken returns the value of Token.
+func (s *BearerAuth) GetToken() string {
+	return s.Token
+}
+
+// SetToken sets the value of Token.
+func (s *BearerAuth) SetToken(val string) {
+	s.Token = val
+}
+
 type DepTreeTextGetOK struct {
 	// The generated dependency tree.
 	Result string `json:"result"`

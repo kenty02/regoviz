@@ -208,3 +208,9 @@ components:
             additionalProperties:
               type: string
         required: [file_name, content, default_inputs, default_data, default_queries]
+  securitySchemes:
+    bearerAuth: # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+security:
+  - bearerAuth: []

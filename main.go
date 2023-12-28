@@ -1,6 +1,10 @@
 package main
 
 import (
+	"context"
+	"fmt"
+	"github.com/getsentry/sentry-go"
+	sentryhttp "github.com/getsentry/sentry-go/http"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 	"log"
@@ -9,37 +13,47 @@ import (
 	vizrego "vizrego-poc/vizrego"
 )
 
-func authHandler(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		auth := r.Header.Get("Authorization")
-		// get token from env
-		token := os.Getenv("TOKEN")
-		if token == "" {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte("500 Internal Server Error\n"))
-			return
-		}
+type SecurityHandler struct{}
 
-		if auth == "Bearer "+token {
-			// 200
-			h.ServeHTTP(w, r)
-		} else {
-			// 403
-			w.WriteHeader(http.StatusForbidden)
-			_, _ = w.Write([]byte("403 Forbidden\n"))
-		}
-	})
+func (s SecurityHandler) HandleBearerAuth(ctx context.Context, operationName string, t vizrego.BearerAuth) (context.Context, error) {
+	// get token from env
+	token := os.Getenv("TOKEN")
+	if token == "" {
+		return ctx, fmt.Errorf("token is empty")
+	}
+
+	if t.GetToken() == token {
+		return ctx, nil
+	} else {
+		return ctx, fmt.Errorf("invalid token")
+	}
 }
+
 func main() {
 	err := godotenv.Load(".env.local")
+
+	// To initialize Sentry's handler, you need to initialize Sentry itself beforehand
+	if err := sentry.Init(sentry.ClientOptions{
+		Dsn:           "https://b2d9c7ea4a09baf4e3ad530d14d2ab1e@o4504839999848448.ingest.sentry.io/4506472246345728",
+		EnableTracing: true,
+		// Set TracesSampleRate to 1.0 to capture 100%
+		// of transactions for performance monitoring.
+		// We recommend adjusting this value in production,
+		TracesSampleRate: 1.0,
+	}); err != nil {
+		fmt.Printf("Sentry initialization failed: %v", err)
+	} // Create an instance of sentryhttp
+	sentryHandler := sentryhttp.New(sentryhttp.Options{})
+
 	// Create service instance.
 	service := NewService()
-	// Create generated server.
-	srv, err := vizrego.NewServer(service)
+
+	var securityHandler vizrego.SecurityHandler = SecurityHandler{}
+	srv, err := vizrego.NewServer(service, securityHandler)
 	if err != nil {
 		log.Fatal(err)
 	}
-	handler := authHandler(srv)
+	var handler http.Handler = srv
 
 	var allowedOrigins []string
 	allowedOrigins = append(allowedOrigins, os.Getenv("FRONTEND_URL"))
@@ -57,8 +71,10 @@ func main() {
 			"*",
 		},
 	})
-	handler = c.Handler(handler)
+	handler = c.Handler(srv)
 
+	handler = sentryHandler.Handle(handler)
+	fmt.Println("Server is running on port 8080")
 	if err := http.ListenAndServe(":8080", handler); err != nil {
 		log.Fatal(err)
 	}
