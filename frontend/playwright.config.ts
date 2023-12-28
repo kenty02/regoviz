@@ -76,7 +76,7 @@ export default defineConfig({
 			reuseExistingServer: !process.env.CI,
 		},
 		{
-			command: "air",
+			command: "go run .",
 			cwd: "..",
 			port: 8080,
 			reuseExistingServer: !process.env.CI,
