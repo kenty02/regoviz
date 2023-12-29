@@ -10,11 +10,11 @@
     "lint": "npx @biomejs/biome lint .",
     "format": "npx @biomejs/biome format .",
     "check": "npx @biomejs/biome check .",
+    "check:specify": "npx @biomejs/biome check",
     "check:apply": "npx @biomejs/biome check --apply .",
     "check:apply-unsafe": "npx @biomejs/biome check --apply-unsafe .",
     "preview": "vite preview",
-    "generate": "orval",
-    "prepare": "cd .. && husky install frontend/.husky"
+    "generate": "orval"
   },
   "dependencies": {
     "@microlink/react-json-view": "^1.23.0",
@@ -49,7 +49,6 @@
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.16",
     "cross-env": "^7.0.3",
-    "husky": "^8.0.0",
     "msw": "^2.0.11",
     "orval": "^6.23.0",
     "postcss": "^8.4.32",

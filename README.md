@@ -11,9 +11,8 @@
 
 ### Development
 
-1. `cp .env.local.example .env.local`
-2. `cd frontend && cp .env.local.example .env.local && cp .env.local.example .dev.vars`
-3. `npm install`
-4. Run Configurations
+1. Run `./setup.sh` (`./setup.bat` on Windows)
+   1. Run this again if you have problems after `git pull`
+2. Run Configurations
 
 If you edit openapi.yml, you need to run `go generate` and it will generate both frontend and backend code.

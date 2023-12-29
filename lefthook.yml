@@ -1,0 +1,5 @@
+pre-commit:
+  commands:
+    frontend-check:
+      root: frontend
+      run: npm run check:specify {staged_files}
