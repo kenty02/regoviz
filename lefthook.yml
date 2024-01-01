@@ -1,5 +1,9 @@
 pre-commit:
+  parallel: true
   commands:
     frontend-check:
       root: frontend
       run: npm run check:specify {staged_files}
+    backend-format:
+      glob: '**/*.go'
+      run: go fmt {staged_files}
