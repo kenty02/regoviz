@@ -18,7 +18,8 @@ export default defineConfig({
 			},
 		},
 		hooks: {
-			afterAllFilesWrite: "npx @biomejs/biome check --apply-unsafe ./src",
+			// generated file paths are prefixed with this
+			afterAllFilesWrite: "npx @biomejs/biome check --apply-unsafe",
 		},
 	},
 });

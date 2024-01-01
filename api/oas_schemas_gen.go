@@ -244,7 +244,6 @@ type RuleChild struct {
 	Name       string          `json:"name"`
 	UID        string          `json:"uid"`
 	Type       RuleChildType   `json:"type"`
-	Parent     RuleParent      `json:"parent"`
 	Value      string          `json:"value"`
 	Statements []RuleStatement `json:"statements"`
 }
@@ -262,11 +261,6 @@ func (s *RuleChild) GetUID() string {
 // GetType returns the value of Type.
 func (s *RuleChild) GetType() RuleChildType {
 	return s.Type
-}
-
-// GetParent returns the value of Parent.
-func (s *RuleChild) GetParent() RuleParent {
-	return s.Parent
 }
 
 // GetValue returns the value of Value.
@@ -294,11 +288,6 @@ func (s *RuleChild) SetType(val RuleChildType) {
 	s.Type = val
 }
 
-// SetParent sets the value of Parent.
-func (s *RuleChild) SetParent(val RuleParent) {
-	s.Parent = val
-}
-
 // SetValue sets the value of Value.
 func (s *RuleChild) SetValue(val string) {
 	s.Value = val
@@ -315,8 +304,6 @@ type RuleChildElse struct {
 	Name     string            `json:"name"`
 	UID      string            `json:"uid"`
 	Type     RuleChildElseType `json:"type"`
-	Else     bool              `json:"else"`
-	Parent   RuleParent        `json:"parent"`
 	Children []RuleChild       `json:"children"`
 }
 
@@ -333,16 +320,6 @@ func (s *RuleChildElse) GetUID() string {
 // GetType returns the value of Type.
 func (s *RuleChildElse) GetType() RuleChildElseType {
 	return s.Type
-}
-
-// GetElse returns the value of Else.
-func (s *RuleChildElse) GetElse() bool {
-	return s.Else
-}
-
-// GetParent returns the value of Parent.
-func (s *RuleChildElse) GetParent() RuleParent {
-	return s.Parent
 }
 
 // GetChildren returns the value of Children.
@@ -365,16 +342,6 @@ func (s *RuleChildElse) SetType(val RuleChildElseType) {
 	s.Type = val
 }
 
-// SetElse sets the value of Else.
-func (s *RuleChildElse) SetElse(val bool) {
-	s.Else = val
-}
-
-// SetParent sets the value of Parent.
-func (s *RuleChildElse) SetParent(val RuleParent) {
-	s.Parent = val
-}
-
 // SetChildren sets the value of Children.
 func (s *RuleChildElse) SetChildren(val []RuleChild) {
 	s.Children = val
@@ -383,20 +350,20 @@ func (s *RuleChildElse) SetChildren(val []RuleChild) {
 type RuleChildElseType string
 
 const (
-	RuleChildElseTypeChild RuleChildElseType = "child"
+	RuleChildElseTypeChildElse RuleChildElseType = "child-else"
 )
 
 // AllValues returns all RuleChildElseType values.
 func (RuleChildElseType) AllValues() []RuleChildElseType {
 	return []RuleChildElseType{
-		RuleChildElseTypeChild,
+		RuleChildElseTypeChildElse,
 	}
 }
 
 // MarshalText implements encoding.TextMarshaler.
 func (s RuleChildElseType) MarshalText() ([]byte, error) {
 	switch s {
-	case RuleChildElseTypeChild:
+	case RuleChildElseTypeChildElse:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -406,8 +373,8 @@ func (s RuleChildElseType) MarshalText() ([]byte, error) {
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (s *RuleChildElseType) UnmarshalText(data []byte) error {
 	switch RuleChildElseType(data) {
-	case RuleChildElseTypeChild:
-		*s = RuleChildElseTypeChild
+	case RuleChildElseTypeChildElse:
+		*s = RuleChildElseTypeChildElse
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)

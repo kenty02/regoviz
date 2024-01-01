@@ -11,5 +11,5 @@ export type RuleChildElseAllOfType =
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const RuleChildElseAllOfType = {
-	child: "child",
+	"child-else": "child-else",
 } as const;

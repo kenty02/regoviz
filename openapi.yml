@@ -291,8 +291,6 @@ components:
             type:
               type: string
               enum: [ 'child' ]
-            parent:
-              $ref: '#/components/schemas/RuleParent'
             value:
               type: string
             statements:
@@ -308,16 +306,12 @@ components:
           properties:
             type:
               type: string
-              enum: [ 'child' ]
-            else:
-              type: boolean
-            parent:
-              $ref: '#/components/schemas/RuleParent'
+              enum: [ 'child-else' ]
             children:
               type: array
               items:
                 $ref: '#/components/schemas/RuleChild'
-          required: [ type, else, parent, children ]
+          required: [ type, parent, children ]
 
     RuleStatement:
       allOf:

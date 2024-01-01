@@ -74,17 +74,6 @@ func (s *RuleChild) Validate() error {
 		})
 	}
 	if err := func() error {
-		if err := s.Parent.Validate(); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "parent",
-			Error: err,
-		})
-	}
-	if err := func() error {
 		if s.Statements == nil {
 			return errors.New("nil is invalid value")
 		}
@@ -136,17 +125,6 @@ func (s *RuleChildElse) Validate() error {
 		})
 	}
 	if err := func() error {
-		if err := s.Parent.Validate(); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "parent",
-			Error: err,
-		})
-	}
-	if err := func() error {
 		if s.Children == nil {
 			return errors.New("nil is invalid value")
 		}
@@ -182,7 +160,7 @@ func (s *RuleChildElse) Validate() error {
 
 func (s RuleChildElseType) Validate() error {
 	switch s {
-	case "child":
+	case "child-else":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)

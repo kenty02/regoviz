@@ -22,11 +22,42 @@ func (p *regovizService) CallTreeGet(ctx context.Context, params api.CallTreeGet
 	// todo
 	stub := api.CallTreeGetOK{
 		Entrypoint: api.RuleParent{
-			Name:     "",
-			UID:      "",
-			Type:     "",
-			Default:  "",
-			Children: nil,
+			Name:    "i_am_entrypoint",
+			UID:     uid(),
+			Type:    api.RuleParentTypeParent,
+			Default: "false",
+			Children: []api.RuleParentChildrenItem{{
+				Type: api.RuleChildRuleParentChildrenItem,
+				RuleChild: api.RuleChild{
+					Name:  "i_am_entrypoint_1",
+					UID:   uid(),
+					Type:  api.RuleChildTypeChild,
+					Value: "",
+					Statements: []api.RuleStatement{
+						{
+							Name: "foo == data.foo",
+							UID:  uid(),
+							Dependencies: []api.RuleStatementDependenciesItem{
+								{
+									Type: api.RuleParentRuleStatementDependenciesItem,
+									RuleParent: api.RuleParent{
+										Name:     "foo",
+										UID:      uid(),
+										Type:     api.RuleParentTypeParent,
+										Default:  "false",
+										Children: nil,
+									},
+								},
+								{
+									Type:   api.StringRuleStatementDependenciesItem,
+									String: "data.foo",
+								},
+							},
+						},
+					},
+				},
+			},
+			},
 		},
 	}
 	return &stub, nil

@@ -671,10 +671,6 @@ func (s *RuleChild) encodeFields(e *jx.Encoder) {
 		s.Type.Encode(e)
 	}
 	{
-		e.FieldStart("parent")
-		s.Parent.Encode(e)
-	}
-	{
 		e.FieldStart("value")
 		e.Str(s.Value)
 	}
@@ -688,13 +684,12 @@ func (s *RuleChild) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfRuleChild = [6]string{
+var jsonFieldsNameOfRuleChild = [5]string{
 	0: "name",
 	1: "uid",
 	2: "type",
-	3: "parent",
-	4: "value",
-	5: "statements",
+	3: "value",
+	4: "statements",
 }
 
 // Decode decodes RuleChild from json.
@@ -740,18 +735,8 @@ func (s *RuleChild) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"type\"")
 			}
-		case "parent":
-			requiredBitSet[0] |= 1 << 3
-			if err := func() error {
-				if err := s.Parent.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"parent\"")
-			}
 		case "value":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				v, err := d.Str()
 				s.Value = string(v)
@@ -763,7 +748,7 @@ func (s *RuleChild) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"value\"")
 			}
 		case "statements":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				s.Statements = make([]RuleStatement, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -790,7 +775,7 @@ func (s *RuleChild) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00111111,
+		0b00011111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -858,14 +843,6 @@ func (s *RuleChildElse) encodeFields(e *jx.Encoder) {
 		s.Type.Encode(e)
 	}
 	{
-		e.FieldStart("else")
-		e.Bool(s.Else)
-	}
-	{
-		e.FieldStart("parent")
-		s.Parent.Encode(e)
-	}
-	{
 		e.FieldStart("children")
 		e.ArrStart()
 		for _, elem := range s.Children {
@@ -875,13 +852,11 @@ func (s *RuleChildElse) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfRuleChildElse = [6]string{
+var jsonFieldsNameOfRuleChildElse = [4]string{
 	0: "name",
 	1: "uid",
 	2: "type",
-	3: "else",
-	4: "parent",
-	5: "children",
+	3: "children",
 }
 
 // Decode decodes RuleChildElse from json.
@@ -927,30 +902,8 @@ func (s *RuleChildElse) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"type\"")
 			}
-		case "else":
-			requiredBitSet[0] |= 1 << 3
-			if err := func() error {
-				v, err := d.Bool()
-				s.Else = bool(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"else\"")
-			}
-		case "parent":
-			requiredBitSet[0] |= 1 << 4
-			if err := func() error {
-				if err := s.Parent.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"parent\"")
-			}
 		case "children":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				s.Children = make([]RuleChild, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -977,7 +930,7 @@ func (s *RuleChildElse) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00111111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1039,8 +992,8 @@ func (s *RuleChildElseType) Decode(d *jx.Decoder) error {
 	}
 	// Try to use constant string.
 	switch RuleChildElseType(v) {
-	case RuleChildElseTypeChild:
-		*s = RuleChildElseTypeChild
+	case RuleChildElseTypeChildElse:
+		*s = RuleChildElseTypeChildElse
 	default:
 		*s = RuleChildElseType(v)
 	}
@@ -1314,14 +1267,6 @@ func (s *RuleParentChildrenItem) Decode(d *jx.Decoder) error {
 				s.Type = match
 			case "statements":
 				match := RuleChildRuleParentChildrenItem
-				if found && s.Type != match {
-					s.Type = ""
-					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
-				}
-				found = true
-				s.Type = match
-			case "else":
-				match := RuleChildElseRuleParentChildrenItem
 				if found && s.Type != match {
 					s.Type = ""
 					return errors.Errorf("multiple oneOf matches: (%v, %v)", s.Type, match)
