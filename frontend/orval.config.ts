@@ -8,7 +8,8 @@ export default defineConfig({
 			target: "./src/regoviz-client.ts",
 			schemas: "./src/model",
 			client: "react-query",
-			mock: true,
+			// https://github.com/anymaniax/orval/issues/1119
+			mock: false,
 			override: {
 				query: {
 					useSuspenseQuery: true,

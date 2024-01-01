@@ -18,6 +18,7 @@ type SecurityHandler struct{}
 func (s SecurityHandler) HandleBearerAuth(ctx context.Context, _ string, t api.BearerAuth) (context.Context, error) {
 	// get token from env
 	token := os.Getenv("TOKEN")
+	// still need to provide Authorization Bearer something
 	if os.Getenv("DISABLE_TOKEN_AUTH") == "true" {
 		return ctx, nil
 	}

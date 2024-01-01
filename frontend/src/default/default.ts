@@ -28,10 +28,14 @@ import * as axios from "axios";
 import type { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import type { GetAst200 } from "../model/getAst200";
 import type { GetAstParams } from "../model/getAstParams";
+import type { GetCallTree200 } from "../model/getCallTree200";
+import type { GetCallTreeParams } from "../model/getCallTreeParams";
 import type { GetDepTreeText200 } from "../model/getDepTreeText200";
 import type { GetDepTreeTextParams } from "../model/getDepTreeTextParams";
 import type { GetFlowchart200 } from "../model/getFlowchart200";
 import type { GetFlowchartParams } from "../model/getFlowchartParams";
+import type { GetIr200 } from "../model/getIr200";
+import type { GetIrParams } from "../model/getIrParams";
 import type { PostVarTrace200 } from "../model/postVarTrace200";
 import type { PostVarTraceParams } from "../model/postVarTraceParams";
 import type { Rule } from "../model/rule";
@@ -1034,6 +1038,399 @@ export const useGetAstSuspenseInfinite = <
 	},
 ): UseSuspenseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } => {
 	const queryOptions = getGetAstSuspenseInfiniteQueryOptions(params, options);
+
+	const query = useSuspenseInfiniteQuery(
+		queryOptions,
+	) as UseSuspenseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey };
+
+	query.queryKey = queryOptions.queryKey;
+
+	return query;
+};
+
+export const getIr = (
+	params: GetIrParams,
+	options?: AxiosRequestConfig,
+): Promise<AxiosResponse<GetIr200>> => {
+	return axios.default.get("/ir", {
+		...options,
+		params: { ...params, ...options?.params },
+	});
+};
+
+export const getGetIrQueryKey = (params: GetIrParams) => {
+	return ["/ir", ...(params ? [params] : [])] as const;
+};
+
+export const getGetIrQueryOptions = <
+	TData = Awaited<ReturnType<typeof getIr>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetIrParams,
+	options?: {
+		query?: Partial<
+			UseQueryOptions<Awaited<ReturnType<typeof getIr>>, TError, TData>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+) => {
+	const { query: queryOptions, axios: axiosOptions } = options ?? {};
+
+	const queryKey = queryOptions?.queryKey ?? getGetIrQueryKey(params);
+
+	const queryFn: QueryFunction<Awaited<ReturnType<typeof getIr>>> = ({
+		signal,
+	}) => getIr(params, { signal, ...axiosOptions });
+
+	return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+		Awaited<ReturnType<typeof getIr>>,
+		TError,
+		TData
+	> & { queryKey: QueryKey };
+};
+
+export type GetIrQueryResult = NonNullable<Awaited<ReturnType<typeof getIr>>>;
+export type GetIrQueryError = AxiosError<unknown>;
+
+export const useGetIr = <
+	TData = Awaited<ReturnType<typeof getIr>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetIrParams,
+	options?: {
+		query?: Partial<
+			UseQueryOptions<Awaited<ReturnType<typeof getIr>>, TError, TData>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+	const queryOptions = getGetIrQueryOptions(params, options);
+
+	const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+		queryKey: QueryKey;
+	};
+
+	query.queryKey = queryOptions.queryKey;
+
+	return query;
+};
+
+export const getGetIrSuspenseQueryOptions = <
+	TData = Awaited<ReturnType<typeof getIr>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetIrParams,
+	options?: {
+		query?: Partial<
+			UseSuspenseQueryOptions<Awaited<ReturnType<typeof getIr>>, TError, TData>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+) => {
+	const { query: queryOptions, axios: axiosOptions } = options ?? {};
+
+	const queryKey = queryOptions?.queryKey ?? getGetIrQueryKey(params);
+
+	const queryFn: QueryFunction<Awaited<ReturnType<typeof getIr>>> = ({
+		signal,
+	}) => getIr(params, { signal, ...axiosOptions });
+
+	return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+		Awaited<ReturnType<typeof getIr>>,
+		TError,
+		TData
+	> & { queryKey: QueryKey };
+};
+
+export type GetIrSuspenseQueryResult = NonNullable<
+	Awaited<ReturnType<typeof getIr>>
+>;
+export type GetIrSuspenseQueryError = AxiosError<unknown>;
+
+export const useGetIrSuspense = <
+	TData = Awaited<ReturnType<typeof getIr>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetIrParams,
+	options?: {
+		query?: Partial<
+			UseSuspenseQueryOptions<Awaited<ReturnType<typeof getIr>>, TError, TData>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+	const queryOptions = getGetIrSuspenseQueryOptions(params, options);
+
+	const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+		TData,
+		TError
+	> & { queryKey: QueryKey };
+
+	query.queryKey = queryOptions.queryKey;
+
+	return query;
+};
+
+export const getGetIrSuspenseInfiniteQueryOptions = <
+	TData = InfiniteData<Awaited<ReturnType<typeof getIr>>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetIrParams,
+	options?: {
+		query?: Partial<
+			UseSuspenseInfiniteQueryOptions<
+				Awaited<ReturnType<typeof getIr>>,
+				TError,
+				TData
+			>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+) => {
+	const { query: queryOptions, axios: axiosOptions } = options ?? {};
+
+	const queryKey = queryOptions?.queryKey ?? getGetIrQueryKey(params);
+
+	const queryFn: QueryFunction<Awaited<ReturnType<typeof getIr>>> = ({
+		signal,
+	}) => getIr(params, { signal, ...axiosOptions });
+
+	return {
+		queryKey,
+		queryFn,
+		...queryOptions,
+	} as UseSuspenseInfiniteQueryOptions<
+		Awaited<ReturnType<typeof getIr>>,
+		TError,
+		TData
+	> & { queryKey: QueryKey };
+};
+
+export type GetIrSuspenseInfiniteQueryResult = NonNullable<
+	Awaited<ReturnType<typeof getIr>>
+>;
+export type GetIrSuspenseInfiniteQueryError = AxiosError<unknown>;
+
+export const useGetIrSuspenseInfinite = <
+	TData = InfiniteData<Awaited<ReturnType<typeof getIr>>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetIrParams,
+	options?: {
+		query?: Partial<
+			UseSuspenseInfiniteQueryOptions<
+				Awaited<ReturnType<typeof getIr>>,
+				TError,
+				TData
+			>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+): UseSuspenseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } => {
+	const queryOptions = getGetIrSuspenseInfiniteQueryOptions(params, options);
+
+	const query = useSuspenseInfiniteQuery(
+		queryOptions,
+	) as UseSuspenseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey };
+
+	query.queryKey = queryOptions.queryKey;
+
+	return query;
+};
+
+export const getCallTree = (
+	params: GetCallTreeParams,
+	options?: AxiosRequestConfig,
+): Promise<AxiosResponse<GetCallTree200>> => {
+	return axios.default.get("/callTree", {
+		...options,
+		params: { ...params, ...options?.params },
+	});
+};
+
+export const getGetCallTreeQueryKey = (params: GetCallTreeParams) => {
+	return ["/callTree", ...(params ? [params] : [])] as const;
+};
+
+export const getGetCallTreeQueryOptions = <
+	TData = Awaited<ReturnType<typeof getCallTree>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetCallTreeParams,
+	options?: {
+		query?: Partial<
+			UseQueryOptions<Awaited<ReturnType<typeof getCallTree>>, TError, TData>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+) => {
+	const { query: queryOptions, axios: axiosOptions } = options ?? {};
+
+	const queryKey = queryOptions?.queryKey ?? getGetCallTreeQueryKey(params);
+
+	const queryFn: QueryFunction<Awaited<ReturnType<typeof getCallTree>>> = ({
+		signal,
+	}) => getCallTree(params, { signal, ...axiosOptions });
+
+	return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+		Awaited<ReturnType<typeof getCallTree>>,
+		TError,
+		TData
+	> & { queryKey: QueryKey };
+};
+
+export type GetCallTreeQueryResult = NonNullable<
+	Awaited<ReturnType<typeof getCallTree>>
+>;
+export type GetCallTreeQueryError = AxiosError<unknown>;
+
+export const useGetCallTree = <
+	TData = Awaited<ReturnType<typeof getCallTree>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetCallTreeParams,
+	options?: {
+		query?: Partial<
+			UseQueryOptions<Awaited<ReturnType<typeof getCallTree>>, TError, TData>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+	const queryOptions = getGetCallTreeQueryOptions(params, options);
+
+	const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+		queryKey: QueryKey;
+	};
+
+	query.queryKey = queryOptions.queryKey;
+
+	return query;
+};
+
+export const getGetCallTreeSuspenseQueryOptions = <
+	TData = Awaited<ReturnType<typeof getCallTree>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetCallTreeParams,
+	options?: {
+		query?: Partial<
+			UseSuspenseQueryOptions<
+				Awaited<ReturnType<typeof getCallTree>>,
+				TError,
+				TData
+			>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+) => {
+	const { query: queryOptions, axios: axiosOptions } = options ?? {};
+
+	const queryKey = queryOptions?.queryKey ?? getGetCallTreeQueryKey(params);
+
+	const queryFn: QueryFunction<Awaited<ReturnType<typeof getCallTree>>> = ({
+		signal,
+	}) => getCallTree(params, { signal, ...axiosOptions });
+
+	return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+		Awaited<ReturnType<typeof getCallTree>>,
+		TError,
+		TData
+	> & { queryKey: QueryKey };
+};
+
+export type GetCallTreeSuspenseQueryResult = NonNullable<
+	Awaited<ReturnType<typeof getCallTree>>
+>;
+export type GetCallTreeSuspenseQueryError = AxiosError<unknown>;
+
+export const useGetCallTreeSuspense = <
+	TData = Awaited<ReturnType<typeof getCallTree>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetCallTreeParams,
+	options?: {
+		query?: Partial<
+			UseSuspenseQueryOptions<
+				Awaited<ReturnType<typeof getCallTree>>,
+				TError,
+				TData
+			>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+	const queryOptions = getGetCallTreeSuspenseQueryOptions(params, options);
+
+	const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+		TData,
+		TError
+	> & { queryKey: QueryKey };
+
+	query.queryKey = queryOptions.queryKey;
+
+	return query;
+};
+
+export const getGetCallTreeSuspenseInfiniteQueryOptions = <
+	TData = InfiniteData<Awaited<ReturnType<typeof getCallTree>>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetCallTreeParams,
+	options?: {
+		query?: Partial<
+			UseSuspenseInfiniteQueryOptions<
+				Awaited<ReturnType<typeof getCallTree>>,
+				TError,
+				TData
+			>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+) => {
+	const { query: queryOptions, axios: axiosOptions } = options ?? {};
+
+	const queryKey = queryOptions?.queryKey ?? getGetCallTreeQueryKey(params);
+
+	const queryFn: QueryFunction<Awaited<ReturnType<typeof getCallTree>>> = ({
+		signal,
+	}) => getCallTree(params, { signal, ...axiosOptions });
+
+	return {
+		queryKey,
+		queryFn,
+		...queryOptions,
+	} as UseSuspenseInfiniteQueryOptions<
+		Awaited<ReturnType<typeof getCallTree>>,
+		TError,
+		TData
+	> & { queryKey: QueryKey };
+};
+
+export type GetCallTreeSuspenseInfiniteQueryResult = NonNullable<
+	Awaited<ReturnType<typeof getCallTree>>
+>;
+export type GetCallTreeSuspenseInfiniteQueryError = AxiosError<unknown>;
+
+export const useGetCallTreeSuspenseInfinite = <
+	TData = InfiniteData<Awaited<ReturnType<typeof getCallTree>>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetCallTreeParams,
+	options?: {
+		query?: Partial<
+			UseSuspenseInfiniteQueryOptions<
+				Awaited<ReturnType<typeof getCallTree>>,
+				TError,
+				TData
+			>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+): UseSuspenseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } => {
+	const queryOptions = getGetCallTreeSuspenseInfiniteQueryOptions(
+		params,
+		options,
+	);
 
 	const query = useSuspenseInfiniteQuery(
 		queryOptions,

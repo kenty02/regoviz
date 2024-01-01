@@ -20,6 +20,13 @@ func (UnimplementedHandler) AstGet(ctx context.Context, params AstGetParams) (r 
 	return r, ht.ErrNotImplemented
 }
 
+// CallTreeGet implements GET /callTree operation.
+//
+// GET /callTree
+func (UnimplementedHandler) CallTreeGet(ctx context.Context, params CallTreeGetParams) (r *CallTreeGetOK, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // DepTreeTextGet implements GET /depTreeText operation.
 //
 // GET /depTreeText
@@ -31,6 +38,13 @@ func (UnimplementedHandler) DepTreeTextGet(ctx context.Context, params DepTreeTe
 //
 // GET /flowchart
 func (UnimplementedHandler) FlowchartGet(ctx context.Context, params FlowchartGetParams) (r *FlowchartGetOK, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// IrGet implements GET /ir operation.
+//
+// GET /ir
+func (UnimplementedHandler) IrGet(ctx context.Context, params IrGetParams) (r *IrGetOK, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

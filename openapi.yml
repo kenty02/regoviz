@@ -31,101 +31,101 @@ paths:
                   $ref: '#/components/schemas/Rule'
   /depTreeText:
     get:
-        parameters:
-          - in: query
-            name: sampleName
-            schema:
-              type: string
-            description: The sample name to analyze
-            required: true
-        responses:
-            '200':
-              description: Dependency tree of given module
-              content:
-                  application/json:
-                    schema:
-                        type: object
-                        properties:
-                          result:
-                              type: string
-                              description: The generated dependency tree
-                        required:
-                            - result
+      parameters:
+        - in: query
+          name: sampleName
+          schema:
+            type: string
+          description: The sample name to analyze
+          required: true
+      responses:
+        '200':
+          description: Dependency tree of given module
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    description: The generated dependency tree
+                required:
+                  - result
 
   /flowchart:
     get:
-        parameters:
-          - in: query
-            name: sampleName
-            schema:
-                type: string
-            description: The sample name to analyze
-            required: true
-          - in: query
-            name: edit
-            schema:
-                type: boolean
-            description: Whether to return the editable flowchart mermaid url
-            required: false
-        responses:
-            '200':
-              description: Flowchart mermaid url of given sample
-              content:
-                  application/json:
-                    schema:
-                        type: object
-                        properties:
-                          result:
-                              type: string
-                              description: The generated flowchart mermaid url
-                        required:
-                            - result
+      parameters:
+        - in: query
+          name: sampleName
+          schema:
+            type: string
+          description: The sample name to analyze
+          required: true
+        - in: query
+          name: edit
+          schema:
+            type: boolean
+          description: Whether to return the editable flowchart mermaid url
+          required: false
+      responses:
+        '200':
+          description: Flowchart mermaid url of given sample
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    description: The generated flowchart mermaid url
+                required:
+                  - result
   /varTrace:
     post:
-        parameters:
-          - in: query
-            name: sampleName
-            schema:
-                type: string
-            description: The sample name to analyze
-            required: true
-          - in: query
-            name: commands
-            schema:
-                type: string
-            description: The commands to analyze
-            required: true
-          - in: query
-            name: input
-            schema:
-                type: string
-            description: The input to policy
-            required: false
-          - in: query
-            name: data
-            schema:
-                type: string
-            description: The data to policy
-            required: false
-          - in: query
-            name: query
-            schema:
-              type: string
-            description: The query to policy
-            required: true
-        responses:
-            '200':
-              description: Variable trace of given sample
-              content:
-                  application/json:
-                    schema:
-                        type: object
-                        properties:
-                          result:
-                              type: string
-                              description: The output of variable trace
-                        required:
-                            - result
+      parameters:
+        - in: query
+          name: sampleName
+          schema:
+            type: string
+          description: The sample name to analyze
+          required: true
+        - in: query
+          name: commands
+          schema:
+            type: string
+          description: The commands to analyze
+          required: true
+        - in: query
+          name: input
+          schema:
+            type: string
+          description: The input to policy
+          required: false
+        - in: query
+          name: data
+          schema:
+            type: string
+          description: The data to policy
+          required: false
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: The query to policy
+          required: true
+      responses:
+        '200':
+          description: Variable trace of given sample
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    description: The output of variable trace
+                required:
+                  - result
   # returns as string of given file
   /ast:
     get:
@@ -147,7 +147,54 @@ paths:
                   result:
                     type: string
                     description: The generated AST
-                required: [result]
+                required: [ result ]
+  /ir:
+    get:
+      parameters:
+        - in: query
+          name: sampleName
+          schema:
+              type: string
+          description: The sample name to analyze
+          required: true
+      responses:
+        '200':
+          description: IR of given module
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    description: The generated IR
+                required: [ result ]
+  /callTree:
+    get:
+      parameters:
+        - in: query
+          name: sampleName
+          schema:
+            type: string
+          description: The sample name to analyze
+          required: true
+        - in: query
+          name: entrypoint
+          schema:
+            type: string
+          description: The entrypoint rule to analyze
+          required: true
+      responses:
+        '200':
+          description: Call tree of given module
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entrypoint:
+                    $ref: '#/components/schemas/RuleParent'
+                required: [ entrypoint ]
 
 components:
   schemas:
@@ -170,47 +217,119 @@ components:
           type: integer
           format: int32
           description: The end line of the rule in the source code.
-      required: [rule_id, dependent_rules, start_line, end_line]
+      required: [ rule_id, dependent_rules, start_line, end_line ]
     Sample:
-        type: object
-        properties:
-          file_name:
+      type: object
+      properties:
+        file_name:
+          type: string
+          description: The name of the sample file.
+        content:
+          type: string
+          description: The content of the sample file.
+        default_inputs:
+          type: object
+          description: List of default inputs for the sample.
+          properties:
+            default:
+              type: string
+          required: [ default ]
+          additionalProperties:
             type: string
-            description: The name of the sample file.
-          content:
+        default_data:
+          type: object
+          description: List of default data for the sample.
+          properties:
+            default:
+              type: string
+          required: [ default ]
+          additionalProperties:
             type: string
-            description: The content of the sample file.
-          default_inputs:
-            type: object
-            description: List of default inputs for the sample.
-            properties:
-              default:
-                type: string
-            required: [default]
-            additionalProperties:
+        default_queries:
+          type: object
+          description: List of default queries for the sample.
+          properties:
+            default:
               type: string
-          default_data:
-            type: object
-            description: List of default data for the sample.
-            properties:
-              default:
-                type: string
-            required: [default]
-            additionalProperties:
+          required: [ default ]
+          additionalProperties:
+            type: string
+      required: [ file_name, content, default_inputs, default_data, default_queries ]
+
+    NodeBase:
+      type: object
+      properties:
+        name:
+          type: string
+        uid:
+          type: string
+
+    RuleParent:
+      allOf:
+        - $ref: '#/components/schemas/NodeBase'
+        - type: object
+          properties:
+            type:
               type: string
-          default_queries:
-            type: object
-            description: List of default queries for the sample.
-            properties:
-              default:
-                type: string
-            required: [default]
-            additionalProperties:
+              enum: [ 'parent' ]
+            default:
               type: string
-        required: [file_name, content, default_inputs, default_data, default_queries]
+            children:
+              type: array
+              items:
+                oneOf:
+                  - $ref: '#/components/schemas/RuleChild'
+                  - $ref: '#/components/schemas/RuleChildElse'
+
+    RuleChild:
+      allOf:
+        - $ref: '#/components/schemas/NodeBase'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [ 'child' ]
+            parent:
+              $ref: '#/components/schemas/RuleParent'
+            value:
+              type: string
+            statements:
+              type: array
+              items:
+                $ref: '#/components/schemas/RuleStatement'
+
+    RuleChildElse:
+      allOf:
+        - $ref: '#/components/schemas/NodeBase'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [ 'child' ]
+            else:
+              type: boolean
+            parent:
+              $ref: '#/components/schemas/RuleParent'
+            children:
+              type: array
+              items:
+                $ref: '#/components/schemas/RuleChild'
+
+    RuleStatement:
+      allOf:
+        - $ref: '#/components/schemas/NodeBase'
+        - type: object
+          properties:
+            dependencies:
+              type: array
+              items:
+                oneOf:
+                  - $ref: '#/components/schemas/RuleParent'
+                  - type: string
+
   securitySchemes:
     bearerAuth: # arbitrary name for the security scheme
       type: http
       scheme: bearer
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]

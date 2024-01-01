@@ -77,6 +77,24 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 					return
 				}
+			case 'c': // Prefix: "callTree"
+				if l := len("callTree"); len(elem) >= l && elem[0:l] == "callTree" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch r.Method {
+					case "GET":
+						s.handleCallTreeGetRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET")
+					}
+
+					return
+				}
 			case 'd': // Prefix: "depTreeText"
 				if l := len("depTreeText"); len(elem) >= l && elem[0:l] == "depTreeText" {
 					elem = elem[l:]
@@ -107,6 +125,24 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					switch r.Method {
 					case "GET":
 						s.handleFlowchartGetRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET")
+					}
+
+					return
+				}
+			case 'i': // Prefix: "ir"
+				if l := len("ir"); len(elem) >= l && elem[0:l] == "ir" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch r.Method {
+					case "GET":
+						s.handleIrGetRequest([0]string{}, elemIsEscaped, w, r)
 					default:
 						s.notAllowed(w, r, "GET")
 					}
@@ -281,6 +317,28 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						return
 					}
 				}
+			case 'c': // Prefix: "callTree"
+				if l := len("callTree"); len(elem) >= l && elem[0:l] == "callTree" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch method {
+					case "GET":
+						// Leaf: CallTreeGet
+						r.name = "CallTreeGet"
+						r.summary = ""
+						r.operationID = ""
+						r.pathPattern = "/callTree"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
 			case 'd': // Prefix: "depTreeText"
 				if l := len("depTreeText"); len(elem) >= l && elem[0:l] == "depTreeText" {
 					elem = elem[l:]
@@ -318,6 +376,28 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						r.summary = ""
 						r.operationID = ""
 						r.pathPattern = "/flowchart"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+			case 'i': // Prefix: "ir"
+				if l := len("ir"); len(elem) >= l && elem[0:l] == "ir" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch method {
+					case "GET":
+						// Leaf: IrGet
+						r.name = "IrGet"
+						r.summary = ""
+						r.operationID = ""
+						r.pathPattern = "/ir"
 						r.args = args
 						r.count = 0
 						return r, true

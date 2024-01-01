@@ -7,6 +7,9 @@ import (
 	"testing"
 )
 
+//go:embed testdata/tools_test/rbac.rego
+var rbacRego string
+
 //func TestCompilerPlanTarget(t *testing.T) {
 //	files := map[string]string{
 //		"test.rego": `# Role-based Access Control (RBAC)
@@ -85,6 +88,20 @@ import (
 //
 //}
 
+func TestCompileRego(t *testing.T) {
+	rego := rbacRego
+	mod, err := compileRego(rego)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if mod.Rules[0].Head.Name != "allow" {
+		t.Fatal("allow rule is not found")
+	}
+	if mod.Rules[2].Body.String() != "__local2__ = data.app.rbac.user_is_granted[__local1__]; input.action = __local2__.action; input.type = __local2__.type" {
+		t.Fatal("user_is_granted body is wrong")
+	}
+}
+
 func TestPlan(t *testing.T) {
 	ctx := context.Background()
 	rego := `package test
@@ -131,9 +148,6 @@ allow {
 	}
 
 }
-
-//go:embed samples/rbac.rego
-var rbacRego string
 
 func TestGetDepTreeMap(t *testing.T) {
 	ctx := context.Background()

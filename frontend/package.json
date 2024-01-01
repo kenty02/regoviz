@@ -7,7 +7,7 @@
     "dev:mocked": "vite",
     "dev": "cross-env NODE_ENV=development-nomock vite",
     "build": "tsc && vite build",
-    "lint": "npx @biomejs/biome lint .",
+    "lint": "tsc --noEmit && npx @biomejs/biome lint .",
     "format": "npx @biomejs/biome format .",
     "check": "npx @biomejs/biome check .",
     "check:specify": "npx @biomejs/biome check",

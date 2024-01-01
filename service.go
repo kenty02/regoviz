@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/open-policy-agent/opa/ir"
 	"os"
 	"regoviz/api"
 	"strconv"
@@ -14,6 +16,27 @@ import (
 type regovizService struct {
 	id  int64
 	mux sync.Mutex
+}
+
+func (p *regovizService) CallTreeGet(ctx context.Context, params api.CallTreeGetParams) (*api.CallTreeGetOK, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *regovizService) IrGet(ctx context.Context, params api.IrGetParams) (*api.IrGetOK, error) {
+	sample, err := readSample(params.SampleName, "samples")
+	if err != nil {
+		return nil, err
+	}
+	policy, err := plan(ctx, sample, false)
+	if err != nil {
+		return nil, err
+	}
+	buf := bytes.Buffer{}
+	if err := ir.Pretty(&buf, policy); err != nil {
+		return nil, err
+	}
+	return &api.IrGetOK{Result: buf.String()}, nil
 }
 
 func (p *regovizService) FlowchartGet(ctx context.Context, params api.FlowchartGetParams) (*api.FlowchartGetOK, error) {
@@ -105,10 +128,6 @@ func (p *regovizService) VarTracePost(_ context.Context, params api.VarTracePost
 		return nil, err
 	}
 	return &api.VarTracePostOK{Result: result}, nil
-}
-
-func NewService() api.Handler {
-	return &regovizService{}
 }
 
 func (p *regovizService) SamplesGet(_ context.Context) ([]api.Sample, error) {
@@ -219,4 +238,8 @@ func (p *regovizService) DepTreeTextGet(ctx context.Context, params api.DepTreeT
 	}
 	treeMap := getDepTreePretty(plan)
 	return &api.DepTreeTextGetOK{Result: treeMap}, nil
+}
+
+func NewService() api.Handler {
+	return &regovizService{}
 }

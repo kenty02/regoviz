@@ -12,6 +12,10 @@ type Handler interface {
 	//
 	// GET /ast
 	AstGet(ctx context.Context, params AstGetParams) (*AstGetOK, error)
+	// CallTreeGet implements GET /callTree operation.
+	//
+	// GET /callTree
+	CallTreeGet(ctx context.Context, params CallTreeGetParams) (*CallTreeGetOK, error)
 	// DepTreeTextGet implements GET /depTreeText operation.
 	//
 	// GET /depTreeText
@@ -20,6 +24,10 @@ type Handler interface {
 	//
 	// GET /flowchart
 	FlowchartGet(ctx context.Context, params FlowchartGetParams) (*FlowchartGetOK, error)
+	// IrGet implements GET /ir operation.
+	//
+	// GET /ir
+	IrGet(ctx context.Context, params IrGetParams) (*IrGetOK, error)
 	// RulesGet implements GET /rules operation.
 	//
 	// GET /rules

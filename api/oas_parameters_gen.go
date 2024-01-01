@@ -70,6 +70,109 @@ func decodeAstGetParams(args [0]string, argsEscaped bool, r *http.Request) (para
 	return params, nil
 }
 
+// CallTreeGetParams is parameters of GET /callTree operation.
+type CallTreeGetParams struct {
+	// The sample name to analyze.
+	SampleName string
+	// The entrypoint rule to analyze.
+	Entrypoint string
+}
+
+func unpackCallTreeGetParams(packed middleware.Parameters) (params CallTreeGetParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "sampleName",
+			In:   "query",
+		}
+		params.SampleName = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "entrypoint",
+			In:   "query",
+		}
+		params.Entrypoint = packed[key].(string)
+	}
+	return params
+}
+
+func decodeCallTreeGetParams(args [0]string, argsEscaped bool, r *http.Request) (params CallTreeGetParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode query: sampleName.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "sampleName",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.SampleName = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "sampleName",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: entrypoint.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "entrypoint",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.Entrypoint = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "entrypoint",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // DepTreeTextGetParams is parameters of GET /depTreeText operation.
 type DepTreeTextGetParams struct {
 	// The sample name to analyze.
@@ -231,6 +334,64 @@ func decodeFlowchartGetParams(args [0]string, argsEscaped bool, r *http.Request)
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "edit",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// IrGetParams is parameters of GET /ir operation.
+type IrGetParams struct {
+	// The sample name to analyze.
+	SampleName string
+}
+
+func unpackIrGetParams(packed middleware.Parameters) (params IrGetParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "sampleName",
+			In:   "query",
+		}
+		params.SampleName = packed[key].(string)
+	}
+	return params
+}
+
+func decodeIrGetParams(args [0]string, argsEscaped bool, r *http.Request) (params IrGetParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode query: sampleName.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "sampleName",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.SampleName = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "sampleName",
 			In:   "query",
 			Err:  err,
 		}

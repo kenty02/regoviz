@@ -25,6 +25,7 @@ import {
 	useGetAstSuspense,
 	useGetDepTreeTextSuspense,
 	useGetFlowchartSuspense,
+	useGetIrSuspense,
 	useGetSamplesSuspense,
 	usePostVarTrace,
 } from "./default/default.ts";
@@ -106,6 +107,24 @@ function AstViewer() {
 		</>
 	);
 }
+function IrViewer() {
+	const selectedSample = useAtomValue(selectedSampleAtom);
+	if (!selectedSample) {
+		throw new Error("サンプルファイルを選択してください");
+	}
+	const { data } = useGetIrSuspense({ sampleName: selectedSample.file_name });
+	const irText = data.data.result;
+	const onCopyClick = () => {
+		void navigator.clipboard.writeText(irText);
+	};
+
+	return (
+		<>
+			<Button onClick={onCopyClick}>Copy</Button>
+			<div className={"font-mono whitespace-pre-wrap"}>{irText}</div>
+		</>
+	);
+}
 function VarTraceViewer() {
 	const selectedSample = useAtomValue(selectedSampleAtom);
 	if (!selectedSample) {
@@ -131,7 +150,7 @@ function VarTraceViewer() {
 		});
 	};
 	return (
-		<>
+		<div>
 			<div className={"whitespace-pre-wrap"}>
 				{mutation.data?.data.result ?? "Press Execute to get output"}
 			</div>
@@ -157,7 +176,7 @@ function VarTraceViewer() {
 				onChange={(e) => setCommands(e.target.value)}
 			/>
 			<Button onClick={onExecuteClick}>Execute</Button>
-		</>
+		</div>
 	);
 }
 function DepTreeViewer() {
@@ -232,11 +251,12 @@ function AppInner() {
 			{isSampleSelected && (
 				<>
 					<Tabs defaultValue="varTrace" className="w-screen mx-4">
-						<TabsList className="grid w-full grid-cols-4">
+						<TabsList className="grid w-full grid-cols-5">
 							<TabsTrigger value={"varTrace"}>変数トレース</TabsTrigger>
 							<TabsTrigger value={"depTree"}>依存関係木</TabsTrigger>
 							<TabsTrigger value={"flowchart"}>フローチャート</TabsTrigger>
 							<TabsTrigger value={"ast"}>AST</TabsTrigger>
+							<TabsTrigger value={"ir"}>IR</TabsTrigger>
 						</TabsList>
 						<TabsContent value={"varTrace"}>
 							<Card>
@@ -285,6 +305,17 @@ function AppInner() {
 								</CardHeader>
 								<CardContent>
 									<AstViewer />
+								</CardContent>
+							</Card>
+						</TabsContent>
+						<TabsContent value={"ir"}>
+							<Card>
+								<CardHeader>
+									<CardTitle>IR</CardTitle>
+									<CardDescription>中間表現を表示します</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<IrViewer />
 								</CardContent>
 							</Card>
 						</TabsContent>
