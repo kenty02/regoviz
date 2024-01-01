@@ -9,7 +9,7 @@ import type { RuleParentAllOfChildrenItem } from "./ruleParentAllOfChildrenItem"
 import type { RuleParentAllOfType } from "./ruleParentAllOfType";
 
 export type RuleParentAllOf = {
-	children?: RuleParentAllOfChildrenItem[];
-	default?: string;
-	type?: RuleParentAllOfType;
+	children: RuleParentAllOfChildrenItem[];
+	default: string;
+	type: RuleParentAllOfType;
 };

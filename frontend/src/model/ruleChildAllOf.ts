@@ -10,8 +10,8 @@ import type { RuleParent } from "./ruleParent";
 import type { RuleStatement } from "./ruleStatement";
 
 export type RuleChildAllOf = {
-	parent?: RuleParent;
-	statements?: RuleStatement[];
-	type?: RuleChildAllOfType;
-	value?: string;
+	parent: RuleParent;
+	statements: RuleStatement[];
+	type: RuleChildAllOfType;
+	value: string;
 };

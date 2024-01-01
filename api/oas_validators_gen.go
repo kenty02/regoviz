@@ -63,15 +63,8 @@ func (s *RuleChild) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if value, ok := s.Type.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+		if err := s.Type.Validate(); err != nil {
+			return err
 		}
 		return nil
 	}(); err != nil {
@@ -81,15 +74,8 @@ func (s *RuleChild) Validate() error {
 		})
 	}
 	if err := func() error {
-		if value, ok := s.Parent.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+		if err := s.Parent.Validate(); err != nil {
+			return err
 		}
 		return nil
 	}(); err != nil {
@@ -99,6 +85,9 @@ func (s *RuleChild) Validate() error {
 		})
 	}
 	if err := func() error {
+		if s.Statements == nil {
+			return errors.New("nil is invalid value")
+		}
 		var failures []validate.FieldError
 		for i, elem := range s.Statements {
 			if err := func() error {
@@ -136,15 +125,8 @@ func (s *RuleChildElse) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if value, ok := s.Type.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+		if err := s.Type.Validate(); err != nil {
+			return err
 		}
 		return nil
 	}(); err != nil {
@@ -154,15 +136,8 @@ func (s *RuleChildElse) Validate() error {
 		})
 	}
 	if err := func() error {
-		if value, ok := s.Parent.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+		if err := s.Parent.Validate(); err != nil {
+			return err
 		}
 		return nil
 	}(); err != nil {
@@ -172,6 +147,9 @@ func (s *RuleChildElse) Validate() error {
 		})
 	}
 	if err := func() error {
+		if s.Children == nil {
+			return errors.New("nil is invalid value")
+		}
 		var failures []validate.FieldError
 		for i, elem := range s.Children {
 			if err := func() error {
@@ -227,15 +205,8 @@ func (s *RuleParent) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
-		if value, ok := s.Type.Get(); ok {
-			if err := func() error {
-				if err := value.Validate(); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
+		if err := s.Type.Validate(); err != nil {
+			return err
 		}
 		return nil
 	}(); err != nil {
@@ -245,6 +216,9 @@ func (s *RuleParent) Validate() error {
 		})
 	}
 	if err := func() error {
+		if s.Children == nil {
+			return errors.New("nil is invalid value")
+		}
 		var failures []validate.FieldError
 		for i, elem := range s.Children {
 			if err := func() error {
@@ -308,6 +282,9 @@ func (s *RuleStatement) Validate() error {
 
 	var failures []validate.FieldError
 	if err := func() error {
+		if s.Dependencies == nil {
+			return errors.New("nil is invalid value")
+		}
 		var failures []validate.FieldError
 		for i, elem := range s.Dependencies {
 			if err := func() error {

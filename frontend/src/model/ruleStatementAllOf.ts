@@ -8,5 +8,5 @@
 import type { RuleStatementAllOfDependenciesItem } from "./ruleStatementAllOfDependenciesItem";
 
 export type RuleStatementAllOf = {
-	dependencies?: RuleStatementAllOfDependenciesItem[];
+	dependencies: RuleStatementAllOfDependenciesItem[];
 };

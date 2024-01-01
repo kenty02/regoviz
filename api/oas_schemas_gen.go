@@ -140,190 +140,6 @@ func (o OptBool) Or(d bool) bool {
 	return d
 }
 
-// NewOptRuleChildElseType returns new OptRuleChildElseType with value set to v.
-func NewOptRuleChildElseType(v RuleChildElseType) OptRuleChildElseType {
-	return OptRuleChildElseType{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptRuleChildElseType is optional RuleChildElseType.
-type OptRuleChildElseType struct {
-	Value RuleChildElseType
-	Set   bool
-}
-
-// IsSet returns true if OptRuleChildElseType was set.
-func (o OptRuleChildElseType) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptRuleChildElseType) Reset() {
-	var v RuleChildElseType
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptRuleChildElseType) SetTo(v RuleChildElseType) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptRuleChildElseType) Get() (v RuleChildElseType, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptRuleChildElseType) Or(d RuleChildElseType) RuleChildElseType {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptRuleChildType returns new OptRuleChildType with value set to v.
-func NewOptRuleChildType(v RuleChildType) OptRuleChildType {
-	return OptRuleChildType{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptRuleChildType is optional RuleChildType.
-type OptRuleChildType struct {
-	Value RuleChildType
-	Set   bool
-}
-
-// IsSet returns true if OptRuleChildType was set.
-func (o OptRuleChildType) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptRuleChildType) Reset() {
-	var v RuleChildType
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptRuleChildType) SetTo(v RuleChildType) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptRuleChildType) Get() (v RuleChildType, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptRuleChildType) Or(d RuleChildType) RuleChildType {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptRuleParent returns new OptRuleParent with value set to v.
-func NewOptRuleParent(v RuleParent) OptRuleParent {
-	return OptRuleParent{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptRuleParent is optional RuleParent.
-type OptRuleParent struct {
-	Value RuleParent
-	Set   bool
-}
-
-// IsSet returns true if OptRuleParent was set.
-func (o OptRuleParent) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptRuleParent) Reset() {
-	var v RuleParent
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptRuleParent) SetTo(v RuleParent) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptRuleParent) Get() (v RuleParent, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptRuleParent) Or(d RuleParent) RuleParent {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptRuleParentType returns new OptRuleParentType with value set to v.
-func NewOptRuleParentType(v RuleParentType) OptRuleParentType {
-	return OptRuleParentType{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptRuleParentType is optional RuleParentType.
-type OptRuleParentType struct {
-	Value RuleParentType
-	Set   bool
-}
-
-// IsSet returns true if OptRuleParentType was set.
-func (o OptRuleParentType) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptRuleParentType) Reset() {
-	var v RuleParentType
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptRuleParentType) SetTo(v RuleParentType) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptRuleParentType) Get() (v RuleParentType, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptRuleParentType) Or(d RuleParentType) RuleParentType {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewOptString returns new OptString with value set to v.
 func NewOptString(v string) OptString {
 	return OptString{
@@ -425,36 +241,36 @@ func (s *Rule) SetEndLine(val int32) {
 // Merged schema.
 // Ref: #/components/schemas/RuleChild
 type RuleChild struct {
-	Name       OptString        `json:"name"`
-	UID        OptString        `json:"uid"`
-	Type       OptRuleChildType `json:"type"`
-	Parent     OptRuleParent    `json:"parent"`
-	Value      OptString        `json:"value"`
-	Statements []RuleStatement  `json:"statements"`
+	Name       string          `json:"name"`
+	UID        string          `json:"uid"`
+	Type       RuleChildType   `json:"type"`
+	Parent     RuleParent      `json:"parent"`
+	Value      string          `json:"value"`
+	Statements []RuleStatement `json:"statements"`
 }
 
 // GetName returns the value of Name.
-func (s *RuleChild) GetName() OptString {
+func (s *RuleChild) GetName() string {
 	return s.Name
 }
 
 // GetUID returns the value of UID.
-func (s *RuleChild) GetUID() OptString {
+func (s *RuleChild) GetUID() string {
 	return s.UID
 }
 
 // GetType returns the value of Type.
-func (s *RuleChild) GetType() OptRuleChildType {
+func (s *RuleChild) GetType() RuleChildType {
 	return s.Type
 }
 
 // GetParent returns the value of Parent.
-func (s *RuleChild) GetParent() OptRuleParent {
+func (s *RuleChild) GetParent() RuleParent {
 	return s.Parent
 }
 
 // GetValue returns the value of Value.
-func (s *RuleChild) GetValue() OptString {
+func (s *RuleChild) GetValue() string {
 	return s.Value
 }
 
@@ -464,27 +280,27 @@ func (s *RuleChild) GetStatements() []RuleStatement {
 }
 
 // SetName sets the value of Name.
-func (s *RuleChild) SetName(val OptString) {
+func (s *RuleChild) SetName(val string) {
 	s.Name = val
 }
 
 // SetUID sets the value of UID.
-func (s *RuleChild) SetUID(val OptString) {
+func (s *RuleChild) SetUID(val string) {
 	s.UID = val
 }
 
 // SetType sets the value of Type.
-func (s *RuleChild) SetType(val OptRuleChildType) {
+func (s *RuleChild) SetType(val RuleChildType) {
 	s.Type = val
 }
 
 // SetParent sets the value of Parent.
-func (s *RuleChild) SetParent(val OptRuleParent) {
+func (s *RuleChild) SetParent(val RuleParent) {
 	s.Parent = val
 }
 
 // SetValue sets the value of Value.
-func (s *RuleChild) SetValue(val OptString) {
+func (s *RuleChild) SetValue(val string) {
 	s.Value = val
 }
 
@@ -496,36 +312,36 @@ func (s *RuleChild) SetStatements(val []RuleStatement) {
 // Merged schema.
 // Ref: #/components/schemas/RuleChildElse
 type RuleChildElse struct {
-	Name     OptString            `json:"name"`
-	UID      OptString            `json:"uid"`
-	Type     OptRuleChildElseType `json:"type"`
-	Else     OptBool              `json:"else"`
-	Parent   OptRuleParent        `json:"parent"`
-	Children []RuleChild          `json:"children"`
+	Name     string            `json:"name"`
+	UID      string            `json:"uid"`
+	Type     RuleChildElseType `json:"type"`
+	Else     bool              `json:"else"`
+	Parent   RuleParent        `json:"parent"`
+	Children []RuleChild       `json:"children"`
 }
 
 // GetName returns the value of Name.
-func (s *RuleChildElse) GetName() OptString {
+func (s *RuleChildElse) GetName() string {
 	return s.Name
 }
 
 // GetUID returns the value of UID.
-func (s *RuleChildElse) GetUID() OptString {
+func (s *RuleChildElse) GetUID() string {
 	return s.UID
 }
 
 // GetType returns the value of Type.
-func (s *RuleChildElse) GetType() OptRuleChildElseType {
+func (s *RuleChildElse) GetType() RuleChildElseType {
 	return s.Type
 }
 
 // GetElse returns the value of Else.
-func (s *RuleChildElse) GetElse() OptBool {
+func (s *RuleChildElse) GetElse() bool {
 	return s.Else
 }
 
 // GetParent returns the value of Parent.
-func (s *RuleChildElse) GetParent() OptRuleParent {
+func (s *RuleChildElse) GetParent() RuleParent {
 	return s.Parent
 }
 
@@ -535,27 +351,27 @@ func (s *RuleChildElse) GetChildren() []RuleChild {
 }
 
 // SetName sets the value of Name.
-func (s *RuleChildElse) SetName(val OptString) {
+func (s *RuleChildElse) SetName(val string) {
 	s.Name = val
 }
 
 // SetUID sets the value of UID.
-func (s *RuleChildElse) SetUID(val OptString) {
+func (s *RuleChildElse) SetUID(val string) {
 	s.UID = val
 }
 
 // SetType sets the value of Type.
-func (s *RuleChildElse) SetType(val OptRuleChildElseType) {
+func (s *RuleChildElse) SetType(val RuleChildElseType) {
 	s.Type = val
 }
 
 // SetElse sets the value of Else.
-func (s *RuleChildElse) SetElse(val OptBool) {
+func (s *RuleChildElse) SetElse(val bool) {
 	s.Else = val
 }
 
 // SetParent sets the value of Parent.
-func (s *RuleChildElse) SetParent(val OptRuleParent) {
+func (s *RuleChildElse) SetParent(val RuleParent) {
 	s.Parent = val
 }
 
@@ -635,30 +451,30 @@ func (s *RuleChildType) UnmarshalText(data []byte) error {
 // Merged schema.
 // Ref: #/components/schemas/RuleParent
 type RuleParent struct {
-	Name     OptString                `json:"name"`
-	UID      OptString                `json:"uid"`
-	Type     OptRuleParentType        `json:"type"`
-	Default  OptString                `json:"default"`
+	Name     string                   `json:"name"`
+	UID      string                   `json:"uid"`
+	Type     RuleParentType           `json:"type"`
+	Default  string                   `json:"default"`
 	Children []RuleParentChildrenItem `json:"children"`
 }
 
 // GetName returns the value of Name.
-func (s *RuleParent) GetName() OptString {
+func (s *RuleParent) GetName() string {
 	return s.Name
 }
 
 // GetUID returns the value of UID.
-func (s *RuleParent) GetUID() OptString {
+func (s *RuleParent) GetUID() string {
 	return s.UID
 }
 
 // GetType returns the value of Type.
-func (s *RuleParent) GetType() OptRuleParentType {
+func (s *RuleParent) GetType() RuleParentType {
 	return s.Type
 }
 
 // GetDefault returns the value of Default.
-func (s *RuleParent) GetDefault() OptString {
+func (s *RuleParent) GetDefault() string {
 	return s.Default
 }
 
@@ -668,22 +484,22 @@ func (s *RuleParent) GetChildren() []RuleParentChildrenItem {
 }
 
 // SetName sets the value of Name.
-func (s *RuleParent) SetName(val OptString) {
+func (s *RuleParent) SetName(val string) {
 	s.Name = val
 }
 
 // SetUID sets the value of UID.
-func (s *RuleParent) SetUID(val OptString) {
+func (s *RuleParent) SetUID(val string) {
 	s.UID = val
 }
 
 // SetType sets the value of Type.
-func (s *RuleParent) SetType(val OptRuleParentType) {
+func (s *RuleParent) SetType(val RuleParentType) {
 	s.Type = val
 }
 
 // SetDefault sets the value of Default.
-func (s *RuleParent) SetDefault(val OptString) {
+func (s *RuleParent) SetDefault(val string) {
 	s.Default = val
 }
 
@@ -795,18 +611,18 @@ func (s *RuleParentType) UnmarshalText(data []byte) error {
 // Merged schema.
 // Ref: #/components/schemas/RuleStatement
 type RuleStatement struct {
-	Name         OptString                       `json:"name"`
-	UID          OptString                       `json:"uid"`
+	Name         string                          `json:"name"`
+	UID          string                          `json:"uid"`
 	Dependencies []RuleStatementDependenciesItem `json:"dependencies"`
 }
 
 // GetName returns the value of Name.
-func (s *RuleStatement) GetName() OptString {
+func (s *RuleStatement) GetName() string {
 	return s.Name
 }
 
 // GetUID returns the value of UID.
-func (s *RuleStatement) GetUID() OptString {
+func (s *RuleStatement) GetUID() string {
 	return s.UID
 }
 
@@ -816,12 +632,12 @@ func (s *RuleStatement) GetDependencies() []RuleStatementDependenciesItem {
 }
 
 // SetName sets the value of Name.
-func (s *RuleStatement) SetName(val OptString) {
+func (s *RuleStatement) SetName(val string) {
 	s.Name = val
 }
 
 // SetUID sets the value of UID.
-func (s *RuleStatement) SetUID(val OptString) {
+func (s *RuleStatement) SetUID(val string) {
 	s.UID = val
 }
 

@@ -7,6 +7,6 @@
  */
 
 export interface NodeBase {
-	name?: string;
-	uid?: string;
+	name: string;
+	uid: string;
 }

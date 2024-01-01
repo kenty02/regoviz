@@ -10,8 +10,8 @@ import type { RuleChildElseAllOfType } from "./ruleChildElseAllOfType";
 import type { RuleParent } from "./ruleParent";
 
 export type RuleChildElseAllOf = {
-	children?: RuleChild[];
-	else?: boolean;
-	parent?: RuleParent;
-	type?: RuleChildElseAllOfType;
+	children: RuleChild[];
+	else: boolean;
+	parent: RuleParent;
+	type: RuleChildElseAllOfType;
 };

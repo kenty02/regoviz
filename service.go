@@ -19,8 +19,17 @@ type regovizService struct {
 }
 
 func (p *regovizService) CallTreeGet(ctx context.Context, params api.CallTreeGetParams) (*api.CallTreeGetOK, error) {
-	//TODO implement me
-	panic("implement me")
+	// todo
+	stub := api.CallTreeGetOK{
+		Entrypoint: api.RuleParent{
+			Name:     "",
+			UID:      "",
+			Type:     "",
+			Default:  "",
+			Children: nil,
+		},
+	}
+	return &stub, nil
 }
 
 func (p *regovizService) IrGet(ctx context.Context, params api.IrGetParams) (*api.IrGetOK, error) {
