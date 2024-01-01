@@ -18,6 +18,10 @@ type SecurityHandler struct{}
 func (s SecurityHandler) HandleBearerAuth(ctx context.Context, _ string, t api.BearerAuth) (context.Context, error) {
 	// get token from env
 	token := os.Getenv("TOKEN")
+	if os.Getenv("DISABLE_TOKEN_AUTH") == "true" {
+		return ctx, nil
+	}
+
 	if token == "" {
 		return ctx, fmt.Errorf("token is empty")
 	}
