@@ -4,6 +4,6 @@ pre-commit:
     frontend-check:
       root: frontend
       run: npm run check:specify {staged_files}
-    backend-format:
-      glob: '**/*.go'
-      run: go fmt
+    backend-lint:
+      glob: '*.go'
+      run: golangci-lint run

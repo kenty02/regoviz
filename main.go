@@ -35,7 +35,7 @@ func (s SecurityHandler) HandleBearerAuth(ctx context.Context, _ string, t api.B
 }
 
 func main() {
-	err := godotenv.Load(".env.local")
+	_ = godotenv.Load(".env.local")
 
 	// To initialize Sentry's handler, you need to initialize Sentry itself beforehand
 	if err := sentry.Init(sentry.ClientOptions{
@@ -58,7 +58,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var handler http.Handler = srv
 
 	var allowedOrigins []string
 	allowedOrigins = append(allowedOrigins, os.Getenv("FRONTEND_URL"))
@@ -76,7 +75,7 @@ func main() {
 			"*",
 		},
 	})
-	handler = c.Handler(srv)
+	handler := c.Handler(srv)
 
 	handler = sentryHandler.Handle(handler)
 	fmt.Println("Server is running on port 8080")

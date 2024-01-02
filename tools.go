@@ -126,19 +126,6 @@ func getDepTreePretty(policy *ir.Policy) string {
 	return tree.String()
 }
 
-func operandToString(policy *ir.Policy, op ir.Operand) string {
-	switch op := op.Value.(type) {
-	case *ir.Local:
-		return op.String()
-	case *ir.StringIndex:
-		return policy.Static.Strings[*op].Value
-	case *ir.Bool:
-		return fmt.Sprint(*op)
-	default:
-		panic("unreachable")
-	}
-}
-
 func esc(s any) string {
 	str := fmt.Sprintf("%s", s)
 	str = strings.ReplaceAll(str, "\"", "#quot;")
@@ -379,14 +366,6 @@ func injectCode(code string, cis []CodeInject) string {
 	return strings.Join(lines, "\n")
 }
 
-func checkRegoVizSupport(code string) error {
-	//just find semi-colon
-	hasSemiColon := strings.Contains(code, ";")
-	if hasSemiColon {
-		return fmt.Errorf("semi-colon is not supported")
-	}
-	return nil
-}
 func replaceTokenInLine(line, token, replacement string) (string, error) {
 	// トークンの正規表現パターンを作成します。
 	// 単語の境界 (\b) を使用して、完全なトークンのみをマッチさせます。

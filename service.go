@@ -11,13 +11,9 @@ import (
 	"regoviz/astprint"
 	"strconv"
 	"strings"
-	"sync"
 )
 
-type regovizService struct {
-	id  int64
-	mux sync.Mutex
-}
+type regovizService struct{}
 
 func (p *regovizService) CallTreeGet(ctx context.Context, params api.CallTreeGetParams) (*api.CallTreeGetOK, error) {
 	// todo
@@ -221,6 +217,9 @@ func (p *regovizService) AstGet(_ context.Context, params api.AstGetParams) (*ap
 func (p *regovizService) AstPrettyGet(_ context.Context, params api.AstPrettyGetParams) (*api.AstPrettyGetOK, error) {
 	//load sample
 	sample, err := readSample(params.SampleName, "samples")
+	if err != nil {
+		return nil, err
+	}
 	// compile module
 	mod, err := compileRego(sample)
 
@@ -229,7 +228,8 @@ func (p *regovizService) AstPrettyGet(_ context.Context, params api.AstPrettyGet
 	}
 
 	buf := bytes.Buffer{}
-	astprint.Pretty(&buf, mod)
+
+	err = astprint.Pretty(&buf, mod)
 
 	if err != nil {
 		return nil, err
