@@ -196,8 +196,12 @@ func (p *regovizService) RulesGet(_ context.Context) ([]api.Rule, error) {
 }
 
 func (p *regovizService) AstGet(_ context.Context, params api.AstGetParams) (*api.AstGetOK, error) {
-	// compile module
-	mod, err := compileRego(params.Module)
+	//load sample
+	sample, err := readSample(params.SampleName, "samples")
+	if err != nil {
+		return nil, err
+	}
+	mod, err := compileRego(sample)
 
 	if err != nil {
 		return nil, err

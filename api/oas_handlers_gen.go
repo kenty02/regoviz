@@ -123,9 +123,9 @@ func (s *Server) handleAstGetRequest(args [0]string, argsEscaped bool, w http.Re
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "module",
+					Name: "sampleName",
 					In:   "query",
-				}: params.Module,
+				}: params.SampleName,
 			},
 			Raw: r,
 		}

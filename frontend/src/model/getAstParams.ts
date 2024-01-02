@@ -8,7 +8,7 @@
 
 export type GetAstParams = {
 	/**
-	 * The module string to analyze
+	 * The sample name to analyze
 	 */
-	module: string;
+	sampleName: string;
 };

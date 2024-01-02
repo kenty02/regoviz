@@ -14,27 +14,27 @@ import (
 
 // AstGetParams is parameters of GET /ast operation.
 type AstGetParams struct {
-	// The module string to analyze.
-	Module string
+	// The sample name to analyze.
+	SampleName string
 }
 
 func unpackAstGetParams(packed middleware.Parameters) (params AstGetParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "module",
+			Name: "sampleName",
 			In:   "query",
 		}
-		params.Module = packed[key].(string)
+		params.SampleName = packed[key].(string)
 	}
 	return params
 }
 
 func decodeAstGetParams(args [0]string, argsEscaped bool, r *http.Request) (params AstGetParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode query: module.
+	// Decode query: sampleName.
 	if err := func() error {
 		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "module",
+			Name:    "sampleName",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
@@ -51,7 +51,7 @@ func decodeAstGetParams(args [0]string, argsEscaped bool, r *http.Request) (para
 					return err
 				}
 
-				params.Module = c
+				params.SampleName = c
 				return nil
 			}); err != nil {
 				return err
@@ -62,7 +62,7 @@ func decodeAstGetParams(args [0]string, argsEscaped bool, r *http.Request) (para
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "module",
+			Name: "sampleName",
 			In:   "query",
 			Err:  err,
 		}

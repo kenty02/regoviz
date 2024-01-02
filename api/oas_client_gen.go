@@ -161,15 +161,15 @@ func (c *Client) sendAstGet(ctx context.Context, params AstGetParams) (res *AstG
 	stage = "EncodeQueryParams"
 	q := uri.NewQueryEncoder()
 	{
-		// Encode "module" parameter.
+		// Encode "sampleName" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "module",
+			Name:    "sampleName",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
 
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			return e.EncodeValue(conv.StringToString(params.Module))
+			return e.EncodeValue(conv.StringToString(params.SampleName))
 		}); err != nil {
 			return res, errors.Wrap(err, "encode query")
 		}

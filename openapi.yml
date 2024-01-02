@@ -131,10 +131,10 @@ paths:
     get:
       parameters:
         - in: query
-          name: module
+          name: sampleName
           schema:
             type: string
-          description: The module string to analyze
+          description: The sample name to analyze
           required: true
       responses:
         '200':

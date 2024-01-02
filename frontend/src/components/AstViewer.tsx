@@ -12,7 +12,7 @@ export function AstViewer() {
 	if (!selectedSample) {
 		throw new Error("サンプルファイルを選択してください");
 	}
-	const { data } = useGetAstSuspense({ module: selectedSample.content });
+	const { data } = useGetAstSuspense({ sampleName: selectedSample.file_name });
 	const { data: dataPretty } = useGetAstPrettySuspense({
 		sampleName: selectedSample.file_name,
 	});
