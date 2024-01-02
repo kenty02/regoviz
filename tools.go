@@ -50,7 +50,7 @@ func compileRego(moduleCode string) (*ast.Module, error) {
 }
 
 // from opa-explorer
-func plan(ctx context.Context, rego string, print bool) (*ir.Policy, error) {
+func plan(ctx context.Context, rego string, print bool, autoDetermineEntrypoints bool) (*ir.Policy, error) {
 	mod, err := ast.ParseModuleWithOpts("a.rego", rego, ast.ParserOptions{ProcessAnnotation: true})
 	if err != nil {
 		return nil, err
@@ -71,6 +71,26 @@ func plan(ctx context.Context, rego string, print bool) (*ir.Policy, error) {
 		WithBundle(b).
 		WithRegoAnnotationEntrypoints(true).
 		WithEnablePrintStatements(print)
+	if autoDetermineEntrypoints {
+		moduleAst, err := compileRego(rego)
+
+		if err != nil {
+			return nil, err
+		}
+		var entrypoints []string
+		for _, rule := range moduleAst.Rules {
+			pkg := moduleAst.Package
+			path := make(ast.Ref, len(pkg.Path)-1)
+			path[0] = ast.VarTerm(string(pkg.Path[1].Value.(ast.String)))
+			copy(path[1:], pkg.Path[2:])
+			pathString := path.String()
+			// replace . to /
+			pathString = strings.ReplaceAll(pathString, ".", "/")
+			entrypoint := fmt.Sprintf("%s/%s", pathString, rule.Head.Name.String())
+			entrypoints = append(entrypoints, entrypoint)
+		}
+		compiler = compiler.WithEntrypoints(entrypoints...)
+	}
 	if err := compiler.Build(ctx); err != nil {
 		return nil, err
 	}
@@ -86,7 +106,7 @@ func plan(ctx context.Context, rego string, print bool) (*ir.Policy, error) {
 }
 
 func planAsText(ctx context.Context, rego string, print bool) (string, error) {
-	policy, err := plan(ctx, rego, print)
+	policy, err := plan(ctx, rego, print, true)
 	if err != nil {
 		return "", err
 	}

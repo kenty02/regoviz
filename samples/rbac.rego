@@ -30,8 +30,6 @@ default allow := false
 allow if user_is_admin
 
 # Allow the action if the user is granted permission to perform the action.
-# METADATA
-# entrypoint: true
 allow if {
 	# Find grants for the user.
 	some grant in user_is_granted

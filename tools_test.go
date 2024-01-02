@@ -102,7 +102,7 @@ func TestCompileRego(t *testing.T) {
 	}
 }
 
-func TestPlan(t *testing.T) {
+func TestPlanWithMetadata(t *testing.T) {
 	ctx := context.Background()
 	rego := `package test
 
@@ -116,7 +116,43 @@ allow {
 	a[_] = input
 }
 `
-	_, err := plan(ctx, rego, false)
+	_, err := plan(ctx, rego, false, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestPlanWithoutMetadata(t *testing.T) {
+	ctx := context.Background()
+	rego := `package test
+
+import data.a
+
+default allow = false
+
+allow {
+	a[_] = input
+}
+`
+	_, err := plan(ctx, rego, false, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestPlanWithoutMetadataPackageContainsDot(t *testing.T) {
+	ctx := context.Background()
+	rego := `package te.st
+
+import data.a
+
+default allow = false
+
+allow {
+	a[_] = input
+}
+`
+	_, err := plan(ctx, rego, false, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -130,8 +166,6 @@ import data.a
 
 default allow = false
 
-# METADATA
-# entrypoint: true
 allow {
 	a[_] = input
 }
@@ -152,7 +186,7 @@ allow {
 func TestGetDepTreeMap(t *testing.T) {
 	ctx := context.Background()
 
-	plan, err := plan(ctx, rbacRego, false)
+	plan, err := plan(ctx, rbacRego, false, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -169,7 +203,7 @@ func TestGetDepTreeMap(t *testing.T) {
 func TestGetMermaidFlowchart(t *testing.T) {
 	ctx := context.Background()
 
-	plan, err := plan(ctx, rbacRego, false)
+	plan, err := plan(ctx, rbacRego, false, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -352,7 +386,7 @@ allow {
 
 func TestGetDepTreePretty(t *testing.T) {
 	rego := rbacRego
-	plan, err := plan(context.Background(), rego, false)
+	plan, err := plan(context.Background(), rego, false, true)
 	if err != nil {
 		t.Fatal(err)
 	}

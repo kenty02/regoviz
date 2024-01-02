@@ -65,7 +65,7 @@ func (p *regovizService) IrGet(ctx context.Context, params api.IrGetParams) (*ap
 	if err != nil {
 		return nil, err
 	}
-	policy, err := plan(ctx, sample, false)
+	policy, err := plan(ctx, sample, false, true)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (p *regovizService) FlowchartGet(ctx context.Context, params api.FlowchartG
 	if err != nil {
 		return nil, err
 	}
-	plan, err := plan(ctx, sample, false)
+	plan, err := plan(ctx, sample, false, true)
 	if err != nil {
 		return nil, err
 	}
@@ -294,7 +294,7 @@ func (p *regovizService) DepTreeTextGet(ctx context.Context, params api.DepTreeT
 		return nil, err
 	}
 
-	plan, err := plan(ctx, sample, false)
+	plan, err := plan(ctx, sample, false, true)
 	if err != nil {
 		return nil, err
 	}
