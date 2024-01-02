@@ -55,13 +55,6 @@ func (UnimplementedHandler) IrGet(ctx context.Context, params IrGetParams) (r *I
 	return r, ht.ErrNotImplemented
 }
 
-// RulesGet implements GET /rules operation.
-//
-// GET /rules
-func (UnimplementedHandler) RulesGet(ctx context.Context) (r []Rule, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // SamplesGet implements GET /samples operation.
 //
 // GET /samples

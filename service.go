@@ -170,11 +170,6 @@ func (p *regovizService) SamplesGet(_ context.Context) ([]api.Sample, error) {
 	return listSamples("samples")
 }
 
-func (p *regovizService) RulesGet(_ context.Context) ([]api.Rule, error) {
-	// not implemented
-	return nil, error(nil)
-}
-
 func (p *regovizService) AstGet(_ context.Context, params api.AstGetParams) (*api.AstGetOK, error) {
 	//load sample
 	sample, err := readSample(params.SampleName, "samples")

@@ -33,29 +33,6 @@ func (s *CallTreeGetOK) Validate() error {
 	return nil
 }
 
-func (s *Rule) Validate() error {
-	if s == nil {
-		return validate.ErrNilPointer
-	}
-
-	var failures []validate.FieldError
-	if err := func() error {
-		if s.DependentRules == nil {
-			return errors.New("nil is invalid value")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "dependent_rules",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-
 func (s *RuleChild) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer

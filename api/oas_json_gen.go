@@ -587,165 +587,6 @@ func (s *IrGetOK) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *Rule) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *Rule) encodeFields(e *jx.Encoder) {
-	{
-		e.FieldStart("rule_id")
-		e.Str(s.RuleID)
-	}
-	{
-		e.FieldStart("dependent_rules")
-		e.ArrStart()
-		for _, elem := range s.DependentRules {
-			e.Str(elem)
-		}
-		e.ArrEnd()
-	}
-	{
-		e.FieldStart("start_line")
-		e.Int32(s.StartLine)
-	}
-	{
-		e.FieldStart("end_line")
-		e.Int32(s.EndLine)
-	}
-}
-
-var jsonFieldsNameOfRule = [4]string{
-	0: "rule_id",
-	1: "dependent_rules",
-	2: "start_line",
-	3: "end_line",
-}
-
-// Decode decodes Rule from json.
-func (s *Rule) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode Rule to nil")
-	}
-	var requiredBitSet [1]uint8
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		case "rule_id":
-			requiredBitSet[0] |= 1 << 0
-			if err := func() error {
-				v, err := d.Str()
-				s.RuleID = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"rule_id\"")
-			}
-		case "dependent_rules":
-			requiredBitSet[0] |= 1 << 1
-			if err := func() error {
-				s.DependentRules = make([]string, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem string
-					v, err := d.Str()
-					elem = string(v)
-					if err != nil {
-						return err
-					}
-					s.DependentRules = append(s.DependentRules, elem)
-					return nil
-				}); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"dependent_rules\"")
-			}
-		case "start_line":
-			requiredBitSet[0] |= 1 << 2
-			if err := func() error {
-				v, err := d.Int32()
-				s.StartLine = int32(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"start_line\"")
-			}
-		case "end_line":
-			requiredBitSet[0] |= 1 << 3
-			if err := func() error {
-				v, err := d.Int32()
-				s.EndLine = int32(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"end_line\"")
-			}
-		default:
-			return d.Skip()
-		}
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode Rule")
-	}
-	// Validate required fields.
-	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b00001111,
-	} {
-		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
-			// Mask only required fields and check equality to mask using XOR.
-			//
-			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
-			// Bits of fields which would be set are actually bits of missed fields.
-			missed := bits.OnesCount8(result)
-			for bitN := 0; bitN < missed; bitN++ {
-				bitIdx := bits.TrailingZeros8(result)
-				fieldIdx := i*8 + bitIdx
-				var name string
-				if fieldIdx < len(jsonFieldsNameOfRule) {
-					name = jsonFieldsNameOfRule[fieldIdx]
-				} else {
-					name = strconv.Itoa(fieldIdx)
-				}
-				failures = append(failures, validate.FieldError{
-					Name:  name,
-					Error: validate.ErrFieldRequired,
-				})
-				// Reset bit.
-				result &^= 1 << bitIdx
-			}
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *Rule) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *Rule) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode implements json.Marshaler.
 func (s *RuleChild) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -1658,25 +1499,25 @@ func (s *Sample) encodeFields(e *jx.Encoder) {
 		e.Str(s.Content)
 	}
 	{
-		e.FieldStart("default_inputs")
-		s.DefaultInputs.Encode(e)
+		e.FieldStart("input_examples")
+		s.InputExamples.Encode(e)
 	}
 	{
-		e.FieldStart("default_data")
-		s.DefaultData.Encode(e)
+		e.FieldStart("data_examples")
+		s.DataExamples.Encode(e)
 	}
 	{
-		e.FieldStart("default_queries")
-		s.DefaultQueries.Encode(e)
+		e.FieldStart("query_examples")
+		s.QueryExamples.Encode(e)
 	}
 }
 
 var jsonFieldsNameOfSample = [5]string{
 	0: "file_name",
 	1: "content",
-	2: "default_inputs",
-	3: "default_data",
-	4: "default_queries",
+	2: "input_examples",
+	3: "data_examples",
+	4: "query_examples",
 }
 
 // Decode decodes Sample from json.
@@ -1712,35 +1553,35 @@ func (s *Sample) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"content\"")
 			}
-		case "default_inputs":
+		case "input_examples":
 			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				if err := s.DefaultInputs.Decode(d); err != nil {
+				if err := s.InputExamples.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"default_inputs\"")
+				return errors.Wrap(err, "decode field \"input_examples\"")
 			}
-		case "default_data":
+		case "data_examples":
 			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
-				if err := s.DefaultData.Decode(d); err != nil {
+				if err := s.DataExamples.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"default_data\"")
+				return errors.Wrap(err, "decode field \"data_examples\"")
 			}
-		case "default_queries":
+		case "query_examples":
 			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
-				if err := s.DefaultQueries.Decode(d); err != nil {
+				if err := s.QueryExamples.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"default_queries\"")
+				return errors.Wrap(err, "decode field \"query_examples\"")
 			}
 		default:
 			return d.Skip()
@@ -1799,14 +1640,14 @@ func (s *Sample) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
-func (s *SampleDefaultData) Encode(e *jx.Encoder) {
+func (s *SampleDataExamples) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *SampleDefaultData) encodeFields(e *jx.Encoder) {
+func (s *SampleDataExamples) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("default")
 		e.Str(s.Default)
@@ -1818,14 +1659,14 @@ func (s *SampleDefaultData) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfSampleDefaultData = [1]string{
+var jsonFieldsNameOfSampleDataExamples = [1]string{
 	0: "default",
 }
 
-// Decode decodes SampleDefaultData from json.
-func (s *SampleDefaultData) Decode(d *jx.Decoder) error {
+// Decode decodes SampleDataExamples from json.
+func (s *SampleDataExamples) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode SampleDefaultData to nil")
+		return errors.New("invalid: unable to decode SampleDataExamples to nil")
 	}
 	var requiredBitSet [1]uint8
 	s.AdditionalProps = map[string]string{}
@@ -1860,7 +1701,7 @@ func (s *SampleDefaultData) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode SampleDefaultData")
+		return errors.Wrap(err, "decode SampleDataExamples")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
@@ -1877,8 +1718,8 @@ func (s *SampleDefaultData) Decode(d *jx.Decoder) error {
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfSampleDefaultData) {
-					name = jsonFieldsNameOfSampleDefaultData[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfSampleDataExamples) {
+					name = jsonFieldsNameOfSampleDataExamples[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -1899,27 +1740,27 @@ func (s *SampleDefaultData) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *SampleDefaultData) MarshalJSON() ([]byte, error) {
+func (s *SampleDataExamples) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *SampleDefaultData) UnmarshalJSON(data []byte) error {
+func (s *SampleDataExamples) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
 
 // Encode implements json.Marshaler.
-func (s SampleDefaultDataAdditional) Encode(e *jx.Encoder) {
+func (s SampleDataExamplesAdditional) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields implements json.Marshaler.
-func (s SampleDefaultDataAdditional) encodeFields(e *jx.Encoder) {
+func (s SampleDataExamplesAdditional) encodeFields(e *jx.Encoder) {
 	for k, elem := range s {
 		e.FieldStart(k)
 
@@ -1927,10 +1768,10 @@ func (s SampleDefaultDataAdditional) encodeFields(e *jx.Encoder) {
 	}
 }
 
-// Decode decodes SampleDefaultDataAdditional from json.
-func (s *SampleDefaultDataAdditional) Decode(d *jx.Decoder) error {
+// Decode decodes SampleDataExamplesAdditional from json.
+func (s *SampleDataExamplesAdditional) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode SampleDefaultDataAdditional to nil")
+		return errors.New("invalid: unable to decode SampleDataExamplesAdditional to nil")
 	}
 	m := s.init()
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
@@ -1948,34 +1789,34 @@ func (s *SampleDefaultDataAdditional) Decode(d *jx.Decoder) error {
 		m[string(k)] = elem
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode SampleDefaultDataAdditional")
+		return errors.Wrap(err, "decode SampleDataExamplesAdditional")
 	}
 
 	return nil
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s SampleDefaultDataAdditional) MarshalJSON() ([]byte, error) {
+func (s SampleDataExamplesAdditional) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *SampleDefaultDataAdditional) UnmarshalJSON(data []byte) error {
+func (s *SampleDataExamplesAdditional) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
 
 // Encode implements json.Marshaler.
-func (s *SampleDefaultInputs) Encode(e *jx.Encoder) {
+func (s *SampleInputExamples) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *SampleDefaultInputs) encodeFields(e *jx.Encoder) {
+func (s *SampleInputExamples) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("default")
 		e.Str(s.Default)
@@ -1987,14 +1828,14 @@ func (s *SampleDefaultInputs) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfSampleDefaultInputs = [1]string{
+var jsonFieldsNameOfSampleInputExamples = [1]string{
 	0: "default",
 }
 
-// Decode decodes SampleDefaultInputs from json.
-func (s *SampleDefaultInputs) Decode(d *jx.Decoder) error {
+// Decode decodes SampleInputExamples from json.
+func (s *SampleInputExamples) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode SampleDefaultInputs to nil")
+		return errors.New("invalid: unable to decode SampleInputExamples to nil")
 	}
 	var requiredBitSet [1]uint8
 	s.AdditionalProps = map[string]string{}
@@ -2029,7 +1870,7 @@ func (s *SampleDefaultInputs) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode SampleDefaultInputs")
+		return errors.Wrap(err, "decode SampleInputExamples")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
@@ -2046,8 +1887,8 @@ func (s *SampleDefaultInputs) Decode(d *jx.Decoder) error {
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfSampleDefaultInputs) {
-					name = jsonFieldsNameOfSampleDefaultInputs[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfSampleInputExamples) {
+					name = jsonFieldsNameOfSampleInputExamples[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -2068,27 +1909,27 @@ func (s *SampleDefaultInputs) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *SampleDefaultInputs) MarshalJSON() ([]byte, error) {
+func (s *SampleInputExamples) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *SampleDefaultInputs) UnmarshalJSON(data []byte) error {
+func (s *SampleInputExamples) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
 
 // Encode implements json.Marshaler.
-func (s SampleDefaultInputsAdditional) Encode(e *jx.Encoder) {
+func (s SampleInputExamplesAdditional) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields implements json.Marshaler.
-func (s SampleDefaultInputsAdditional) encodeFields(e *jx.Encoder) {
+func (s SampleInputExamplesAdditional) encodeFields(e *jx.Encoder) {
 	for k, elem := range s {
 		e.FieldStart(k)
 
@@ -2096,10 +1937,10 @@ func (s SampleDefaultInputsAdditional) encodeFields(e *jx.Encoder) {
 	}
 }
 
-// Decode decodes SampleDefaultInputsAdditional from json.
-func (s *SampleDefaultInputsAdditional) Decode(d *jx.Decoder) error {
+// Decode decodes SampleInputExamplesAdditional from json.
+func (s *SampleInputExamplesAdditional) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode SampleDefaultInputsAdditional to nil")
+		return errors.New("invalid: unable to decode SampleInputExamplesAdditional to nil")
 	}
 	m := s.init()
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
@@ -2117,34 +1958,34 @@ func (s *SampleDefaultInputsAdditional) Decode(d *jx.Decoder) error {
 		m[string(k)] = elem
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode SampleDefaultInputsAdditional")
+		return errors.Wrap(err, "decode SampleInputExamplesAdditional")
 	}
 
 	return nil
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s SampleDefaultInputsAdditional) MarshalJSON() ([]byte, error) {
+func (s SampleInputExamplesAdditional) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *SampleDefaultInputsAdditional) UnmarshalJSON(data []byte) error {
+func (s *SampleInputExamplesAdditional) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
 
 // Encode implements json.Marshaler.
-func (s *SampleDefaultQueries) Encode(e *jx.Encoder) {
+func (s *SampleQueryExamples) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields encodes fields.
-func (s *SampleDefaultQueries) encodeFields(e *jx.Encoder) {
+func (s *SampleQueryExamples) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("default")
 		e.Str(s.Default)
@@ -2156,14 +1997,14 @@ func (s *SampleDefaultQueries) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfSampleDefaultQueries = [1]string{
+var jsonFieldsNameOfSampleQueryExamples = [1]string{
 	0: "default",
 }
 
-// Decode decodes SampleDefaultQueries from json.
-func (s *SampleDefaultQueries) Decode(d *jx.Decoder) error {
+// Decode decodes SampleQueryExamples from json.
+func (s *SampleQueryExamples) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode SampleDefaultQueries to nil")
+		return errors.New("invalid: unable to decode SampleQueryExamples to nil")
 	}
 	var requiredBitSet [1]uint8
 	s.AdditionalProps = map[string]string{}
@@ -2198,7 +2039,7 @@ func (s *SampleDefaultQueries) Decode(d *jx.Decoder) error {
 		}
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode SampleDefaultQueries")
+		return errors.Wrap(err, "decode SampleQueryExamples")
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
@@ -2215,8 +2056,8 @@ func (s *SampleDefaultQueries) Decode(d *jx.Decoder) error {
 				bitIdx := bits.TrailingZeros8(result)
 				fieldIdx := i*8 + bitIdx
 				var name string
-				if fieldIdx < len(jsonFieldsNameOfSampleDefaultQueries) {
-					name = jsonFieldsNameOfSampleDefaultQueries[fieldIdx]
+				if fieldIdx < len(jsonFieldsNameOfSampleQueryExamples) {
+					name = jsonFieldsNameOfSampleQueryExamples[fieldIdx]
 				} else {
 					name = strconv.Itoa(fieldIdx)
 				}
@@ -2237,27 +2078,27 @@ func (s *SampleDefaultQueries) Decode(d *jx.Decoder) error {
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s *SampleDefaultQueries) MarshalJSON() ([]byte, error) {
+func (s *SampleQueryExamples) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *SampleDefaultQueries) UnmarshalJSON(data []byte) error {
+func (s *SampleQueryExamples) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
 
 // Encode implements json.Marshaler.
-func (s SampleDefaultQueriesAdditional) Encode(e *jx.Encoder) {
+func (s SampleQueryExamplesAdditional) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
 // encodeFields implements json.Marshaler.
-func (s SampleDefaultQueriesAdditional) encodeFields(e *jx.Encoder) {
+func (s SampleQueryExamplesAdditional) encodeFields(e *jx.Encoder) {
 	for k, elem := range s {
 		e.FieldStart(k)
 
@@ -2265,10 +2106,10 @@ func (s SampleDefaultQueriesAdditional) encodeFields(e *jx.Encoder) {
 	}
 }
 
-// Decode decodes SampleDefaultQueriesAdditional from json.
-func (s *SampleDefaultQueriesAdditional) Decode(d *jx.Decoder) error {
+// Decode decodes SampleQueryExamplesAdditional from json.
+func (s *SampleQueryExamplesAdditional) Decode(d *jx.Decoder) error {
 	if s == nil {
-		return errors.New("invalid: unable to decode SampleDefaultQueriesAdditional to nil")
+		return errors.New("invalid: unable to decode SampleQueryExamplesAdditional to nil")
 	}
 	m := s.init()
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
@@ -2286,21 +2127,21 @@ func (s *SampleDefaultQueriesAdditional) Decode(d *jx.Decoder) error {
 		m[string(k)] = elem
 		return nil
 	}); err != nil {
-		return errors.Wrap(err, "decode SampleDefaultQueriesAdditional")
+		return errors.Wrap(err, "decode SampleQueryExamplesAdditional")
 	}
 
 	return nil
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s SampleDefaultQueriesAdditional) MarshalJSON() ([]byte, error) {
+func (s SampleQueryExamplesAdditional) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
 }
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *SampleDefaultQueriesAdditional) UnmarshalJSON(data []byte) error {
+func (s *SampleQueryExamplesAdditional) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

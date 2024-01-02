@@ -18,17 +18,6 @@ paths:
                 description: List of sample files
                 items:
                   $ref: '#/components/schemas/Sample'
-  /rules:
-    get:
-      responses:
-        '200':
-          description: A list of rules
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Rule'
   /depTreeText:
     get:
       parameters:
@@ -219,28 +208,9 @@ paths:
 
 components:
   schemas:
-    Rule:
-      type: object
-      properties:
-        rule_id:
-          type: string
-          description: The ID of the rule.
-        dependent_rules:
-          type: array
-          description: List of rule IDs this rule is dependent on.
-          items:
-            type: string
-        start_line:
-          type: integer
-          format: int32
-          description: The start line of the rule in the source code.
-        end_line:
-          type: integer
-          format: int32
-          description: The end line of the rule in the source code.
-      required: [ rule_id, dependent_rules, start_line, end_line ]
     Sample:
       type: object
+      description: OPA policy that can be used with this API.
       properties:
         file_name:
           type: string
@@ -248,9 +218,9 @@ components:
         content:
           type: string
           description: The content of the sample file.
-        default_inputs:
+        input_examples:
           type: object
-          description: List of default inputs for the sample.
+          description: List of input examples for the sample.
           properties:
             default:
               type: string
@@ -258,27 +228,27 @@ components:
           required: [ default ]
           additionalProperties:
             type: string
-        default_data:
+        data_examples:
+            type: object
+            description: List of data examples for the sample.
+            properties:
+              default:
+                type: string
+                description: The default data for the sample. Can be empty.
+            required: [ default ]
+            additionalProperties:
+                type: string
+        query_examples:
           type: object
-          description: List of default data for the sample.
+          description: List of query examples for the sample.
           properties:
             default:
               type: string
-              description: The default input for the sample. Can be empty.
+              description: The default query for the sample. Can be empty.
           required: [ default ]
           additionalProperties:
             type: string
-        default_queries:
-          type: object
-          description: List of default queries for the sample.
-          properties:
-            default:
-              type: string
-              description: The default input for the sample. Can be empty.
-          required: [ default ]
-          additionalProperties:
-            type: string
-      required: [ file_name, content, default_inputs, default_data, default_queries ]
+      required: [ file_name, content, input_examples, data_examples, query_examples ]
 
     NodeBase:
       type: object

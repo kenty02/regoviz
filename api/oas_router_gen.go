@@ -168,24 +168,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 					return
 				}
-			case 'r': // Prefix: "rules"
-				if l := len("rules"); len(elem) >= l && elem[0:l] == "rules" {
-					elem = elem[l:]
-				} else {
-					break
-				}
-
-				if len(elem) == 0 {
-					// Leaf node.
-					switch r.Method {
-					case "GET":
-						s.handleRulesGetRequest([0]string{}, elemIsEscaped, w, r)
-					default:
-						s.notAllowed(w, r, "GET")
-					}
-
-					return
-				}
 			case 's': // Prefix: "samples"
 				if l := len("samples"); len(elem) >= l && elem[0:l] == "samples" {
 					elem = elem[l:]
@@ -440,28 +422,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						r.summary = ""
 						r.operationID = ""
 						r.pathPattern = "/ir"
-						r.args = args
-						r.count = 0
-						return r, true
-					default:
-						return
-					}
-				}
-			case 'r': // Prefix: "rules"
-				if l := len("rules"); len(elem) >= l && elem[0:l] == "rules" {
-					elem = elem[l:]
-				} else {
-					break
-				}
-
-				if len(elem) == 0 {
-					switch method {
-					case "GET":
-						// Leaf: RulesGet
-						r.name = "RulesGet"
-						r.summary = ""
-						r.operationID = ""
-						r.pathPattern = "/rules"
 						r.args = args
 						r.count = 0
 						return r, true

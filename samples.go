@@ -95,16 +95,16 @@ func listSamples(dir string) ([]api.Sample, error) {
 
 		samples = append(samples, api.Sample{
 			FileName: policyName + ".rego",
-			Content:  string(rego),
-			DefaultInputs: api.SampleDefaultInputs{
+			Content:  rego,
+			InputExamples: api.SampleInputExamples{
 				Default:         defaultInput,
 				AdditionalProps: inputs[policyName],
 			},
-			DefaultData: api.SampleDefaultData{
+			DataExamples: api.SampleDataExamples{
 				Default:         defaultData,
 				AdditionalProps: data[policyName],
 			},
-			DefaultQueries: api.SampleDefaultQueries{
+			QueryExamples: api.SampleQueryExamples{
 				Default:         defaultQueries,
 				AdditionalProps: queries[policyName],
 			},

@@ -32,10 +32,6 @@ type Handler interface {
 	//
 	// GET /ir
 	IrGet(ctx context.Context, params IrGetParams) (*IrGetOK, error)
-	// RulesGet implements GET /rules operation.
-	//
-	// GET /rules
-	RulesGet(ctx context.Context) ([]Rule, error)
 	// SamplesGet implements GET /samples operation.
 	//
 	// GET /samples

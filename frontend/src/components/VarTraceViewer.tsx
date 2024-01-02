@@ -21,9 +21,9 @@ export function VarTraceViewer() {
 
 	// if seslectedSample is changed, reset input, data, query
 	useEffect(() => {
-		setInput(selectedSample.default_inputs.default);
-		setData(selectedSample.default_data.default);
-		setQuery(selectedSample.default_queries.default);
+		setInput(selectedSample.input_examples.default);
+		setData(selectedSample.data_examples.default);
+		setQuery(selectedSample.query_examples.default);
 	}, [selectedSample]);
 
 	const mutation = usePostVarTrace();

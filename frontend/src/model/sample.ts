@@ -5,19 +5,22 @@
  * api for regoviz
  * OpenAPI spec version: 1.0.0
  */
-import type { SampleDefaultData } from "./sampleDefaultData";
-import type { SampleDefaultInputs } from "./sampleDefaultInputs";
-import type { SampleDefaultQueries } from "./sampleDefaultQueries";
+import type { SampleDataExamples } from "./sampleDataExamples";
+import type { SampleInputExamples } from "./sampleInputExamples";
+import type { SampleQueryExamples } from "./sampleQueryExamples";
 
+/**
+ * OPA policy that can be used with this API.
+ */
 export interface Sample {
 	/** The content of the sample file. */
 	content: string;
-	/** List of default data for the sample. */
-	default_data: SampleDefaultData;
-	/** List of default inputs for the sample. */
-	default_inputs: SampleDefaultInputs;
-	/** List of default queries for the sample. */
-	default_queries: SampleDefaultQueries;
+	/** List of data examples for the sample. */
+	data_examples: SampleDataExamples;
 	/** The name of the sample file. */
 	file_name: string;
+	/** List of input examples for the sample. */
+	input_examples: SampleInputExamples;
+	/** List of query examples for the sample. */
+	query_examples: SampleQueryExamples;
 }
