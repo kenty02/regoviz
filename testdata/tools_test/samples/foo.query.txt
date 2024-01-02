@@ -1,1 +1,1 @@
-foo default query
+foo.rego default query

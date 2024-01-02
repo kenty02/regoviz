@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/open-policy-agent/opa/ir"
-	"os"
 	"regoviz/api"
 	"regoviz/astprint"
 	"strconv"
@@ -139,7 +138,7 @@ func (p *regovizService) VarTracePost(_ context.Context, params api.VarTracePost
 			varName := commandStrs[2]
 			switch command {
 			case "fixVar":
-				varValue := commandStrs[3]
+				varValue := strings.Join(commandStrs[3:], " ")
 				commands = append(commands, FixVarCommand{
 					varLineNum: lineNum,
 					varName:    varName,
@@ -168,26 +167,7 @@ func (p *regovizService) VarTracePost(_ context.Context, params api.VarTracePost
 }
 
 func (p *regovizService) SamplesGet(_ context.Context) ([]api.Sample, error) {
-	// find .rego files in samples directory and return them
-	files, err := os.ReadDir("samples")
-	if err != nil {
-		return nil, err
-	}
-	var samples []api.Sample
-	for _, file := range files {
-		if strings.HasSuffix(file.Name(), ".rego") {
-			// read content
-			content, err := os.ReadFile(fmt.Sprintf("samples/%s", file.Name()))
-			if err != nil {
-				return nil, err
-			}
-			samples = append(samples, api.Sample{
-				FileName: file.Name(),
-				Content:  string(content),
-			})
-		}
-	}
-	return samples, nil
+	return listSamples("samples")
 }
 
 func (p *regovizService) RulesGet(_ context.Context) ([]api.Rule, error) {

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input.tsx";
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { usePostVarTrace } from "@/default/default.ts";
 import { useAtomValue } from "jotai/index";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export function VarTraceViewer() {
 	const selectedSample = useAtomValue(selectedSampleAtom);
@@ -18,6 +18,14 @@ export function VarTraceViewer() {
 # 例：
 # showVars 8 role
 # fixVar 8 role "hoge"`);
+
+	// if seslectedSample is changed, reset input, data, query
+	useEffect(() => {
+		setInput(selectedSample.default_inputs.default);
+		setData(selectedSample.default_data.default);
+		setQuery(selectedSample.default_queries.default);
+	}, [selectedSample]);
+
 	const mutation = usePostVarTrace();
 	const onExecuteClick = () => {
 		void mutation.mutateAsync({

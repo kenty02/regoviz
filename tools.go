@@ -369,6 +369,9 @@ func injectCode(code string, cis []CodeInject) string {
 
 	// 各挿入について処理
 	for _, ci := range cis {
+		if strings.Contains(ci.code, "\n") || strings.Contains(ci.code, "\r") {
+			panic("ci.code contains new line")
+		}
 		if ci.line > 0 && ci.line <= len(lines) {
 			// 行番号は1から始まるが、スライスのインデックスは0から始まるため調整
 			index := ci.line - 1
@@ -420,7 +423,8 @@ var vtPattern = `VTBEGIN ([A-Za-z_][A-Za-z_0-9]*) (.+) VTEND`
 var vtRe = regexp.MustCompile(vtPattern)
 
 func regoVarTrace(code, query string, input, data map[string]interface{}, commands []interface{}) (string, error) {
-	lines := strings.Split(code, "\n")
+	lines := strings.Split(strings.ReplaceAll(code, "\r\n", "\n"), "\n")
+
 	var sb strings.Builder
 	var showVarsCommands []ShowVarsCommand
 	var fixVarCommands []FixVarCommand
@@ -473,7 +477,7 @@ func regoVarTrace(code, query string, input, data map[string]interface{}, comman
 		if err != nil {
 			return "", err
 		}
-		sb.WriteString(fmt.Sprintf("変数%sの値を%sに固定しました。", command.varName, command.varValue))
+		sb.WriteString(fmt.Sprintf("変数%sの値を%sに固定しました。\n", command.varName, command.varValue))
 	}
 	for _, command := range showVarsCommands {
 		// 行番号は1から始まるが、スライスのインデックスは0から始まるため調整
@@ -513,7 +517,6 @@ func regoVarTrace(code, query string, input, data map[string]interface{}, comman
 			if len(match) > 2 {
 				varName := match[1]
 				varValue := match[2]
-				fmt.Printf("varName: %s, varValue: %s\n", varName, varValue)
 
 				if varName != command.varName {
 					return "", fmt.Errorf("expected varName: %s, actual varName: %s", command.varName, varName)
@@ -537,7 +540,6 @@ func regoVarTrace(code, query string, input, data map[string]interface{}, comman
 			if len(match) > 2 {
 				varName := match[1]
 				varValue := match[2]
-				fmt.Printf("varName: %s, varValue: %s\n", varName, varValue)
 
 				if varName != command.varName {
 					return "", fmt.Errorf("expected varName: %s, actual varName: %s", command.varName, varName)

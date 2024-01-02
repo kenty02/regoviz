@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	api "regoviz/api"
+	"sort"
 	"strings"
 )
 
@@ -69,11 +69,10 @@ func listSamples(dir string) ([]api.Sample, error) {
 		return nil, err
 	}
 	for policyName, rego := range regos {
+		// fallback = empty
 		defaultInput := ""
 		if _, ok := inputs[policyName]; ok {
 			defaultInput = inputs[policyName]["default"]
-		} else {
-			return nil, fmt.Errorf("no default input for %s", policyName)
 		}
 		// omit default input from inputs
 		delete(inputs[policyName], "default")
@@ -81,8 +80,6 @@ func listSamples(dir string) ([]api.Sample, error) {
 		defaultData := ""
 		if _, ok := data[policyName]; ok {
 			defaultData = data[policyName]["default"]
-		} else {
-			return nil, fmt.Errorf("no default data for %s", policyName)
 		}
 		// omit default data from data
 		delete(data[policyName], "default")
@@ -90,14 +87,12 @@ func listSamples(dir string) ([]api.Sample, error) {
 		defaultQueries := ""
 		if _, ok := queries[policyName]; ok {
 			defaultQueries = queries[policyName]["default"]
-		} else {
-			return nil, fmt.Errorf("no default queries for %s", policyName)
 		}
 		// omit default queries from queries
 		delete(queries[policyName], "default")
 
 		samples = append(samples, api.Sample{
-			FileName: policyName,
+			FileName: policyName + ".rego",
 			Content:  string(rego),
 			DefaultInputs: api.SampleDefaultInputs{
 				Default:         defaultInput,
@@ -118,13 +113,18 @@ func listSamples(dir string) ([]api.Sample, error) {
 		delete(queries, policyName)
 	}
 
+	// sort samples
+	sort.Slice(samples, func(i, j int) bool {
+		return samples[i].FileName < samples[j].FileName
+	})
+
 	return samples, nil
 }
 
 func readSample(name string, dir string) (string, error) {
 	// read from samples/NAME
 	var sample string
-	samplePath := filepath.Join(dir, name)
+	samplePath := filepath.Join(dir, filepath.Clean(name))
 	if _, err := os.Stat(samplePath); err != nil {
 		return "", err
 	}

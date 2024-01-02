@@ -1,1 +1,1 @@
-foo another query
+foo.rego another query
