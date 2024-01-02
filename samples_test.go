@@ -40,3 +40,11 @@ func TestListSamplesReturnsCorrectSamples(t *testing.T) {
 		}
 	}
 }
+
+func TestReadSample(t *testing.T) {
+	name := "../samples/rbac.rego"
+	_, err := readSample(name, "./testdata")
+	if err == nil {
+		t.Errorf("expected error, got nil")
+	}
+}

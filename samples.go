@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	api "regoviz/api"
 	"sort"
 	"strings"
@@ -122,9 +124,14 @@ func listSamples(dir string) ([]api.Sample, error) {
 }
 
 func readSample(name string, dir string) (string, error) {
+	regex := `^[a-zA-Z0-9_]+\.rego$`
+	if matched, err := regexp.MatchString(regex, name); err != nil || !matched {
+		return "", fmt.Errorf("invalid sample name: %s", name)
+	}
+
 	// read from samples/NAME
 	var sample string
-	samplePath := filepath.Join(dir, filepath.Clean(name))
+	samplePath := filepath.Join(dir, name)
 	if _, err := os.Stat(samplePath); err != nil {
 		return "", err
 	}
