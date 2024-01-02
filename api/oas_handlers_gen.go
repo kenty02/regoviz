@@ -166,6 +166,153 @@ func (s *Server) handleAstGetRequest(args [0]string, argsEscaped bool, w http.Re
 	}
 }
 
+// handleAstPrettyGetRequest handles GET /astPretty operation.
+//
+// GET /astPretty
+func (s *Server) handleAstPrettyGetRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+	otelAttrs := []attribute.KeyValue{
+		semconv.HTTPMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/astPretty"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "AstPrettyGet",
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(float64(elapsedDuration)/float64(time.Millisecond)), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	s.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			s.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: "AstPrettyGet",
+			ID:   "",
+		}
+	)
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			sctx, ok, err := s.securityBearerAuth(ctx, "AstPrettyGet", r)
+			if err != nil {
+				err = &ogenerrors.SecurityError{
+					OperationContext: opErrContext,
+					Security:         "BearerAuth",
+					Err:              err,
+				}
+				recordError("Security:BearerAuth", err)
+				s.cfg.ErrorHandler(ctx, w, r, err)
+				return
+			}
+			if ok {
+				satisfied[0] |= 1 << 0
+				ctx = sctx
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			err = &ogenerrors.SecurityError{
+				OperationContext: opErrContext,
+				Err:              ogenerrors.ErrSecurityRequirementIsNotSatisfied,
+			}
+			recordError("Security", err)
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+	}
+	params, err := decodeAstPrettyGetParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	var response *AstPrettyGetOK
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:          ctx,
+			OperationName:    "AstPrettyGet",
+			OperationSummary: "",
+			OperationID:      "",
+			Body:             nil,
+			Params: middleware.Parameters{
+				{
+					Name: "sampleName",
+					In:   "query",
+				}: params.SampleName,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = AstPrettyGetParams
+			Response = *AstPrettyGetOK
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackAstPrettyGetParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.AstPrettyGet(ctx, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.AstPrettyGet(ctx, params)
+	}
+	if err != nil {
+		recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeAstPrettyGetResponse(response, w, span); err != nil {
+		recordError("EncodeResponse", err)
+		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+		}
+		return
+	}
+}
+
 // handleCallTreeGetRequest handles GET /callTree operation.
 //
 // GET /callTree

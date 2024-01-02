@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-//go:embed testdata/tools_test/rbac.rego
+//go:embed testdata/rbac.rego
 var rbacRego string
 
 //func TestCompilerPlanTarget(t *testing.T) {

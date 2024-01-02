@@ -70,6 +70,64 @@ func decodeAstGetParams(args [0]string, argsEscaped bool, r *http.Request) (para
 	return params, nil
 }
 
+// AstPrettyGetParams is parameters of GET /astPretty operation.
+type AstPrettyGetParams struct {
+	// The sample name to analyze.
+	SampleName string
+}
+
+func unpackAstPrettyGetParams(packed middleware.Parameters) (params AstPrettyGetParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "sampleName",
+			In:   "query",
+		}
+		params.SampleName = packed[key].(string)
+	}
+	return params
+}
+
+func decodeAstPrettyGetParams(args [0]string, argsEscaped bool, r *http.Request) (params AstPrettyGetParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode query: sampleName.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "sampleName",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.SampleName = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "sampleName",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // CallTreeGetParams is parameters of GET /callTree operation.
 type CallTreeGetParams struct {
 	// The sample name to analyze.

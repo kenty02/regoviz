@@ -8,6 +8,7 @@ import (
 	"github.com/open-policy-agent/opa/ir"
 	"os"
 	"regoviz/api"
+	"regoviz/astprint"
 	"strconv"
 	"strings"
 	"sync"
@@ -215,6 +216,27 @@ func (p *regovizService) AstGet(_ context.Context, params api.AstGetParams) (*ap
 
 	// return modJson
 	return &api.AstGetOK{Result: string([]byte(modJson))}, nil
+}
+
+func (p *regovizService) AstPrettyGet(_ context.Context, params api.AstPrettyGetParams) (*api.AstPrettyGetOK, error) {
+	//load sample
+	sample, err := readSample(params.SampleName, "samples")
+	// compile module
+	mod, err := compileRego(sample)
+
+	if err != nil {
+		return nil, err
+	}
+
+	buf := bytes.Buffer{}
+	astprint.Pretty(&buf, mod)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// return modJson
+	return &api.AstPrettyGetOK{Result: buf.String()}, nil
 }
 
 func (p *regovizService) DepTreeTextGet(ctx context.Context, params api.DepTreeTextGetParams) (*api.DepTreeTextGetOK, error) {

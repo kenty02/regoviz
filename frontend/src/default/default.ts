@@ -28,6 +28,8 @@ import * as axios from "axios";
 import type { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import type { GetAst200 } from "../model/getAst200";
 import type { GetAstParams } from "../model/getAstParams";
+import type { GetAstPretty200 } from "../model/getAstPretty200";
+import type { GetAstPrettyParams } from "../model/getAstPrettyParams";
 import type { GetCallTree200 } from "../model/getCallTree200";
 import type { GetCallTreeParams } from "../model/getCallTreeParams";
 import type { GetDepTreeText200 } from "../model/getDepTreeText200";
@@ -1038,6 +1040,209 @@ export const useGetAstSuspenseInfinite = <
 	},
 ): UseSuspenseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } => {
 	const queryOptions = getGetAstSuspenseInfiniteQueryOptions(params, options);
+
+	const query = useSuspenseInfiniteQuery(
+		queryOptions,
+	) as UseSuspenseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey };
+
+	query.queryKey = queryOptions.queryKey;
+
+	return query;
+};
+
+export const getAstPretty = (
+	params: GetAstPrettyParams,
+	options?: AxiosRequestConfig,
+): Promise<AxiosResponse<GetAstPretty200>> => {
+	return axios.default.get("/astPretty", {
+		...options,
+		params: { ...params, ...options?.params },
+	});
+};
+
+export const getGetAstPrettyQueryKey = (params: GetAstPrettyParams) => {
+	return ["/astPretty", ...(params ? [params] : [])] as const;
+};
+
+export const getGetAstPrettyQueryOptions = <
+	TData = Awaited<ReturnType<typeof getAstPretty>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetAstPrettyParams,
+	options?: {
+		query?: Partial<
+			UseQueryOptions<Awaited<ReturnType<typeof getAstPretty>>, TError, TData>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+) => {
+	const { query: queryOptions, axios: axiosOptions } = options ?? {};
+
+	const queryKey = queryOptions?.queryKey ?? getGetAstPrettyQueryKey(params);
+
+	const queryFn: QueryFunction<Awaited<ReturnType<typeof getAstPretty>>> = ({
+		signal,
+	}) => getAstPretty(params, { signal, ...axiosOptions });
+
+	return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+		Awaited<ReturnType<typeof getAstPretty>>,
+		TError,
+		TData
+	> & { queryKey: QueryKey };
+};
+
+export type GetAstPrettyQueryResult = NonNullable<
+	Awaited<ReturnType<typeof getAstPretty>>
+>;
+export type GetAstPrettyQueryError = AxiosError<unknown>;
+
+export const useGetAstPretty = <
+	TData = Awaited<ReturnType<typeof getAstPretty>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetAstPrettyParams,
+	options?: {
+		query?: Partial<
+			UseQueryOptions<Awaited<ReturnType<typeof getAstPretty>>, TError, TData>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+	const queryOptions = getGetAstPrettyQueryOptions(params, options);
+
+	const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+		queryKey: QueryKey;
+	};
+
+	query.queryKey = queryOptions.queryKey;
+
+	return query;
+};
+
+export const getGetAstPrettySuspenseQueryOptions = <
+	TData = Awaited<ReturnType<typeof getAstPretty>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetAstPrettyParams,
+	options?: {
+		query?: Partial<
+			UseSuspenseQueryOptions<
+				Awaited<ReturnType<typeof getAstPretty>>,
+				TError,
+				TData
+			>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+) => {
+	const { query: queryOptions, axios: axiosOptions } = options ?? {};
+
+	const queryKey = queryOptions?.queryKey ?? getGetAstPrettyQueryKey(params);
+
+	const queryFn: QueryFunction<Awaited<ReturnType<typeof getAstPretty>>> = ({
+		signal,
+	}) => getAstPretty(params, { signal, ...axiosOptions });
+
+	return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+		Awaited<ReturnType<typeof getAstPretty>>,
+		TError,
+		TData
+	> & { queryKey: QueryKey };
+};
+
+export type GetAstPrettySuspenseQueryResult = NonNullable<
+	Awaited<ReturnType<typeof getAstPretty>>
+>;
+export type GetAstPrettySuspenseQueryError = AxiosError<unknown>;
+
+export const useGetAstPrettySuspense = <
+	TData = Awaited<ReturnType<typeof getAstPretty>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetAstPrettyParams,
+	options?: {
+		query?: Partial<
+			UseSuspenseQueryOptions<
+				Awaited<ReturnType<typeof getAstPretty>>,
+				TError,
+				TData
+			>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+	const queryOptions = getGetAstPrettySuspenseQueryOptions(params, options);
+
+	const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+		TData,
+		TError
+	> & { queryKey: QueryKey };
+
+	query.queryKey = queryOptions.queryKey;
+
+	return query;
+};
+
+export const getGetAstPrettySuspenseInfiniteQueryOptions = <
+	TData = InfiniteData<Awaited<ReturnType<typeof getAstPretty>>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetAstPrettyParams,
+	options?: {
+		query?: Partial<
+			UseSuspenseInfiniteQueryOptions<
+				Awaited<ReturnType<typeof getAstPretty>>,
+				TError,
+				TData
+			>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+) => {
+	const { query: queryOptions, axios: axiosOptions } = options ?? {};
+
+	const queryKey = queryOptions?.queryKey ?? getGetAstPrettyQueryKey(params);
+
+	const queryFn: QueryFunction<Awaited<ReturnType<typeof getAstPretty>>> = ({
+		signal,
+	}) => getAstPretty(params, { signal, ...axiosOptions });
+
+	return {
+		queryKey,
+		queryFn,
+		...queryOptions,
+	} as UseSuspenseInfiniteQueryOptions<
+		Awaited<ReturnType<typeof getAstPretty>>,
+		TError,
+		TData
+	> & { queryKey: QueryKey };
+};
+
+export type GetAstPrettySuspenseInfiniteQueryResult = NonNullable<
+	Awaited<ReturnType<typeof getAstPretty>>
+>;
+export type GetAstPrettySuspenseInfiniteQueryError = AxiosError<unknown>;
+
+export const useGetAstPrettySuspenseInfinite = <
+	TData = InfiniteData<Awaited<ReturnType<typeof getAstPretty>>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetAstPrettyParams,
+	options?: {
+		query?: Partial<
+			UseSuspenseInfiniteQueryOptions<
+				Awaited<ReturnType<typeof getAstPretty>>,
+				TError,
+				TData
+			>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+): UseSuspenseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } => {
+	const queryOptions = getGetAstPrettySuspenseInfiniteQueryOptions(
+		params,
+		options,
+	);
 
 	const query = useSuspenseInfiniteQuery(
 		queryOptions,

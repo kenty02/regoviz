@@ -12,6 +12,10 @@ type Handler interface {
 	//
 	// GET /ast
 	AstGet(ctx context.Context, params AstGetParams) (*AstGetOK, error)
+	// AstPrettyGet implements GET /astPretty operation.
+	//
+	// GET /astPretty
+	AstPrettyGet(ctx context.Context, params AstPrettyGetParams) (*AstPrettyGetOK, error)
 	// CallTreeGet implements GET /callTree operation.
 	//
 	// GET /callTree

@@ -148,6 +148,27 @@ paths:
                     type: string
                     description: The generated AST
                 required: [ result ]
+  /astPretty:
+    get:
+      parameters:
+        - in: query
+          name: sampleName
+          schema:
+              type: string
+          description: The sample name to analyze
+          required: true
+      responses:
+        '200':
+          description: AST of given module
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    description: The generated AST
+                required: [ result ]
   /ir:
     get:
       parameters:

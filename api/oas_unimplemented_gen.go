@@ -20,6 +20,13 @@ func (UnimplementedHandler) AstGet(ctx context.Context, params AstGetParams) (r 
 	return r, ht.ErrNotImplemented
 }
 
+// AstPrettyGet implements GET /astPretty operation.
+//
+// GET /astPretty
+func (UnimplementedHandler) AstPrettyGet(ctx context.Context, params AstPrettyGetParams) (r *AstPrettyGetOK, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CallTreeGet implements GET /callTree operation.
 //
 // GET /callTree

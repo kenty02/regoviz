@@ -21,6 +21,21 @@ func (s *AstGetOK) SetResult(val string) {
 	s.Result = val
 }
 
+type AstPrettyGetOK struct {
+	// The generated AST.
+	Result string `json:"result"`
+}
+
+// GetResult returns the value of Result.
+func (s *AstPrettyGetOK) GetResult() string {
+	return s.Result
+}
+
+// SetResult sets the value of Result.
+func (s *AstPrettyGetOK) SetResult(val string) {
+	s.Result = val
+}
+
 type BearerAuth struct {
 	Token string
 }
