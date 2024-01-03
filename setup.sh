@@ -6,12 +6,14 @@ node -v
 go version
 if ! [ -x "$(command -v air)" ]; then
     read -p "air is not installed. Do you want to install it via 'go install'? (y/N) " -n 1 -r
+    read -r
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         go install github.com/cosmtrek/air@latest
     fi
 fi
 if ! [ -x "$(command -v golangci-lint)" ]; then
     read -p "golangci-lint is not installed. Do you want to install it via 'curl'? (y/N) " -n 1 -r
+    read -r
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         # https://golangci-lint.run/usage/install/#binaries
         # shellcheck disable=SC2046
@@ -24,6 +26,7 @@ if ! [ -x "$(command -v golangci-lint)" ]; then
 fi
 if ! [ -x "$(command -v lefthook)" ]; then
     read -p "lefthook is not installed. Do you want to install it via 'go install'? (y/N) " -n 1 -r
+    read -r
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         go install github.com/evilmartians/lefthook@latest
     else
