@@ -1,4 +1,4 @@
-package main
+package analyzer
 
 import (
 	"context"
@@ -90,7 +90,7 @@ var rbacRego string
 
 func TestCompileRego(t *testing.T) {
 	rego := rbacRego
-	mod, err := compileRego(rego)
+	mod, err := CompileRego(rego)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -116,7 +116,7 @@ allow {
 	a[_] = input
 }
 `
-	_, err := plan(ctx, rego, false, false)
+	_, err := Plan(ctx, rego, false, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -134,7 +134,7 @@ allow {
 	a[_] = input
 }
 `
-	_, err := plan(ctx, rego, false, true)
+	_, err := Plan(ctx, rego, false, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -152,7 +152,7 @@ allow {
 	a[_] = input
 }
 `
-	_, err := plan(ctx, rego, false, true)
+	_, err := Plan(ctx, rego, false, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -186,7 +186,7 @@ allow {
 func TestGetDepTreeMap(t *testing.T) {
 	ctx := context.Background()
 
-	plan, err := plan(ctx, rbacRego, false, true)
+	plan, err := Plan(ctx, rbacRego, false, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -203,14 +203,14 @@ func TestGetDepTreeMap(t *testing.T) {
 func TestGetMermaidFlowchart(t *testing.T) {
 	ctx := context.Background()
 
-	plan, err := plan(ctx, rbacRego, false, true)
+	plan, err := Plan(ctx, rbacRego, false, true)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	mermaid := getMermaidFlowchart(plan)
+	mermaid := GetMermaidFlowchart(plan)
 
-	url, err := getMermaidUrl(mermaid, true)
+	url, err := GetMermaidUrl(mermaid, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -373,11 +373,11 @@ allow {
 		//	varValue:   "\"hoge\"",
 		//},
 		ShowVarsCommand{
-			varLineNum: 8,
-			varName:    "role",
+			VarLineNum: 8,
+			VarName:    "role",
 		},
 	}
-	result, err := regoVarTrace(rego, query, input, nil, commands)
+	result, err := RegoVarTrace(rego, query, input, nil, commands)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -386,10 +386,10 @@ allow {
 
 func TestGetDepTreePretty(t *testing.T) {
 	rego := rbacRego
-	plan, err := plan(context.Background(), rego, false, true)
+	plan, err := Plan(context.Background(), rego, false, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	treeMap := getDepTreePretty(plan)
+	treeMap := GetDepTreePretty(plan)
 	fmt.Println(treeMap)
 }

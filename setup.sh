@@ -42,16 +42,16 @@ else
     cp .env.local.example .env.local
 fi
 
-cd frontend
+cd web
 
 if [ -f .env.local ]; then
-    echo "frontend/.env.local already exists"
+    echo "web/.env.local already exists"
 else
     cp .env.local.example .env.local
 fi
 
 if [ -f .dev.vars ]; then
-    echo "frontend/.dev.vars already exists"
+    echo "web/.dev.vars already exists"
 else
     cp .env.local.example .dev.vars
 fi

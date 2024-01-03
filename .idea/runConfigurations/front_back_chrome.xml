@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="front&amp;back&amp;chrome" type="CompoundRunConfigurationType">
+    <toRun name="front&amp;back" type="CompoundRunConfigurationType" />
+    <toRun name="localhost:5173" type="JavascriptDebugType" />
+    <method v="2" />
+  </configuration>
+</component>

@@ -1,10 +1,10 @@
-package main
+package utils
 
 import (
 	"fmt"
 	"time"
 )
 
-func uid() string {
+func GenerateId() string {
 	return fmt.Sprintf("%x", time.Now().UnixNano())
 }

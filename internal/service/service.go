@@ -1,4 +1,4 @@
-package main
+package service
 
 import (
 	"bytes"
@@ -6,8 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/open-policy-agent/opa/ir"
-	"regoviz/api"
-	"regoviz/astprint"
+	"regoviz/internal/analyzer"
+	"regoviz/internal/analyzer/astprint"
+	"regoviz/internal/api"
+	"regoviz/internal/samples"
+	"regoviz/internal/utils"
 	"strconv"
 	"strings"
 )
@@ -19,26 +22,26 @@ func (p *regovizService) CallTreeGet(ctx context.Context, params api.CallTreeGet
 	stub := api.CallTreeGetOK{
 		Entrypoint: api.RuleParent{
 			Name:    "i_am_entrypoint",
-			UID:     uid(),
+			UID:     utils.GenerateId(),
 			Type:    api.RuleParentTypeParent,
 			Default: "false",
 			Children: []api.RuleParentChildrenItem{{
 				Type: api.RuleChildRuleParentChildrenItem,
 				RuleChild: api.RuleChild{
 					Name:  "i_am_entrypoint_1",
-					UID:   uid(),
+					UID:   utils.GenerateId(),
 					Type:  api.RuleChildTypeChild,
 					Value: "",
 					Statements: []api.RuleStatement{
 						{
 							Name: "foo == data.foo",
-							UID:  uid(),
+							UID:  utils.GenerateId(),
 							Dependencies: []api.RuleStatementDependenciesItem{
 								{
 									Type: api.RuleParentRuleStatementDependenciesItem,
 									RuleParent: api.RuleParent{
 										Name:     "foo",
-										UID:      uid(),
+										UID:      utils.GenerateId(),
 										Type:     api.RuleParentTypeParent,
 										Default:  "false",
 										Children: nil,
@@ -60,11 +63,11 @@ func (p *regovizService) CallTreeGet(ctx context.Context, params api.CallTreeGet
 }
 
 func (p *regovizService) IrGet(ctx context.Context, params api.IrGetParams) (*api.IrGetOK, error) {
-	sample, err := readSample(params.SampleName, "samples")
+	sample, err := samples.ReadSample(params.SampleName, "samples")
 	if err != nil {
 		return nil, err
 	}
-	policy, err := plan(ctx, sample, false, true)
+	policy, err := analyzer.Plan(ctx, sample, false, true)
 	if err != nil {
 		return nil, err
 	}
@@ -76,17 +79,17 @@ func (p *regovizService) IrGet(ctx context.Context, params api.IrGetParams) (*ap
 }
 
 func (p *regovizService) FlowchartGet(ctx context.Context, params api.FlowchartGetParams) (*api.FlowchartGetOK, error) {
-	sample, err := readSample(params.SampleName, "samples")
+	sample, err := samples.ReadSample(params.SampleName, "samples")
 	if err != nil {
 		return nil, err
 	}
-	plan, err := plan(ctx, sample, false, true)
+	plan, err := analyzer.Plan(ctx, sample, false, true)
 	if err != nil {
 		return nil, err
 	}
 
-	mermaid := getMermaidFlowchart(plan)
-	url, err := getMermaidUrl(mermaid, params.Edit.Or(false))
+	mermaid := analyzer.GetMermaidFlowchart(plan)
+	url, err := analyzer.GetMermaidUrl(mermaid, params.Edit.Or(false))
 	if err != nil {
 		return nil, err
 	}
@@ -139,15 +142,15 @@ func (p *regovizService) VarTracePost(_ context.Context, params api.VarTracePost
 			switch command {
 			case "fixVar":
 				varValue := strings.Join(commandStrs[3:], " ")
-				commands = append(commands, FixVarCommand{
-					varLineNum: lineNum,
-					varName:    varName,
-					varValue:   varValue,
+				commands = append(commands, analyzer.FixVarCommand{
+					VarLineNum: lineNum,
+					VarName:    varName,
+					VarValue:   varValue,
 				})
 			case "showVars":
-				commands = append(commands, ShowVarsCommand{
-					varLineNum: lineNum,
-					varName:    varName,
+				commands = append(commands, analyzer.ShowVarsCommand{
+					VarLineNum: lineNum,
+					VarName:    varName,
 				})
 			default:
 				return nil, fmt.Errorf("invalid command: %s", commandStr)
@@ -155,11 +158,11 @@ func (p *regovizService) VarTracePost(_ context.Context, params api.VarTracePost
 		}
 	}
 
-	sample, err := readSample(params.SampleName, "samples")
+	sample, err := samples.ReadSample(params.SampleName, "samples")
 	if err != nil {
 		return nil, err
 	}
-	result, err := regoVarTrace(sample, query, input, data, commands)
+	result, err := analyzer.RegoVarTrace(sample, query, input, data, commands)
 	if err != nil {
 		return nil, err
 	}
@@ -167,16 +170,16 @@ func (p *regovizService) VarTracePost(_ context.Context, params api.VarTracePost
 }
 
 func (p *regovizService) SamplesGet(_ context.Context) ([]api.Sample, error) {
-	return listSamples("samples")
+	return samples.ListSamples("samples")
 }
 
 func (p *regovizService) AstGet(_ context.Context, params api.AstGetParams) (*api.AstGetOK, error) {
 	//load sample
-	sample, err := readSample(params.SampleName, "samples")
+	sample, err := samples.ReadSample(params.SampleName, "samples")
 	if err != nil {
 		return nil, err
 	}
-	mod, err := compileRego(sample)
+	mod, err := analyzer.CompileRego(sample)
 
 	if err != nil {
 		return nil, err
@@ -195,12 +198,12 @@ func (p *regovizService) AstGet(_ context.Context, params api.AstGetParams) (*ap
 
 func (p *regovizService) AstPrettyGet(_ context.Context, params api.AstPrettyGetParams) (*api.AstPrettyGetOK, error) {
 	//load sample
-	sample, err := readSample(params.SampleName, "samples")
+	sample, err := samples.ReadSample(params.SampleName, "samples")
 	if err != nil {
 		return nil, err
 	}
 	// compile module
-	mod, err := compileRego(sample)
+	mod, err := analyzer.CompileRego(sample)
 
 	if err != nil {
 		return nil, err
@@ -268,16 +271,16 @@ func (p *regovizService) DepTreeTextGet(ctx context.Context, params api.DepTreeT
 	//resultString := sb.String()
 	//return &api.DepTreeTextGetOK{Result: resultString}, nil
 
-	sample, err := readSample(params.SampleName, "samples")
+	sample, err := samples.ReadSample(params.SampleName, "samples")
 	if err != nil {
 		return nil, err
 	}
 
-	plan, err := plan(ctx, sample, false, true)
+	plan, err := analyzer.Plan(ctx, sample, false, true)
 	if err != nil {
 		return nil, err
 	}
-	treeMap := getDepTreePretty(plan)
+	treeMap := analyzer.GetDepTreePretty(plan)
 	return &api.DepTreeTextGetOK{Result: treeMap}, nil
 }
 

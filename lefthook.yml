@@ -2,10 +2,10 @@ pre-commit:
   parallel: true
   commands:
     frontend-check:
-      root: frontend
+      root: web
       run: npm run check:specify {staged_files}
     frontend-tsc:
-        root: frontend
+        root: web
         run: npx tsc --noEmit
     backend-lint:
       glob: '*.go'

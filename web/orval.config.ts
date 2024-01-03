@@ -2,7 +2,7 @@ import { defineConfig } from "orval";
 
 export default defineConfig({
 	regoviz: {
-		input: "../openapi.yml",
+		input: "../api/openapi.yml",
 		output: {
 			mode: "tags-split",
 			target: "./src/regoviz-client.ts",

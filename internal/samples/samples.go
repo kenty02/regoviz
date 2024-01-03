@@ -1,11 +1,11 @@
-package main
+package samples
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
-	api "regoviz/api"
+	"regoviz/internal/api"
 	"sort"
 	"strings"
 )
@@ -28,7 +28,7 @@ func processFile(ext string, dataMap *map[string]map[string]string, path string)
 	return nil
 }
 
-func listSamples(dir string) ([]api.Sample, error) {
+func ListSamples(dir string) ([]api.Sample, error) {
 	var samples []api.Sample
 	inputs := map[string]map[string]string{}
 	data := map[string]map[string]string{}
@@ -123,7 +123,7 @@ func listSamples(dir string) ([]api.Sample, error) {
 	return samples, nil
 }
 
-func readSample(name string, dir string) (string, error) {
+func ReadSample(name string, dir string) (string, error) {
 	regex := `^[a-zA-Z0-9_]+\.rego$`
 	if matched, err := regexp.MatchString(regex, name); err != nil || !matched {
 		return "", fmt.Errorf("invalid sample name: %s", name)
