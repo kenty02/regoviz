@@ -36,24 +36,6 @@ if ! [ -x "$(command -v lefthook)" ]; then
 fi
 lefthook install
 
-if [ -f .env.local ]; then
-    echo ".env.local already exists"
-else
-    cp .env.local.example .env.local
-fi
-
 cd web
-
-if [ -f .env.local ]; then
-    echo "web/.env.local already exists"
-else
-    cp .env.local.example .env.local
-fi
-
-if [ -f .dev.vars ]; then
-    echo "web/.dev.vars already exists"
-else
-    cp .env.local.example .dev.vars
-fi
 
 npm install

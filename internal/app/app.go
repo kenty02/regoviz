@@ -36,7 +36,7 @@ func (s SecurityHandler) HandleBearerAuth(ctx context.Context, _ string, t api.B
 }
 
 func Run() {
-	_ = godotenv.Load(".env.local")
+	_ = godotenv.Load(".env.development", ".env.local")
 
 	// To initialize Sentry's handler, you need to initialize Sentry itself beforehand
 	if err := sentry.Init(sentry.ClientOptions{
