@@ -15,4 +15,4 @@
    1. Run this again if you have problems after `git pull`
 2. Run Configurations
 
-If you edit openapi.yml, you need to run `go generate ./gen` and it will generate both frontend and backend code.
+If you edit openapi.yml, you need to run `go generate ./...` and it will generate both frontend and backend code.
