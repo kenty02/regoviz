@@ -1,4 +1,4 @@
-package main
+package analyzer
 
 import (
 	"bytes"
@@ -22,7 +22,7 @@ import (
 	"strings"
 )
 
-func compileRego(moduleCode string) (*ast.Module, error) {
+func CompileRego(moduleCode string) (*ast.Module, error) {
 	const moduleName = "my_module"
 	// Parse the input module to obtain the AST representation.
 	mod, err := ast.ParseModule(moduleName, moduleCode)
@@ -49,8 +49,8 @@ func compileRego(moduleCode string) (*ast.Module, error) {
 	return c.Modules[moduleName], nil
 }
 
-// from opa-explorer
-func plan(ctx context.Context, rego string, print bool, autoDetermineEntrypoints bool) (*ir.Policy, error) {
+// Plan from opa-explorer
+func Plan(ctx context.Context, rego string, print bool, autoDetermineEntrypoints bool) (*ir.Policy, error) {
 	mod, err := ast.ParseModuleWithOpts("a.rego", rego, ast.ParserOptions{ProcessAnnotation: true})
 	if err != nil {
 		return nil, err
@@ -72,7 +72,7 @@ func plan(ctx context.Context, rego string, print bool, autoDetermineEntrypoints
 		WithRegoAnnotationEntrypoints(true).
 		WithEnablePrintStatements(print)
 	if autoDetermineEntrypoints {
-		moduleAst, err := compileRego(rego)
+		moduleAst, err := CompileRego(rego)
 
 		if err != nil {
 			return nil, err
@@ -106,7 +106,7 @@ func plan(ctx context.Context, rego string, print bool, autoDetermineEntrypoints
 }
 
 func planAsText(ctx context.Context, rego string, print bool) (string, error) {
-	policy, err := plan(ctx, rego, print, true)
+	policy, err := Plan(ctx, rego, print, true)
 	if err != nil {
 		return "", err
 	}
@@ -134,7 +134,7 @@ func getDepTreeMap(policy *ir.Policy) map[string][]string {
 	return depTreeMap
 }
 
-func getDepTreePretty(policy *ir.Policy) string {
+func GetDepTreePretty(policy *ir.Policy) string {
 	depTreeMap := getDepTreeMap(policy)
 	tree := treemap.New()
 	for caller, callees := range depTreeMap {
@@ -151,7 +151,7 @@ func esc(s any) string {
 	str = strings.ReplaceAll(str, "\"", "#quot;")
 	return str
 }
-func getMermaidFlowchart(policy *ir.Policy) string {
+func GetMermaidFlowchart(policy *ir.Policy) string {
 	buf := bytes.Buffer{}
 	indentLevel := 0
 	nodeIdCounter := 0
@@ -281,7 +281,7 @@ type MermaidState struct {
 	PanZoom       bool          `json:"panZoom"`
 }
 
-func getMermaidUrl(code string, edit bool) (string, error) {
+func GetMermaidUrl(code string, edit bool) (string, error) {
 	state := MermaidState{
 		Code: code,
 		Mermaid: MermaidConfig{
@@ -403,14 +403,14 @@ func replaceTokenInLine(line, token, replacement string) (string, error) {
 }
 
 type ShowVarsCommand struct {
-	varLineNum int
-	varName    string
+	VarLineNum int
+	VarName    string
 }
 
 type FixVarCommand struct {
-	varLineNum int
-	varName    string
-	varValue   string
+	VarLineNum int
+	VarName    string
+	VarValue   string
 }
 
 // varトークンにマッチする正規表現パターン
@@ -422,7 +422,7 @@ var varRe = regexp.MustCompile(varPattern)
 var vtPattern = `VTBEGIN ([A-Za-z_][A-Za-z_0-9]*) (.+) VTEND`
 var vtRe = regexp.MustCompile(vtPattern)
 
-func regoVarTrace(code, query string, input, data map[string]interface{}, commands []interface{}) (string, error) {
+func RegoVarTrace(code, query string, input, data map[string]interface{}, commands []interface{}) (string, error) {
 	lines := strings.Split(strings.ReplaceAll(code, "\r\n", "\n"), "\n")
 
 	var sb strings.Builder
@@ -444,7 +444,7 @@ func regoVarTrace(code, query string, input, data map[string]interface{}, comman
 	// iterate over commands
 	for _, command := range fixVarCommands {
 		// 行番号は1から始まるが、スライスのインデックスは0から始まるため調整
-		index := command.varLineNum - 1
+		index := command.VarLineNum - 1
 		line := lines[index]
 
 		// マッチがあるかどうか調べる
@@ -452,36 +452,36 @@ func regoVarTrace(code, query string, input, data map[string]interface{}, comman
 		// check if varName is in matches
 		varNameFound := false
 		for _, match := range matches {
-			if match == command.varName {
+			if match == command.VarName {
 				varNameFound = true
 				// random suffixed var name
 				suffix := rand.Intn(100000)
-				newVarName := fmt.Sprintf("%s_fixed_%d", command.varName, suffix)
+				newVarName := fmt.Sprintf("%s_fixed_%d", command.VarName, suffix)
 				// そのマッチを置換
 				var err error
-				line, err = replaceTokenInLine(line, command.varName, newVarName) // TODO: BNFと一貫性のある置換
+				line, err = replaceTokenInLine(line, command.VarName, newVarName) // TODO: BNFと一貫性のある置換
 				if err != nil {
 					return "", err
 				}
 			}
 		}
 		if !varNameFound {
-			return "", fmt.Errorf("var %s not found in line %d", command.varName, command.varLineNum)
+			return "", fmt.Errorf("var %s not found in line %d", command.VarName, command.VarLineNum)
 		}
-		line = line + fmt.Sprintf("; %s:=%s", command.varName, command.varValue)
+		line = line + fmt.Sprintf("; %s:=%s", command.VarName, command.VarValue)
 		cis := []CodeInject{
-			{command.varLineNum, line, true}}
+			{command.VarLineNum, line, true}}
 		modifiedCode = injectCode(modifiedCode, cis)
 		// just test if it works
 		_, _, err := evalRegoWithPrint(modifiedCode, query, input, nil)
 		if err != nil {
 			return "", err
 		}
-		sb.WriteString(fmt.Sprintf("変数%sの値を%sに固定しました。\n", command.varName, command.varValue))
+		sb.WriteString(fmt.Sprintf("変数%sの値を%sに固定しました。\n", command.VarName, command.VarValue))
 	}
 	for _, command := range showVarsCommands {
 		// 行番号は1から始まるが、スライスのインデックスは0から始まるため調整
-		index := command.varLineNum - 1
+		index := command.VarLineNum - 1
 		line := lines[index]
 
 		// マッチがあるかどうか調べる
@@ -489,17 +489,17 @@ func regoVarTrace(code, query string, input, data map[string]interface{}, comman
 		// check if varName is in matches
 		varNameFound := false
 		for _, match := range matches {
-			if match == command.varName {
+			if match == command.VarName {
 				varNameFound = true
 				break
 			}
 		}
 		if !varNameFound {
-			return "", fmt.Errorf("var %s not found in line %d", command.varName, command.varLineNum)
+			return "", fmt.Errorf("var %s not found in line %d", command.VarName, command.VarLineNum)
 		}
 
 		cis := []CodeInject{
-			{command.varLineNum, fmt.Sprintf(";print(\"VTBEGIN %s\", %s, \"VTEND\");false", command.varName, command.varName), false},
+			{command.VarLineNum, fmt.Sprintf(";print(\"VTBEGIN %s\", %s, \"VTEND\");false", command.VarName, command.VarName), false},
 		}
 		injectedCode := injectCode(modifiedCode, cis)
 		_, printed, err := evalRegoWithPrint(injectedCode, query, input, data)
@@ -518,15 +518,15 @@ func regoVarTrace(code, query string, input, data map[string]interface{}, comman
 				varName := match[1]
 				varValue := match[2]
 
-				if varName != command.varName {
-					return "", fmt.Errorf("expected varName: %s, actual varName: %s", command.varName, varName)
+				if varName != command.VarName {
+					return "", fmt.Errorf("expected varName: %s, actual varName: %s", command.VarName, varName)
 				}
 				varSet.Add(varValue)
 			}
 		}
 
 		cis2 := []CodeInject{
-			{command.varLineNum, fmt.Sprintf(";print(\"VTBEGIN %s\", %s, \"VTEND\")", command.varName, command.varName), false},
+			{command.VarLineNum, fmt.Sprintf(";print(\"VTBEGIN %s\", %s, \"VTEND\")", command.VarName, command.VarName), false},
 		}
 		injectedCode = injectCode(modifiedCode, cis2)
 		_, printed, err = evalRegoWithPrint(injectedCode, query, input, nil)
@@ -541,20 +541,20 @@ func regoVarTrace(code, query string, input, data map[string]interface{}, comman
 				varName := match[1]
 				varValue := match[2]
 
-				if varName != command.varName {
-					return "", fmt.Errorf("expected varName: %s, actual varName: %s", command.varName, varName)
+				if varName != command.VarName {
+					return "", fmt.Errorf("expected varName: %s, actual varName: %s", command.VarName, varName)
 				}
 				actualVarSet.Add(varValue)
 			}
 		}
 
 		if !varSet.IsEmpty() {
-			sb.WriteString(fmt.Sprintf("変数%sは%sの値を取り得ます。", command.varName, varSet.ToSlice()))
+			sb.WriteString(fmt.Sprintf("変数%sは%sの値を取り得ます。", command.VarName, varSet.ToSlice()))
 			if !actualVarSet.IsEmpty() {
 				sb.WriteString(fmt.Sprintf("評価パスで実際に代入された値の集合は%sです。", actualVarSet.ToSlice()))
 			}
 		} else {
-			sb.WriteString(fmt.Sprintf("変数%sは値を取り得ませんでした。", command.varName))
+			sb.WriteString(fmt.Sprintf("変数%sは値を取り得ませんでした。", command.VarName))
 		}
 
 		sb.WriteString("\n")

@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"context"
@@ -10,7 +10,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"regoviz/api"
+	"regoviz/internal/api"
+	"regoviz/internal/service"
 )
 
 type SecurityHandler struct{}
@@ -34,7 +35,7 @@ func (s SecurityHandler) HandleBearerAuth(ctx context.Context, _ string, t api.B
 	}
 }
 
-func main() {
+func Run() {
 	_ = godotenv.Load(".env.local")
 
 	// To initialize Sentry's handler, you need to initialize Sentry itself beforehand
@@ -51,10 +52,10 @@ func main() {
 	sentryHandler := sentryhttp.New(sentryhttp.Options{})
 
 	// Create service instance.
-	service := NewService()
+	s := service.NewService()
 
 	var securityHandler api.SecurityHandler = SecurityHandler{}
-	srv, err := api.NewServer(service, securityHandler)
+	server, err := api.NewServer(s, securityHandler)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -75,7 +76,7 @@ func main() {
 			"*",
 		},
 	})
-	handler := c.Handler(srv)
+	handler := c.Handler(server)
 
 	handler = sentryHandler.Handle(handler)
 	fmt.Println("Server is running on port 8080")

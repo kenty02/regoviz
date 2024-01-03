@@ -11,7 +11,7 @@ import (
 
 func main() {
 	cmd := exec.Command("npm", "run", "generate")
-	cmd.Dir = "./frontend"
+	cmd.Dir = "../web"
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

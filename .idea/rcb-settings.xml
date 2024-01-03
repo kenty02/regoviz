@@ -3,7 +3,7 @@
   <component name="ReactBuddyPluginProjectSettings">
     <option name="devServerConfigs">
       <DevServerState>
-        <option name="packageJsonPath" value="$PROJECT_DIR$/frontend/package.json" />
+        <option name="packageJsonPath" value="$PROJECT_DIR$/web/package.json" />
         <option name="scriptName" value="dev:mocked" />
         <option name="url" value="http://localhost:5173" />
       </DevServerState>

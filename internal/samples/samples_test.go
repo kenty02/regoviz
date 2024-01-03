@@ -1,4 +1,4 @@
-package main
+package samples
 
 import (
 	"fmt"
@@ -7,8 +7,8 @@ import (
 )
 
 func TestListSamplesReturnsCorrectSamples(t *testing.T) {
-	testDataDir := "testdata/tools_test/samples"
-	samples, err := listSamples(testDataDir)
+	testDataDir := "testdata/samples"
+	samples, err := ListSamples(testDataDir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,7 +43,7 @@ func TestListSamplesReturnsCorrectSamples(t *testing.T) {
 
 func TestReadSample(t *testing.T) {
 	name := "../samples/rbac.rego"
-	_, err := readSample(name, "./testdata")
+	_, err := ReadSample(name, "./testdata")
 	if err == nil {
 		t.Errorf("expected error, got nil")
 	}
