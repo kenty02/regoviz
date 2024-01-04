@@ -17,7 +17,7 @@ import (
 
 type regovizService struct{}
 
-func (p *regovizService) CallTreeGet(ctx context.Context, params api.CallTreeGetParams) (*api.CallTreeGetOK, error) {
+func (s *regovizService) CallTreeGet(ctx context.Context, params api.CallTreeGetParams) (*api.CallTreeGetOK, error) {
 	// todo
 	stub := api.CallTreeGetOK{
 		Entrypoint: api.RuleParent{
@@ -62,7 +62,7 @@ func (p *regovizService) CallTreeGet(ctx context.Context, params api.CallTreeGet
 	return &stub, nil
 }
 
-func (p *regovizService) IrGet(ctx context.Context, params api.IrGetParams) (*api.IrGetOK, error) {
+func (s *regovizService) IrGet(ctx context.Context, params api.IrGetParams) (*api.IrGetOK, error) {
 	sample, err := samples.ReadSample(params.SampleName, "samples")
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func (p *regovizService) IrGet(ctx context.Context, params api.IrGetParams) (*ap
 	return &api.IrGetOK{Result: buf.String()}, nil
 }
 
-func (p *regovizService) FlowchartGet(ctx context.Context, params api.FlowchartGetParams) (*api.FlowchartGetOK, error) {
+func (s *regovizService) FlowchartGet(ctx context.Context, params api.FlowchartGetParams) (*api.FlowchartGetOK, error) {
 	sample, err := samples.ReadSample(params.SampleName, "samples")
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func (p *regovizService) FlowchartGet(ctx context.Context, params api.FlowchartG
 	return &api.FlowchartGetOK{Result: url}, nil
 }
 
-func (p *regovizService) VarTracePost(_ context.Context, params api.VarTracePostParams) (*api.VarTracePostOK, error) {
+func (s *regovizService) VarTracePost(_ context.Context, params api.VarTracePostParams) (*api.VarTracePostOK, error) {
 	// convert params.Input  to map[string]interface{}
 	var input map[string]interface{}
 	if inputParam, ok := params.Input.Get(); ok {
@@ -169,11 +169,11 @@ func (p *regovizService) VarTracePost(_ context.Context, params api.VarTracePost
 	return &api.VarTracePostOK{Result: result}, nil
 }
 
-func (p *regovizService) SamplesGet(_ context.Context) ([]api.Sample, error) {
+func (s *regovizService) SamplesGet(_ context.Context) ([]api.Sample, error) {
 	return samples.ListSamples("samples")
 }
 
-func (p *regovizService) AstGet(_ context.Context, params api.AstGetParams) (*api.AstGetOK, error) {
+func (s *regovizService) AstGet(_ context.Context, params api.AstGetParams) (*api.AstGetOK, error) {
 	//load sample
 	sample, err := samples.ReadSample(params.SampleName, "samples")
 	if err != nil {
@@ -196,7 +196,7 @@ func (p *regovizService) AstGet(_ context.Context, params api.AstGetParams) (*ap
 	return &api.AstGetOK{Result: string([]byte(modJson))}, nil
 }
 
-func (p *regovizService) AstPrettyGet(_ context.Context, params api.AstPrettyGetParams) (*api.AstPrettyGetOK, error) {
+func (s *regovizService) AstPrettyGet(_ context.Context, params api.AstPrettyGetParams) (*api.AstPrettyGetOK, error) {
 	//load sample
 	sample, err := samples.ReadSample(params.SampleName, "samples")
 	if err != nil {
@@ -221,7 +221,7 @@ func (p *regovizService) AstPrettyGet(_ context.Context, params api.AstPrettyGet
 	return &api.AstPrettyGetOK{Result: buf.String()}, nil
 }
 
-func (p *regovizService) DepTreeTextGet(ctx context.Context, params api.DepTreeTextGetParams) (*api.DepTreeTextGetOK, error) {
+func (s *regovizService) DepTreeTextGet(ctx context.Context, params api.DepTreeTextGetParams) (*api.DepTreeTextGetOK, error) {
 	//// compile module
 	//mod, err := compileRego(params.Module)
 	//
