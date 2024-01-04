@@ -289,11 +289,11 @@ allow {
 	query := "data.example.allow"
 	input := map[string]interface{}{"role": "admin"}
 	commands := []interface{}{
-		//FixVarCommand{
-		//	varLineNum: 8,
-		//	varName:    "role",
-		//	varValue:   "\"hoge\"",
-		//},
+		FixVarCommand{
+			VarLineNum: 8,
+			VarName:    "role",
+			VarValue:   "\"hoge\"",
+		},
 		ShowVarsCommand{
 			VarLineNum: 8,
 			VarName:    "role",
