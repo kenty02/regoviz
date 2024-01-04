@@ -10,87 +10,9 @@ import (
 //go:embed testdata/rbac.rego
 var rbacRego string
 
-//func TestCompilerPlanTarget(t *testing.T) {
-//	files := map[string]string{
-//		"test.rego": `# Role-based Access Control (RBAC)
-//# --------------------------------
-//#
-//# This example defines an RBAC model for a Pet Store API. The Pet Store API allows
-//# users to look at pets, adopt them, update their stats, and so on. The policy
-//# controls which users can perform actions on which resources. The policy implements
-//# a classic Role-based Access Control model where users are assigned to roles and
-//# roles are granted the ability to perform some action(s) on some type of resource.
-//#
-//# This example shows how to:
-//#
-//#	* Define an RBAC model in Rego that interprets role mappings represented in JSON.
-//#	* Iterate/search across JSON data structures (e.g., role mappings)
-//#
-//# For more information see:
-//#
-//#	* Rego comparison to other systems: https://www.openpolicyagent.org/docs/latest/comparison-to-other-systems/
-//#	* Rego Iteration: https://www.openpolicyagent.org/docs/latest/#iteration
-//
-//package test
-//
-//import future.keywords.contains
-//import future.keywords.if
-//import future.keywords.in
-//
-//# By default, deny requests.
-//default allow := false
-//
-//# Allow admins to do anything.
-//allow if user_is_admin
-//
-//# Allow the action if the user is granted permission to perform the action.
-//allow if {
-//	# Find grants for the user.
-//	some grant in user_is_granted
-//
-//	# Check if the grant permits the action.
-//	input.action == grant.action
-//	input.type == grant.type
-//}
-//
-//# user_is_admin is true if "admin" is among the user's roles as per data.user_roles
-//user_is_admin if "admin" in data.user_roles[input.user]
-//
-//# user_is_granted is a set of grants for the user identified in the request.
-//# The grant will be contained if the set user_is_granted for every...
-//user_is_granted contains grant if {
-//	# role assigned an element of the user_roles for this user...
-//	some role in data.user_roles[input.user]
-//
-//	# grant assigned a single grant from the grants list for 'role'...
-//	some grant in data.role_grants[role]
-//}`,
-//	}
-//
-//	for _, useMemoryFS := range []bool{false, true} {
-//		test.WithTestFS(files, useMemoryFS, func(root string, fsys fs.FS) {
-//
-//			compiler := compile.New().
-//				WithFS(fsys).
-//				WithPaths(root).
-//				WithTarget("plan").
-//				WithEntrypoints("test/allow")
-//			err := compiler.Build(context.Background())
-//			if err != nil {
-//				t.Fatal(err)
-//			}
-//			rs := reflect.ValueOf(compiler).Elem()
-//			rsPolicy := rs.FieldByName("policy").Elem()
-//			var is *ir.Policy = (*ir.Policy)(unsafe.Pointer(rsPolicy.UnsafeAddr())) // unsafe.Pointer を使うと中身を取れる
-//			fmt.Println(is)
-//		})
-//	}
-//
-//}
-
-func TestCompileRego(t *testing.T) {
+func TestCompileStringToAst(t *testing.T) {
 	rego := rbacRego
-	mod, err := CompileRego(rego)
+	mod, err := CompileModuleStringToAst(rego)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -102,7 +24,7 @@ func TestCompileRego(t *testing.T) {
 	}
 }
 
-func TestPlanWithMetadata(t *testing.T) {
+func TestPlanModuleAndGetIrWithMetadata(t *testing.T) {
 	ctx := context.Background()
 	rego := `package test
 
@@ -116,13 +38,13 @@ allow {
 	a[_] = input
 }
 `
-	_, err := Plan(ctx, rego, false, false)
+	_, err := PlanModuleAndGetIr(ctx, rego, false, false)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestPlanWithoutMetadata(t *testing.T) {
+func TestPlanWithoutMetadataWithoutMetadata(t *testing.T) {
 	ctx := context.Background()
 	rego := `package test
 
@@ -134,13 +56,13 @@ allow {
 	a[_] = input
 }
 `
-	_, err := Plan(ctx, rego, false, true)
+	_, err := PlanModuleAndGetIr(ctx, rego, false, true)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestPlanWithoutMetadataPackageContainsDot(t *testing.T) {
+func TestPlanModuleAndGetIrWithoutMetadataPackageContainsDot(t *testing.T) {
 	ctx := context.Background()
 	rego := `package te.st
 
@@ -152,7 +74,7 @@ allow {
 	a[_] = input
 }
 `
-	_, err := Plan(ctx, rego, false, true)
+	_, err := PlanModuleAndGetIr(ctx, rego, false, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -171,7 +93,7 @@ allow {
 }
 `
 
-	plan, err := planAsText(ctx, rego, false)
+	plan, err := PlanAsText(ctx, rego, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -186,12 +108,12 @@ allow {
 func TestGetDepTreeMap(t *testing.T) {
 	ctx := context.Background()
 
-	plan, err := Plan(ctx, rbacRego, false, true)
+	plan, err := PlanModuleAndGetIr(ctx, rbacRego, false, true)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	treeMap := getDepTreeMap(plan)
+	treeMap := GetDepTreeMap(plan)
 
 	fmt.Println(treeMap)
 
@@ -203,7 +125,7 @@ func TestGetDepTreeMap(t *testing.T) {
 func TestGetMermaidFlowchart(t *testing.T) {
 	ctx := context.Background()
 
-	plan, err := Plan(ctx, rbacRego, false, true)
+	plan, err := PlanModuleAndGetIr(ctx, rbacRego, false, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -351,7 +273,7 @@ allow {
 	}
 }
 
-func TestRegoVarTrace(t *testing.T) {
+func TestVarTrace(t *testing.T) {
 	rego := `package example
 import future.keywords.in
 import future.keywords.if
@@ -377,7 +299,7 @@ allow {
 			VarName:    "role",
 		},
 	}
-	result, err := RegoVarTrace(rego, query, input, nil, commands)
+	result, err := DoVarTrace(rego, query, input, nil, commands)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -386,7 +308,7 @@ allow {
 
 func TestGetDepTreePretty(t *testing.T) {
 	rego := rbacRego
-	plan, err := Plan(context.Background(), rego, false, true)
+	plan, err := PlanModuleAndGetIr(context.Background(), rego, false, true)
 	if err != nil {
 		t.Fatal(err)
 	}

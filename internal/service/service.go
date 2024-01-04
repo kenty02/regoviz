@@ -67,7 +67,7 @@ func (p *regovizService) IrGet(ctx context.Context, params api.IrGetParams) (*ap
 	if err != nil {
 		return nil, err
 	}
-	policy, err := analyzer.Plan(ctx, sample, false, true)
+	policy, err := analyzer.PlanModuleAndGetIr(ctx, sample, false, true)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (p *regovizService) FlowchartGet(ctx context.Context, params api.FlowchartG
 	if err != nil {
 		return nil, err
 	}
-	plan, err := analyzer.Plan(ctx, sample, false, true)
+	plan, err := analyzer.PlanModuleAndGetIr(ctx, sample, false, true)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +162,7 @@ func (p *regovizService) VarTracePost(_ context.Context, params api.VarTracePost
 	if err != nil {
 		return nil, err
 	}
-	result, err := analyzer.RegoVarTrace(sample, query, input, data, commands)
+	result, err := analyzer.DoVarTrace(sample, query, input, data, commands)
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +179,7 @@ func (p *regovizService) AstGet(_ context.Context, params api.AstGetParams) (*ap
 	if err != nil {
 		return nil, err
 	}
-	mod, err := analyzer.CompileRego(sample)
+	mod, err := analyzer.CompileModuleStringToAst(sample)
 
 	if err != nil {
 		return nil, err
@@ -203,7 +203,7 @@ func (p *regovizService) AstPrettyGet(_ context.Context, params api.AstPrettyGet
 		return nil, err
 	}
 	// compile module
-	mod, err := analyzer.CompileRego(sample)
+	mod, err := analyzer.CompileModuleStringToAst(sample)
 
 	if err != nil {
 		return nil, err
@@ -276,7 +276,7 @@ func (p *regovizService) DepTreeTextGet(ctx context.Context, params api.DepTreeT
 		return nil, err
 	}
 
-	plan, err := analyzer.Plan(ctx, sample, false, true)
+	plan, err := analyzer.PlanModuleAndGetIr(ctx, sample, false, true)
 	if err != nil {
 		return nil, err
 	}

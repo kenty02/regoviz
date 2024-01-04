@@ -22,7 +22,7 @@ import (
 	"strings"
 )
 
-func CompileRego(moduleCode string) (*ast.Module, error) {
+func CompileModuleStringToAst(moduleCode string) (*ast.Module, error) {
 	const moduleName = "my_module"
 	// Parse the input module to obtain the AST representation.
 	mod, err := ast.ParseModule(moduleName, moduleCode)
@@ -49,8 +49,7 @@ func CompileRego(moduleCode string) (*ast.Module, error) {
 	return c.Modules[moduleName], nil
 }
 
-// Plan from opa-explorer
-func Plan(ctx context.Context, rego string, print bool, autoDetermineEntrypoints bool) (*ir.Policy, error) {
+func PlanModuleAndGetIr(ctx context.Context, rego string, print bool, autoDetermineEntrypoints bool) (*ir.Policy, error) {
 	mod, err := ast.ParseModuleWithOpts("a.rego", rego, ast.ParserOptions{ProcessAnnotation: true})
 	if err != nil {
 		return nil, err
@@ -72,7 +71,7 @@ func Plan(ctx context.Context, rego string, print bool, autoDetermineEntrypoints
 		WithRegoAnnotationEntrypoints(true).
 		WithEnablePrintStatements(print)
 	if autoDetermineEntrypoints {
-		moduleAst, err := CompileRego(rego)
+		moduleAst, err := CompileModuleStringToAst(rego)
 
 		if err != nil {
 			return nil, err
@@ -105,8 +104,8 @@ func Plan(ctx context.Context, rego string, print bool, autoDetermineEntrypoints
 	return &policy, nil
 }
 
-func planAsText(ctx context.Context, rego string, print bool) (string, error) {
-	policy, err := Plan(ctx, rego, print, true)
+func PlanAsText(ctx context.Context, rego string, print bool) (string, error) {
+	policy, err := PlanModuleAndGetIr(ctx, rego, print, true)
 	if err != nil {
 		return "", err
 	}
@@ -117,7 +116,7 @@ func planAsText(ctx context.Context, rego string, print bool) (string, error) {
 	return buf.String(), nil
 }
 
-func getDepTreeMap(policy *ir.Policy) map[string][]string {
+func GetDepTreeMap(policy *ir.Policy) map[string][]string {
 	depTreeMap := map[string][]string{}
 	for _, fun := range policy.Funcs.Funcs {
 		caller := fun.Name
@@ -135,7 +134,7 @@ func getDepTreeMap(policy *ir.Policy) map[string][]string {
 }
 
 func GetDepTreePretty(policy *ir.Policy) string {
-	depTreeMap := getDepTreeMap(policy)
+	depTreeMap := GetDepTreeMap(policy)
 	tree := treemap.New()
 	for caller, callees := range depTreeMap {
 		callerNode := tree.AddBranch(caller)
@@ -422,7 +421,7 @@ var varRe = regexp.MustCompile(varPattern)
 var vtPattern = `VTBEGIN ([A-Za-z_][A-Za-z_0-9]*) (.+) VTEND`
 var vtRe = regexp.MustCompile(vtPattern)
 
-func RegoVarTrace(code, query string, input, data map[string]interface{}, commands []interface{}) (string, error) {
+func DoVarTrace(code, query string, input, data map[string]interface{}, commands []interface{}) (string, error) {
 	lines := strings.Split(strings.ReplaceAll(code, "\r\n", "\n"), "\n")
 
 	var sb strings.Builder
