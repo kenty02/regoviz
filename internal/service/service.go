@@ -10,59 +10,27 @@ import (
 	"regoviz/internal/analyzer/astprint"
 	"regoviz/internal/api"
 	"regoviz/internal/samples"
-	"regoviz/internal/utils"
 	"strconv"
 	"strings"
 )
 
-type regovizService struct{}
-
-func (s *regovizService) CallTreeGet(ctx context.Context, params api.CallTreeGetParams) (*api.CallTreeGetOK, error) {
-	// todo
-	stub := api.CallTreeGetOK{
-		Entrypoint: api.RuleParent{
-			Name:    "i_am_entrypoint",
-			UID:     utils.GenerateId(),
-			Type:    api.RuleParentTypeParent,
-			Default: "false",
-			Children: []api.RuleParentChildrenItem{{
-				Type: api.RuleChildRuleParentChildrenItem,
-				RuleChild: api.RuleChild{
-					Name:  "i_am_entrypoint_1",
-					UID:   utils.GenerateId(),
-					Type:  api.RuleChildTypeChild,
-					Value: "",
-					Statements: []api.RuleStatement{
-						{
-							Name: "foo == data.foo",
-							UID:  utils.GenerateId(),
-							Dependencies: []api.RuleStatementDependenciesItem{
-								{
-									Type: api.RuleParentRuleStatementDependenciesItem,
-									RuleParent: api.RuleParent{
-										Name:     "foo",
-										UID:      utils.GenerateId(),
-										Type:     api.RuleParentTypeParent,
-										Default:  "false",
-										Children: nil,
-									},
-								},
-								{
-									Type:   api.StringRuleStatementDependenciesItem,
-									String: "data.foo",
-								},
-							},
-						},
-					},
-				},
-			},
-			},
-		},
-	}
-	return &stub, nil
+type RegovizService struct {
+	SampleDir string
 }
 
-func (s *regovizService) IrGet(ctx context.Context, params api.IrGetParams) (*api.IrGetOK, error) {
+func (s *RegovizService) CallTreeGet(ctx context.Context, params api.CallTreeGetParams) (*api.CallTreeGetOK, error) {
+	sample, err := samples.ReadSample(params.SampleName, "samples")
+	if err != nil {
+		return nil, err
+	}
+	result, err := analyzer.GetStaticCallTree(sample, params.Entrypoint, true)
+	if err != nil {
+		return nil, err
+	}
+	return &api.CallTreeGetOK{Entrypoint: *result}, nil
+}
+
+func (s *RegovizService) IrGet(ctx context.Context, params api.IrGetParams) (*api.IrGetOK, error) {
 	sample, err := samples.ReadSample(params.SampleName, "samples")
 	if err != nil {
 		return nil, err
@@ -78,7 +46,7 @@ func (s *regovizService) IrGet(ctx context.Context, params api.IrGetParams) (*ap
 	return &api.IrGetOK{Result: buf.String()}, nil
 }
 
-func (s *regovizService) FlowchartGet(ctx context.Context, params api.FlowchartGetParams) (*api.FlowchartGetOK, error) {
+func (s *RegovizService) FlowchartGet(ctx context.Context, params api.FlowchartGetParams) (*api.FlowchartGetOK, error) {
 	sample, err := samples.ReadSample(params.SampleName, "samples")
 	if err != nil {
 		return nil, err
@@ -98,7 +66,7 @@ func (s *regovizService) FlowchartGet(ctx context.Context, params api.FlowchartG
 	return &api.FlowchartGetOK{Result: url}, nil
 }
 
-func (s *regovizService) VarTracePost(_ context.Context, params api.VarTracePostParams) (*api.VarTracePostOK, error) {
+func (s *RegovizService) VarTracePost(_ context.Context, params api.VarTracePostParams) (*api.VarTracePostOK, error) {
 	// convert params.Input  to map[string]interface{}
 	var input map[string]interface{}
 	if inputParam, ok := params.Input.Get(); ok {
@@ -169,11 +137,11 @@ func (s *regovizService) VarTracePost(_ context.Context, params api.VarTracePost
 	return &api.VarTracePostOK{Result: result}, nil
 }
 
-func (s *regovizService) SamplesGet(_ context.Context) ([]api.Sample, error) {
+func (s *RegovizService) SamplesGet(_ context.Context) ([]api.Sample, error) {
 	return samples.ListSamples("samples")
 }
 
-func (s *regovizService) AstGet(_ context.Context, params api.AstGetParams) (*api.AstGetOK, error) {
+func (s *RegovizService) AstGet(_ context.Context, params api.AstGetParams) (*api.AstGetOK, error) {
 	//load sample
 	sample, err := samples.ReadSample(params.SampleName, "samples")
 	if err != nil {
@@ -196,7 +164,7 @@ func (s *regovizService) AstGet(_ context.Context, params api.AstGetParams) (*ap
 	return &api.AstGetOK{Result: string([]byte(modJson))}, nil
 }
 
-func (s *regovizService) AstPrettyGet(_ context.Context, params api.AstPrettyGetParams) (*api.AstPrettyGetOK, error) {
+func (s *RegovizService) AstPrettyGet(_ context.Context, params api.AstPrettyGetParams) (*api.AstPrettyGetOK, error) {
 	//load sample
 	sample, err := samples.ReadSample(params.SampleName, "samples")
 	if err != nil {
@@ -221,7 +189,7 @@ func (s *regovizService) AstPrettyGet(_ context.Context, params api.AstPrettyGet
 	return &api.AstPrettyGetOK{Result: buf.String()}, nil
 }
 
-func (s *regovizService) DepTreeTextGet(ctx context.Context, params api.DepTreeTextGetParams) (*api.DepTreeTextGetOK, error) {
+func (s *RegovizService) DepTreeTextGet(ctx context.Context, params api.DepTreeTextGetParams) (*api.DepTreeTextGetOK, error) {
 	//// compile module
 	//mod, err := compileRego(params.Module)
 	//
@@ -285,5 +253,7 @@ func (s *regovizService) DepTreeTextGet(ctx context.Context, params api.DepTreeT
 }
 
 func NewService() api.Handler {
-	return &regovizService{}
+	return &RegovizService{
+		SampleDir: "samples",
+	}
 }

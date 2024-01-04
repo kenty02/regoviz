@@ -4,6 +4,8 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
+	"github.com/google/go-cmp/cmp"
+	"regoviz/internal/api"
 	"testing"
 )
 
@@ -314,4 +316,153 @@ func TestGetDepTreePretty(t *testing.T) {
 	}
 	treeMap := GetDepTreePretty(plan)
 	fmt.Println(treeMap)
+}
+
+func TestGetStaticCallTree(t *testing.T) {
+	result, err := GetStaticCallTree(rbacRego, "allow", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := &api.RuleParent{
+		Name:    "allow",
+		UID:     "",
+		Type:    api.RuleParentTypeParent,
+		Default: "false",
+		Children: []api.RuleParentChildrenItem{
+			{
+				Type: api.RuleChildRuleParentChildrenItem,
+				RuleChild: api.RuleChild{
+					Name:  "allow:30",
+					UID:   "",
+					Type:  api.RuleChildTypeChild,
+					Value: "true",
+					Statements: []api.RuleStatement{
+						{
+							Name: "user_is_admin",
+							UID:  "",
+							Dependencies: []api.RuleStatementDependenciesItem{
+								{
+									Type: api.RuleParentRuleStatementDependenciesItem,
+									RuleParent: api.RuleParent{
+										Name:    "user_is_admin",
+										UID:     "",
+										Type:    api.RuleParentTypeParent,
+										Default: "",
+										Children: []api.RuleParentChildrenItem{{
+											Type: api.RuleChildRuleParentChildrenItem,
+											RuleChild: api.RuleChild{
+												Name:  "user_is_admin:43",
+												UID:   "",
+												Type:  api.RuleChildTypeChild,
+												Value: "true",
+												Statements: []api.RuleStatement{
+													{
+														Name: "\"admin\" in data.user_roles[input.user]",
+														UID:  "",
+														Dependencies: []api.RuleStatementDependenciesItem{
+															{
+																Type:   api.StringRuleStatementDependenciesItem,
+																String: "input.user",
+															}, {
+																Type:   api.StringRuleStatementDependenciesItem,
+																String: "data.user_roles",
+															}},
+													},
+												},
+											},
+										}},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			{
+				Type: api.RuleChildRuleParentChildrenItem,
+				RuleChild: api.RuleChild{
+					Name:  "allow:33",
+					UID:   "",
+					Type:  api.RuleChildTypeChild,
+					Value: "true",
+					Statements: []api.RuleStatement{
+						{
+							Name: "some grant in user_is_granted",
+							UID:  "",
+							Dependencies: []api.RuleStatementDependenciesItem{
+								{
+									Type: api.RuleParentRuleStatementDependenciesItem,
+									RuleParent: api.RuleParent{
+										Name:    "user_is_granted",
+										UID:     "",
+										Type:    api.RuleParentTypeParent,
+										Default: "",
+										Children: []api.RuleParentChildrenItem{{
+											Type: api.RuleChildRuleParentChildrenItem,
+											RuleChild: api.RuleChild{
+												Name:  "user_is_granted:47",
+												UID:   "",
+												Type:  api.RuleChildTypeChild,
+												Value: "",
+												Statements: []api.RuleStatement{
+													{
+														Name: "some role in data.user_roles[input.user]",
+														UID:  "",
+														Dependencies: []api.RuleStatementDependenciesItem{
+															{
+																Type:   api.StringRuleStatementDependenciesItem,
+																String: "input.user",
+															},
+															{
+																Type:   api.StringRuleStatementDependenciesItem,
+																String: "data.user_roles",
+															},
+														},
+													},
+													{
+														Name: "some grant in data.role_grants[role]",
+														UID:  "",
+														Dependencies: []api.RuleStatementDependenciesItem{{
+															Type:   api.StringRuleStatementDependenciesItem,
+															String: "data.role_grants",
+														}},
+													},
+												},
+											},
+										}},
+									},
+								},
+							},
+						},
+						{
+							Name: "input.action == grant.action",
+							UID:  "",
+							Dependencies: []api.RuleStatementDependenciesItem{
+								{
+									Type:   api.StringRuleStatementDependenciesItem,
+									String: "input.action",
+								},
+							},
+						},
+						{
+							Name: "input.type == grant.type",
+							UID:  "",
+							Dependencies: []api.RuleStatementDependenciesItem{
+								{
+									Type:   api.StringRuleStatementDependenciesItem,
+									String: "input.type",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	// Compare the result and expected objects
+	if d := cmp.Diff(expected, result); d != "" {
+		t.Errorf("Result and expected objects differ: (-want +got)\n%s", d)
+	}
 }

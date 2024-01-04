@@ -10,6 +10,7 @@ export interface ReactEChartsProps {
 	settings?: SetOptionOpts;
 	loading?: boolean;
 	theme?: "light" | "dark";
+	className?: string;
 }
 
 export function ReactECharts({
@@ -18,6 +19,7 @@ export function ReactECharts({
 	settings,
 	loading,
 	theme,
+	className,
 }: ReactEChartsProps): JSX.Element {
 	const chartRef = useRef<HTMLDivElement>(null);
 
@@ -62,6 +64,10 @@ export function ReactECharts({
 	}, [loading, theme]);
 
 	return (
-		<div ref={chartRef} style={{ width: "100%", height: "100px", ...style }} />
+		<div
+			ref={chartRef}
+			style={{ width: "100%", ...style }}
+			className={className}
+		/>
 	);
 }

@@ -7,6 +7,7 @@ require (
 	github.com/getsentry/sentry-go v0.25.0
 	github.com/go-faster/errors v0.7.0
 	github.com/go-faster/jx v1.1.0
+	github.com/google/go-cmp v0.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/ogen-go/ogen v0.79.1
 	github.com/open-policy-agent/opa v0.59.0
@@ -15,6 +16,7 @@ require (
 	go.opentelemetry.io/otel v1.21.0
 	go.opentelemetry.io/otel/metric v1.21.0
 	go.opentelemetry.io/otel/trace v1.21.0
+	go.uber.org/zap v1.26.0
 )
 
 require (
@@ -49,7 +51,6 @@ require (
 	github.com/yashtewari/glob-intersection v0.2.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.21.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	go.uber.org/zap v1.26.0 // indirect
 	golang.org/x/exp v0.0.0-20230725093048-515e97ebf090 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
