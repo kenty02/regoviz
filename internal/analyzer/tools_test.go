@@ -167,6 +167,20 @@ func TestEvalRegoWithPrint(t *testing.T) {
 	}
 }
 
+func TestEvalRegoWithHTTPSendFails(t *testing.T) {
+	rego := `package example
+
+			allow {
+				http.send({"method": "get", "url": "https://www.google.com"})
+			}
+		`
+	query := "data.example.allow"
+	_, _, err := evalRegoWithPrint(rego, query, nil, nil)
+	if err == nil {
+		t.Fatal("error should occur")
+	}
+}
+
 // テストケースを実行するヘルパー関数
 func testInjectCode(t *testing.T, originalCode string, injections []CodeInject, expectedCode string) {
 	t.Helper()

@@ -349,6 +349,7 @@ func evalRegoWithPrint(code, query string, input, data map[string]interface{}) (
 		rego.EnablePrintStatements(true),
 		rego.PrintHook(topdown.NewPrintHook(&buf)),
 		maybeStoreFunc,
+		rego.UnsafeBuiltins(map[string]struct{}{"http.send": {}}),
 	)
 
 	rs, err := r.Eval(context.Background())
