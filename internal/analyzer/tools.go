@@ -19,17 +19,18 @@ import (
 	"math/rand"
 	"reflect"
 	"regexp"
+	"regoviz/internal/analyzer/directDeps"
 	"regoviz/internal/api"
 	"regoviz/internal/utils"
 	"strings"
 )
 
-func CompileModuleStringToAst(moduleCode string) (*ast.Module, error) {
+func CompileModuleStringToAst(moduleCode string) (*ast.Module, *ast.Compiler, error) {
 	const moduleName = "my_module"
 	// Parse the input module to obtain the AST representation.
 	mod, err := ast.ParseModule(moduleName, moduleCode)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Create a new compiler instance and compile the module.
@@ -40,7 +41,7 @@ func CompileModuleStringToAst(moduleCode string) (*ast.Module, error) {
 	}
 
 	if c.Compile(mods); c.Failed() {
-		return nil, c.Errors
+		return nil, nil, c.Errors
 	}
 	//
 	//fmt.Println("Expr 1:", c.Modules[moduleName].Rules[0].Body[0])
@@ -48,7 +49,7 @@ func CompileModuleStringToAst(moduleCode string) (*ast.Module, error) {
 	//fmt.Println("Expr 3:", c.Modules[moduleName].Rules[0].Body[2])
 	//fmt.Println("Expr 4:", c.Modules[moduleName].Rules[0].Body[3])
 
-	return c.Modules[moduleName], nil
+	return c.Modules[moduleName], c, nil
 }
 
 func PlanModuleAndGetIr(ctx context.Context, rego string, print bool, autoDetermineEntrypoints bool) (*ir.Policy, error) {
@@ -73,7 +74,7 @@ func PlanModuleAndGetIr(ctx context.Context, rego string, print bool, autoDeterm
 		WithRegoAnnotationEntrypoints(true).
 		WithEnablePrintStatements(print)
 	if autoDetermineEntrypoints {
-		moduleAst, err := CompileModuleStringToAst(rego)
+		moduleAst, _, err := CompileModuleStringToAst(rego)
 
 		if err != nil {
 			return nil, err
@@ -564,81 +565,10 @@ func DoVarTrace(code, query string, input, data map[string]interface{}, commands
 	return sb.String(), nil
 }
 
-func flattenIrStmts(stmts []ir.Stmt) []ir.Stmt {
-	var result []ir.Stmt
-	for _, stmt := range stmts {
-		result = append(result, stmt)
-		switch stmt := stmt.(type) {
-		case *ir.BlockStmt:
-			for _, block := range stmt.Blocks {
-				result = append(result, flattenIrStmts(block.Stmts)...)
-			}
-		case *ir.ScanStmt:
-			result = append(result, flattenIrStmts(stmt.Block.Stmts)...)
-		case *ir.NotStmt:
-			result = append(result, flattenIrStmts(stmt.Block.Stmts)...)
-		case *ir.WithStmt:
-			result = append(result, flattenIrStmts(stmt.Block.Stmts)...)
-		default:
-		}
-	}
-	return result
-}
-
 func GetStaticCallTree(code, entrypoint string, useEmptyUID bool) (*api.RuleParent, error) {
-	moduleAst, err := CompileModuleStringToAst(code)
+	moduleAst, moduleAstCompiler, err := CompileModuleStringToAst(code)
 	if err != nil {
 		return nil, err
-	}
-	moduleIr, err := PlanModuleAndGetIr(context.Background(), code, false, true)
-	if err != nil {
-		return nil, err
-	}
-	//// get entrypoint rule
-	//var entrypointRules []*ast.Rule
-	//for _, rule := range moduleAst.Rules {
-	//	if rule.Head.Name.String() == entrypoint {
-	//		entrypointRules = append(entrypointRules, rule)
-	//	}
-	//}
-
-	ruleNameToFunc := map[string]*ir.Func{}
-	funcNameToRuleName := map[string]string{}
-	for _, plan := range moduleIr.Plans.Plans {
-		packageName := moduleAst.Package.Path.String()
-		// if contains [, something is wrong
-		if strings.Contains(packageName, "[") {
-			return nil, fmt.Errorf("moduleAst.Package.Path.String() contains [")
-		}
-		ruleName := strings.TrimPrefix(strings.ReplaceAll(plan.Name, "/", "."), strings.TrimPrefix(packageName+".", "data."))
-		if len(plan.Blocks) != 1 {
-			return nil, fmt.Errorf("len(plan.Blocks) != 1")
-		}
-		block := plan.Blocks[0]
-
-		var callees []*ir.Func
-		for _, stmt := range block.Stmts {
-			switch stmt := stmt.(type) {
-			case *ir.CallStmt:
-				funcName := stmt.Func
-				var callee *ir.Func
-				for _, fun := range moduleIr.Funcs.Funcs {
-					if fun.Name == funcName {
-						callee = fun
-						break
-					}
-				}
-				if callee == nil {
-					return nil, fmt.Errorf("callee not found: %s", funcName)
-				}
-				callees = append(callees, callee)
-			}
-		}
-		if len(callees) != 1 {
-			return nil, fmt.Errorf("len(callees) != 1")
-		}
-		ruleNameToFunc[ruleName] = callees[0]
-		funcNameToRuleName[callees[0].Name] = ruleName
 	}
 
 	maybeGenerateUID := func() string {
@@ -649,57 +579,40 @@ func GetStaticCallTree(code, entrypoint string, useEmptyUID bool) (*api.RulePare
 		}
 	}
 
-	var getRuleParent func(ruleName string) (*api.RuleParent, error)
+	var getRuleParent func(ruleRef ast.Ref) (*api.RuleParent, error)
 	getRuleName := func(rule *ast.Rule) string {
 		return rule.Head.Name.String()
 	}
 	// always returns RuleChild even if "rule.Else" is present
 	getRuleChild := func(rule *ast.Rule) (*api.RuleChild, error) {
 		var statements []api.RuleStatement
-		for i, expr := range rule.Body {
-			var nextExpr *ast.Expr
-			if i+1 < len(rule.Body) {
-				nextExpr = rule.Body[i+1]
-			}
+		// expecting generated expr(s) to be prepended
+		var prependedExprs []*ast.Expr
+		for _, expr := range rule.Body {
 			if expr.Generated {
+				prependedExprs = append(prependedExprs, expr)
 				continue
 			}
-			var irStmts []ir.Stmt
-			firstFound := false
-			for _, block := range ruleNameToFunc[rule.Head.Name.String()].Blocks {
-				flatIrStmts := flattenIrStmts(block.Stmts)
-				for _, stmt := range flatIrStmts {
-					if !firstFound {
-						if stmt.GetLocation().Row >= expr.Location.Row && stmt.GetLocation().Col >= expr.Location.Col {
-							firstFound = true
-						}
-					} else {
-						if nextExpr != nil && (stmt.GetLocation().Row >= nextExpr.Location.Row && stmt.GetLocation().Col >= nextExpr.Location.Col) {
-							break
-						}
-					}
-					if firstFound {
-						irStmts = append(irStmts, stmt)
-					}
-				}
-				if firstFound {
-					break
-				}
-			}
-			if len(irStmts) == 0 {
-				return nil, fmt.Errorf("len(irStmts) == 0")
-			}
-
 			var deps []api.RuleStatementDependenciesItem
-			for _, irStmt := range irStmts {
-				switch irStmt := irStmt.(type) {
-				case *ir.CallStmt:
-					ruleName := funcNameToRuleName[irStmt.Func]
-					if ruleName == "" {
-						// built-in function or something
-						continue
+			for _, expr := range append(prependedExprs, expr) {
+				base, err := directDeps.Base(moduleAstCompiler, expr)
+				if err != nil {
+					return nil, err
+				}
+				for _, ref := range base {
+					if ref.HasPrefix(ast.InputRootRef) || ref.HasPrefix(ast.DefaultRootRef) {
+						deps = append(deps, api.RuleStatementDependenciesItem{
+							Type:   api.StringRuleStatementDependenciesItem,
+							String: ref.String(),
+						})
 					}
-					ruleParent, err := getRuleParent(ruleName)
+				}
+				virtual, err := directDeps.Virtual(moduleAstCompiler, expr)
+				if err != nil {
+					return nil, err
+				}
+				for _, ref := range virtual {
+					ruleParent, err := getRuleParent(ref)
 					if err != nil {
 						return nil, err
 					}
@@ -707,35 +620,16 @@ func GetStaticCallTree(code, entrypoint string, useEmptyUID bool) (*api.RulePare
 						Type:       api.RuleParentRuleStatementDependenciesItem,
 						RuleParent: *ruleParent,
 					})
-				// todo: support like `data.foo.bar`, `import data.foo.bar`
-				case *ir.DotStmt:
-					switch src := irStmt.Source.Value.(type) {
-					case *ir.Local:
-						baseDocument := ""
-						if *src == ir.Input {
-							baseDocument = "input"
-						} else if *src == ir.Data {
-							baseDocument = "data"
-						}
-						if baseDocument != "" {
-							switch key := irStmt.Key.Value.(type) {
-							case *ir.StringIndex:
-								keyString := moduleIr.Static.Strings[*key].Value
-								deps = append(deps, api.RuleStatementDependenciesItem{
-									Type:   api.StringRuleStatementDependenciesItem,
-									String: fmt.Sprintf("%s.%s", baseDocument, keyString),
-								})
-							}
-						}
-					}
 				}
 			}
+			prependedExprs = nil
 
 			statements = append(statements, api.RuleStatement{
 				Name:         string(expr.Location.Text),
 				UID:          maybeGenerateUID(),
 				Dependencies: deps,
 			})
+
 		}
 		value := ""
 		if rule.Head.Value != nil {
@@ -753,7 +647,12 @@ func GetStaticCallTree(code, entrypoint string, useEmptyUID bool) (*api.RulePare
 
 	// must pass non-default rules
 	getRuleParentChild := func(rule *ast.Rule) (*api.RuleParentChildrenItem, error) {
-		var ruleChildElseChildren []api.RuleChild
+		ruleChild, err := getRuleChild(rule)
+		if err != nil {
+			return nil, err
+		}
+
+		ruleChildElseChildren := []api.RuleChild{*ruleChild}
 		current := rule.Else
 		for current != nil {
 			ruleChild, err := getRuleChild(current)
@@ -763,13 +662,7 @@ func GetStaticCallTree(code, entrypoint string, useEmptyUID bool) (*api.RulePare
 			ruleChildElseChildren = append(ruleChildElseChildren, *ruleChild)
 			current = current.Else
 		}
-
-		ruleChild, err := getRuleChild(rule)
-		if err != nil {
-			return nil, err
-		}
-		if ruleChildElseChildren != nil {
-			ruleChildElseChildren = append(ruleChildElseChildren, *ruleChild)
+		if len(ruleChildElseChildren) > 1 {
 			return &api.RuleParentChildrenItem{
 				Type: api.RuleChildElseRuleParentChildrenItem,
 				RuleChildElse: api.RuleChildElse{
@@ -797,23 +690,21 @@ func GetStaticCallTree(code, entrypoint string, useEmptyUID bool) (*api.RulePare
 		}
 		return results, nil
 	}
-	getRuleParent = func(ruleName string) (*api.RuleParent, error) {
+	getRuleParent = func(ruleRef ast.Ref) (*api.RuleParent, error) {
 		var nonDefaultRules []*ast.Rule
 		var defaultRule *ast.Rule
-		for _, rule := range moduleAst.Rules {
-			if rule.Head.Name.String() == ruleName {
-				if rule.Default {
-					if defaultRule != nil {
-						return nil, fmt.Errorf("multiple default rules found: %s", ruleName)
-					}
-					defaultRule = rule
-				} else {
-					nonDefaultRules = append(nonDefaultRules, rule)
+		for _, rule := range moduleAstCompiler.GetRulesExact(ruleRef) {
+			if rule.Default {
+				if defaultRule != nil {
+					return nil, fmt.Errorf("multiple default rules found: %s", ruleRef)
 				}
+				defaultRule = rule
+			} else {
+				nonDefaultRules = append(nonDefaultRules, rule)
 			}
 		}
 		if len(nonDefaultRules) == 0 {
-			return nil, fmt.Errorf("rule not found: %s", ruleName)
+			return nil, fmt.Errorf("rule not found: %s", ruleRef)
 		}
 		defaultRuleValue := ""
 		if defaultRule != nil {
@@ -833,7 +724,18 @@ func GetStaticCallTree(code, entrypoint string, useEmptyUID bool) (*api.RulePare
 		return result, nil
 	}
 
-	result, err := getRuleParent(entrypoint)
+	// get entrypoint rule
+	var entrypointRuleRef ast.Ref
+	for _, rule := range moduleAst.Rules {
+		if rule.Head.Name.String() == entrypoint {
+			entrypointRuleRef = rule.Ref()
+			break
+		}
+	}
+	if entrypointRuleRef == nil {
+		return nil, fmt.Errorf("entrypoint rule not found: %s", entrypoint)
+	}
+	result, err := getRuleParent(entrypointRuleRef)
 	if err != nil {
 		return nil, err
 	}

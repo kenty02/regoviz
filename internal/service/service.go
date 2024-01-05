@@ -147,7 +147,7 @@ func (s *RegovizService) AstGet(_ context.Context, params api.AstGetParams) (*ap
 	if err != nil {
 		return nil, err
 	}
-	mod, err := analyzer.CompileModuleStringToAst(sample)
+	mod, _, err := analyzer.CompileModuleStringToAst(sample)
 
 	if err != nil {
 		return nil, err
@@ -171,7 +171,7 @@ func (s *RegovizService) AstPrettyGet(_ context.Context, params api.AstPrettyGet
 		return nil, err
 	}
 	// compile module
-	mod, err := analyzer.CompileModuleStringToAst(sample)
+	mod, _, err := analyzer.CompileModuleStringToAst(sample)
 
 	if err != nil {
 		return nil, err
