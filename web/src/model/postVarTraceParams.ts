@@ -8,9 +8,9 @@
 
 export type PostVarTraceParams = {
 	/**
-	 * The sample name to analyze
+	 * The rego code to analyze
 	 */
-	sampleName: string;
+	policy: string;
 	/**
 	 * The commands to analyze
 	 */

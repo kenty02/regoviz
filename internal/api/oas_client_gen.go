@@ -157,15 +157,15 @@ func (c *Client) sendAstGet(ctx context.Context, params AstGetParams) (res *AstG
 	stage = "EncodeQueryParams"
 	q := uri.NewQueryEncoder()
 	{
-		// Encode "sampleName" parameter.
+		// Encode "policy" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "sampleName",
+			Name:    "policy",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
 
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			return e.EncodeValue(conv.StringToString(params.SampleName))
+			return e.EncodeValue(conv.StringToString(params.Policy))
 		}); err != nil {
 			return res, errors.Wrap(err, "encode query")
 		}
@@ -277,15 +277,15 @@ func (c *Client) sendAstPrettyGet(ctx context.Context, params AstPrettyGetParams
 	stage = "EncodeQueryParams"
 	q := uri.NewQueryEncoder()
 	{
-		// Encode "sampleName" parameter.
+		// Encode "policy" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "sampleName",
+			Name:    "policy",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
 
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			return e.EncodeValue(conv.StringToString(params.SampleName))
+			return e.EncodeValue(conv.StringToString(params.Policy))
 		}); err != nil {
 			return res, errors.Wrap(err, "encode query")
 		}
@@ -397,15 +397,15 @@ func (c *Client) sendCallTreeGet(ctx context.Context, params CallTreeGetParams) 
 	stage = "EncodeQueryParams"
 	q := uri.NewQueryEncoder()
 	{
-		// Encode "sampleName" parameter.
+		// Encode "policy" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "sampleName",
+			Name:    "policy",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
 
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			return e.EncodeValue(conv.StringToString(params.SampleName))
+			return e.EncodeValue(conv.StringToString(params.Policy))
 		}); err != nil {
 			return res, errors.Wrap(err, "encode query")
 		}
@@ -582,15 +582,15 @@ func (c *Client) sendDepTreeTextGet(ctx context.Context, params DepTreeTextGetPa
 	stage = "EncodeQueryParams"
 	q := uri.NewQueryEncoder()
 	{
-		// Encode "sampleName" parameter.
+		// Encode "policy" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "sampleName",
+			Name:    "policy",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
 
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			return e.EncodeValue(conv.StringToString(params.SampleName))
+			return e.EncodeValue(conv.StringToString(params.Policy))
 		}); err != nil {
 			return res, errors.Wrap(err, "encode query")
 		}
@@ -702,15 +702,15 @@ func (c *Client) sendFlowchartGet(ctx context.Context, params FlowchartGetParams
 	stage = "EncodeQueryParams"
 	q := uri.NewQueryEncoder()
 	{
-		// Encode "sampleName" parameter.
+		// Encode "policy" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "sampleName",
+			Name:    "policy",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
 
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			return e.EncodeValue(conv.StringToString(params.SampleName))
+			return e.EncodeValue(conv.StringToString(params.Policy))
 		}); err != nil {
 			return res, errors.Wrap(err, "encode query")
 		}
@@ -839,15 +839,15 @@ func (c *Client) sendIrGet(ctx context.Context, params IrGetParams) (res *IrGetO
 	stage = "EncodeQueryParams"
 	q := uri.NewQueryEncoder()
 	{
-		// Encode "sampleName" parameter.
+		// Encode "policy" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "sampleName",
+			Name:    "policy",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
 
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			return e.EncodeValue(conv.StringToString(params.SampleName))
+			return e.EncodeValue(conv.StringToString(params.Policy))
 		}); err != nil {
 			return res, errors.Wrap(err, "encode query")
 		}
@@ -1061,15 +1061,15 @@ func (c *Client) sendVarTracePost(ctx context.Context, params VarTracePostParams
 	stage = "EncodeQueryParams"
 	q := uri.NewQueryEncoder()
 	{
-		// Encode "sampleName" parameter.
+		// Encode "policy" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "sampleName",
+			Name:    "policy",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
 
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			return e.EncodeValue(conv.StringToString(params.SampleName))
+			return e.EncodeValue(conv.StringToString(params.Policy))
 		}); err != nil {
 			return res, errors.Wrap(err, "encode query")
 		}

@@ -22,10 +22,10 @@ paths:
     get:
       parameters:
         - in: query
-          name: sampleName
+          name: policy
           schema:
             type: string
-          description: The sample name to analyze
+          description: The rego code to analyze
           required: true
       responses:
         '200':
@@ -45,10 +45,10 @@ paths:
     get:
       parameters:
         - in: query
-          name: sampleName
+          name: policy
           schema:
             type: string
-          description: The sample name to analyze
+          description: The rego code to analyze
           required: true
         - in: query
           name: edit
@@ -73,10 +73,10 @@ paths:
     post:
       parameters:
         - in: query
-          name: sampleName
+          name: policy
           schema:
             type: string
-          description: The sample name to analyze
+          description: The rego code to analyze
           required: true
         - in: query
           name: commands
@@ -120,10 +120,10 @@ paths:
     get:
       parameters:
         - in: query
-          name: sampleName
+          name: policy
           schema:
             type: string
-          description: The sample name to analyze
+          description: The rego code to analyze
           required: true
       responses:
         '200':
@@ -141,10 +141,10 @@ paths:
     get:
       parameters:
         - in: query
-          name: sampleName
+          name: policy
           schema:
-              type: string
-          description: The sample name to analyze
+            type: string
+          description: The rego code to analyze
           required: true
       responses:
         '200':
@@ -162,10 +162,10 @@ paths:
     get:
       parameters:
         - in: query
-          name: sampleName
+          name: policy
           schema:
               type: string
-          description: The sample name to analyze
+          description: The rego code to analyze
           required: true
       responses:
         '200':
@@ -183,10 +183,10 @@ paths:
     get:
       parameters:
         - in: query
-          name: sampleName
+          name: policy
           schema:
             type: string
-          description: The sample name to analyze
+          description: The rego code to analyze
           required: true
         - in: query
           name: entrypoint

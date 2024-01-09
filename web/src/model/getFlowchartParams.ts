@@ -8,9 +8,9 @@
 
 export type GetFlowchartParams = {
 	/**
-	 * The sample name to analyze
+	 * The rego code to analyze
 	 */
-	sampleName: string;
+	policy: string;
 	/**
 	 * Whether to return the editable flowchart mermaid url
 	 */

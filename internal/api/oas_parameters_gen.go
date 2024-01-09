@@ -14,27 +14,27 @@ import (
 
 // AstGetParams is parameters of GET /ast operation.
 type AstGetParams struct {
-	// The sample name to analyze.
-	SampleName string
+	// The rego code to analyze.
+	Policy string
 }
 
 func unpackAstGetParams(packed middleware.Parameters) (params AstGetParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "sampleName",
+			Name: "policy",
 			In:   "query",
 		}
-		params.SampleName = packed[key].(string)
+		params.Policy = packed[key].(string)
 	}
 	return params
 }
 
 func decodeAstGetParams(args [0]string, argsEscaped bool, r *http.Request) (params AstGetParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode query: sampleName.
+	// Decode query: policy.
 	if err := func() error {
 		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "sampleName",
+			Name:    "policy",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
@@ -51,7 +51,7 @@ func decodeAstGetParams(args [0]string, argsEscaped bool, r *http.Request) (para
 					return err
 				}
 
-				params.SampleName = c
+				params.Policy = c
 				return nil
 			}); err != nil {
 				return err
@@ -62,7 +62,7 @@ func decodeAstGetParams(args [0]string, argsEscaped bool, r *http.Request) (para
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "sampleName",
+			Name: "policy",
 			In:   "query",
 			Err:  err,
 		}
@@ -72,27 +72,27 @@ func decodeAstGetParams(args [0]string, argsEscaped bool, r *http.Request) (para
 
 // AstPrettyGetParams is parameters of GET /astPretty operation.
 type AstPrettyGetParams struct {
-	// The sample name to analyze.
-	SampleName string
+	// The rego code to analyze.
+	Policy string
 }
 
 func unpackAstPrettyGetParams(packed middleware.Parameters) (params AstPrettyGetParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "sampleName",
+			Name: "policy",
 			In:   "query",
 		}
-		params.SampleName = packed[key].(string)
+		params.Policy = packed[key].(string)
 	}
 	return params
 }
 
 func decodeAstPrettyGetParams(args [0]string, argsEscaped bool, r *http.Request) (params AstPrettyGetParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode query: sampleName.
+	// Decode query: policy.
 	if err := func() error {
 		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "sampleName",
+			Name:    "policy",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
@@ -109,7 +109,7 @@ func decodeAstPrettyGetParams(args [0]string, argsEscaped bool, r *http.Request)
 					return err
 				}
 
-				params.SampleName = c
+				params.Policy = c
 				return nil
 			}); err != nil {
 				return err
@@ -120,7 +120,7 @@ func decodeAstPrettyGetParams(args [0]string, argsEscaped bool, r *http.Request)
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "sampleName",
+			Name: "policy",
 			In:   "query",
 			Err:  err,
 		}
@@ -130,8 +130,8 @@ func decodeAstPrettyGetParams(args [0]string, argsEscaped bool, r *http.Request)
 
 // CallTreeGetParams is parameters of GET /callTree operation.
 type CallTreeGetParams struct {
-	// The sample name to analyze.
-	SampleName string
+	// The rego code to analyze.
+	Policy string
 	// The entrypoint rule to analyze.
 	Entrypoint string
 	// The input to policy.
@@ -145,10 +145,10 @@ type CallTreeGetParams struct {
 func unpackCallTreeGetParams(packed middleware.Parameters) (params CallTreeGetParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "sampleName",
+			Name: "policy",
 			In:   "query",
 		}
-		params.SampleName = packed[key].(string)
+		params.Policy = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -189,10 +189,10 @@ func unpackCallTreeGetParams(packed middleware.Parameters) (params CallTreeGetPa
 
 func decodeCallTreeGetParams(args [0]string, argsEscaped bool, r *http.Request) (params CallTreeGetParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode query: sampleName.
+	// Decode query: policy.
 	if err := func() error {
 		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "sampleName",
+			Name:    "policy",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
@@ -209,7 +209,7 @@ func decodeCallTreeGetParams(args [0]string, argsEscaped bool, r *http.Request) 
 					return err
 				}
 
-				params.SampleName = c
+				params.Policy = c
 				return nil
 			}); err != nil {
 				return err
@@ -220,7 +220,7 @@ func decodeCallTreeGetParams(args [0]string, argsEscaped bool, r *http.Request) 
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "sampleName",
+			Name: "policy",
 			In:   "query",
 			Err:  err,
 		}
@@ -389,27 +389,27 @@ func decodeCallTreeGetParams(args [0]string, argsEscaped bool, r *http.Request) 
 
 // DepTreeTextGetParams is parameters of GET /depTreeText operation.
 type DepTreeTextGetParams struct {
-	// The sample name to analyze.
-	SampleName string
+	// The rego code to analyze.
+	Policy string
 }
 
 func unpackDepTreeTextGetParams(packed middleware.Parameters) (params DepTreeTextGetParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "sampleName",
+			Name: "policy",
 			In:   "query",
 		}
-		params.SampleName = packed[key].(string)
+		params.Policy = packed[key].(string)
 	}
 	return params
 }
 
 func decodeDepTreeTextGetParams(args [0]string, argsEscaped bool, r *http.Request) (params DepTreeTextGetParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode query: sampleName.
+	// Decode query: policy.
 	if err := func() error {
 		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "sampleName",
+			Name:    "policy",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
@@ -426,7 +426,7 @@ func decodeDepTreeTextGetParams(args [0]string, argsEscaped bool, r *http.Reques
 					return err
 				}
 
-				params.SampleName = c
+				params.Policy = c
 				return nil
 			}); err != nil {
 				return err
@@ -437,7 +437,7 @@ func decodeDepTreeTextGetParams(args [0]string, argsEscaped bool, r *http.Reques
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "sampleName",
+			Name: "policy",
 			In:   "query",
 			Err:  err,
 		}
@@ -447,8 +447,8 @@ func decodeDepTreeTextGetParams(args [0]string, argsEscaped bool, r *http.Reques
 
 // FlowchartGetParams is parameters of GET /flowchart operation.
 type FlowchartGetParams struct {
-	// The sample name to analyze.
-	SampleName string
+	// The rego code to analyze.
+	Policy string
 	// Whether to return the editable flowchart mermaid url.
 	Edit OptBool
 }
@@ -456,10 +456,10 @@ type FlowchartGetParams struct {
 func unpackFlowchartGetParams(packed middleware.Parameters) (params FlowchartGetParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "sampleName",
+			Name: "policy",
 			In:   "query",
 		}
-		params.SampleName = packed[key].(string)
+		params.Policy = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -475,10 +475,10 @@ func unpackFlowchartGetParams(packed middleware.Parameters) (params FlowchartGet
 
 func decodeFlowchartGetParams(args [0]string, argsEscaped bool, r *http.Request) (params FlowchartGetParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode query: sampleName.
+	// Decode query: policy.
 	if err := func() error {
 		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "sampleName",
+			Name:    "policy",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
@@ -495,7 +495,7 @@ func decodeFlowchartGetParams(args [0]string, argsEscaped bool, r *http.Request)
 					return err
 				}
 
-				params.SampleName = c
+				params.Policy = c
 				return nil
 			}); err != nil {
 				return err
@@ -506,7 +506,7 @@ func decodeFlowchartGetParams(args [0]string, argsEscaped bool, r *http.Request)
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "sampleName",
+			Name: "policy",
 			In:   "query",
 			Err:  err,
 		}
@@ -557,27 +557,27 @@ func decodeFlowchartGetParams(args [0]string, argsEscaped bool, r *http.Request)
 
 // IrGetParams is parameters of GET /ir operation.
 type IrGetParams struct {
-	// The sample name to analyze.
-	SampleName string
+	// The rego code to analyze.
+	Policy string
 }
 
 func unpackIrGetParams(packed middleware.Parameters) (params IrGetParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "sampleName",
+			Name: "policy",
 			In:   "query",
 		}
-		params.SampleName = packed[key].(string)
+		params.Policy = packed[key].(string)
 	}
 	return params
 }
 
 func decodeIrGetParams(args [0]string, argsEscaped bool, r *http.Request) (params IrGetParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode query: sampleName.
+	// Decode query: policy.
 	if err := func() error {
 		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "sampleName",
+			Name:    "policy",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
@@ -594,7 +594,7 @@ func decodeIrGetParams(args [0]string, argsEscaped bool, r *http.Request) (param
 					return err
 				}
 
-				params.SampleName = c
+				params.Policy = c
 				return nil
 			}); err != nil {
 				return err
@@ -605,7 +605,7 @@ func decodeIrGetParams(args [0]string, argsEscaped bool, r *http.Request) (param
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "sampleName",
+			Name: "policy",
 			In:   "query",
 			Err:  err,
 		}
@@ -615,8 +615,8 @@ func decodeIrGetParams(args [0]string, argsEscaped bool, r *http.Request) (param
 
 // VarTracePostParams is parameters of POST /varTrace operation.
 type VarTracePostParams struct {
-	// The sample name to analyze.
-	SampleName string
+	// The rego code to analyze.
+	Policy string
 	// The commands to analyze.
 	Commands string
 	// The input to policy.
@@ -630,10 +630,10 @@ type VarTracePostParams struct {
 func unpackVarTracePostParams(packed middleware.Parameters) (params VarTracePostParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "sampleName",
+			Name: "policy",
 			In:   "query",
 		}
-		params.SampleName = packed[key].(string)
+		params.Policy = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -672,10 +672,10 @@ func unpackVarTracePostParams(packed middleware.Parameters) (params VarTracePost
 
 func decodeVarTracePostParams(args [0]string, argsEscaped bool, r *http.Request) (params VarTracePostParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode query: sampleName.
+	// Decode query: policy.
 	if err := func() error {
 		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "sampleName",
+			Name:    "policy",
 			Style:   uri.QueryStyleForm,
 			Explode: true,
 		}
@@ -692,7 +692,7 @@ func decodeVarTracePostParams(args [0]string, argsEscaped bool, r *http.Request)
 					return err
 				}
 
-				params.SampleName = c
+				params.Policy = c
 				return nil
 			}); err != nil {
 				return err
@@ -703,7 +703,7 @@ func decodeVarTracePostParams(args [0]string, argsEscaped bool, r *http.Request)
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "sampleName",
+			Name: "policy",
 			In:   "query",
 			Err:  err,
 		}

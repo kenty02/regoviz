@@ -66,7 +66,7 @@ export function ReactECharts({
 	return (
 		<div
 			ref={chartRef}
-			style={{ width: "100%", ...style }}
+			style={{ width: "100%", height: "100%", position: "absolute", ...style }}
 			className={className}
 		/>
 	);

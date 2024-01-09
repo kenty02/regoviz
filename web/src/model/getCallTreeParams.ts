@@ -8,9 +8,9 @@
 
 export type GetCallTreeParams = {
 	/**
-	 * The sample name to analyze
+	 * The rego code to analyze
 	 */
-	sampleName: string;
+	policy: string;
 	/**
 	 * The entrypoint rule to analyze
 	 */

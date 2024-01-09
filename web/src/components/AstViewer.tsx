@@ -1,4 +1,4 @@
-import { selectedSampleAtom } from "@/App.tsx";
+import { policyAtom } from "@/App.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
 	useGetAstPrettySuspense,
@@ -8,13 +8,14 @@ import ReactJson from "@microlink/react-json-view";
 import { useAtomValue } from "jotai/index";
 
 export function AstViewer() {
-	const selectedSample = useAtomValue(selectedSampleAtom);
-	if (!selectedSample) {
-		throw new Error("サンプルファイルを選択してください");
+	const policy = useAtomValue(policyAtom);
+	if (policy === "") {
+		return <></>;
 	}
-	const { data } = useGetAstSuspense({ sampleName: selectedSample.file_name });
+
+	const { data } = useGetAstSuspense({ policy });
 	const { data: dataPretty } = useGetAstPrettySuspense({
-		sampleName: selectedSample.file_name,
+		policy,
 	});
 	const astText = data.data.result;
 	const astPrettyText = dataPretty.data.result;

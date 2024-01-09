@@ -8,7 +8,7 @@
 
 export type GetAstParams = {
 	/**
-	 * The sample name to analyze
+	 * The rego code to analyze
 	 */
-	sampleName: string;
+	policy: string;
 };

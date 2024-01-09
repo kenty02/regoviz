@@ -20,11 +20,7 @@ type RegovizService struct {
 }
 
 func (s *RegovizService) CallTreeGet(ctx context.Context, params api.CallTreeGetParams) (*api.CallTreeGetOK, error) {
-	sample, err := samples.ReadSample(params.SampleName, "samples")
-	if err != nil {
-		return nil, err
-	}
-	callTree, callTreeNodes, err := analyzer.GetStaticCallTree(sample, params.Entrypoint, analyzer.UIDTypeEmpty)
+	callTree, callTreeNodes, err := analyzer.GetStaticCallTree(params.Policy, params.Entrypoint, analyzer.UIDTypeEmpty)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +38,7 @@ func (s *RegovizService) CallTreeGet(ctx context.Context, params api.CallTreeGet
 				return nil, err
 			}
 		}
-		evalSteps, err = evalTrace.DoEvalTrace(sample, params.Query.Value, input, data, callTree, callTreeNodes, nil)
+		evalSteps, err = evalTrace.DoEvalTrace(params.Policy, params.Query.Value, input, data, callTree, callTreeNodes, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -52,11 +48,7 @@ func (s *RegovizService) CallTreeGet(ctx context.Context, params api.CallTreeGet
 }
 
 func (s *RegovizService) IrGet(ctx context.Context, params api.IrGetParams) (*api.IrGetOK, error) {
-	sample, err := samples.ReadSample(params.SampleName, "samples")
-	if err != nil {
-		return nil, err
-	}
-	policy, err := analyzer.PlanModuleAndGetIr(ctx, sample, false, true)
+	policy, err := analyzer.PlanModuleAndGetIr(ctx, params.Policy, false, true)
 	if err != nil {
 		return nil, err
 	}
@@ -68,11 +60,7 @@ func (s *RegovizService) IrGet(ctx context.Context, params api.IrGetParams) (*ap
 }
 
 func (s *RegovizService) FlowchartGet(ctx context.Context, params api.FlowchartGetParams) (*api.FlowchartGetOK, error) {
-	sample, err := samples.ReadSample(params.SampleName, "samples")
-	if err != nil {
-		return nil, err
-	}
-	plan, err := analyzer.PlanModuleAndGetIr(ctx, sample, false, true)
+	plan, err := analyzer.PlanModuleAndGetIr(ctx, params.Policy, false, true)
 	if err != nil {
 		return nil, err
 	}
@@ -147,11 +135,7 @@ func (s *RegovizService) VarTracePost(_ context.Context, params api.VarTracePost
 		}
 	}
 
-	sample, err := samples.ReadSample(params.SampleName, "samples")
-	if err != nil {
-		return nil, err
-	}
-	result, err := analyzer.DoVarTrace(sample, query, input, data, commands)
+	result, err := analyzer.DoVarTrace(params.Policy, query, input, data, commands)
 	if err != nil {
 		return nil, err
 	}
@@ -163,12 +147,7 @@ func (s *RegovizService) SamplesGet(_ context.Context) ([]api.Sample, error) {
 }
 
 func (s *RegovizService) AstGet(_ context.Context, params api.AstGetParams) (*api.AstGetOK, error) {
-	//load sample
-	sample, err := samples.ReadSample(params.SampleName, "samples")
-	if err != nil {
-		return nil, err
-	}
-	mod, _, err := analyzer.CompileModuleStringToAst(sample, false, true)
+	mod, _, err := analyzer.CompileModuleStringToAst(params.Policy, false, true)
 
 	if err != nil {
 		return nil, err
@@ -186,13 +165,8 @@ func (s *RegovizService) AstGet(_ context.Context, params api.AstGetParams) (*ap
 }
 
 func (s *RegovizService) AstPrettyGet(_ context.Context, params api.AstPrettyGetParams) (*api.AstPrettyGetOK, error) {
-	//load sample
-	sample, err := samples.ReadSample(params.SampleName, "samples")
-	if err != nil {
-		return nil, err
-	}
 	// compile module
-	mod, _, err := analyzer.CompileModuleStringToAst(sample, false, true)
+	mod, _, err := analyzer.CompileModuleStringToAst(params.Policy, false, true)
 
 	if err != nil {
 		return nil, err
@@ -260,12 +234,7 @@ func (s *RegovizService) DepTreeTextGet(ctx context.Context, params api.DepTreeT
 	//resultString := sb.String()
 	//return &api.DepTreeTextGetOK{Result: resultString}, nil
 
-	sample, err := samples.ReadSample(params.SampleName, "samples")
-	if err != nil {
-		return nil, err
-	}
-
-	plan, err := analyzer.PlanModuleAndGetIr(ctx, sample, false, true)
+	plan, err := analyzer.PlanModuleAndGetIr(ctx, params.Policy, false, true)
 	if err != nil {
 		return nil, err
 	}

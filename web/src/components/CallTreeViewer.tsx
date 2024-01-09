@@ -1,4 +1,4 @@
-import { selectedSampleAtom } from "@/App.tsx";
+import { policyAtom } from "@/App.tsx";
 import { ReactECharts } from "@/components/React-ECharts.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { useGetCallTreeSuspense } from "@/default/default.ts";
@@ -35,13 +35,13 @@ const convertStatements = (node: RuleStatement): TreeSeriesNodeItemOption => {
 	};
 };
 export function CallTreeViewer() {
-	const selectedSample = useAtomValue(selectedSampleAtom);
-	if (!selectedSample) {
-		throw new Error("selectedSample is null");
+	const policy = useAtomValue(policyAtom);
+	if (policy === "") {
+		return <></>;
 	}
 	const [entrypoint, setEntrypoint] = useState("allow"); //todo
 	const { data } = useGetCallTreeSuspense({
-		sampleName: selectedSample.file_name,
+		policy,
 		entrypoint: entrypoint,
 	});
 	const first = data.data.entrypoint;
@@ -51,57 +51,63 @@ export function CallTreeViewer() {
 	);
 	return (
 		<>
-			<Input
-				placeholder={"Entrypoint"}
-				value={entrypoint}
-				onChange={(e) => setEntrypoint(e.target.value)}
-			/>
-			<ReactECharts
-				className={"h-96"}
-				option={{
-					tooltip: {
-						trigger: "item",
-						triggerOn: "mousemove",
-					},
-					series: [
-						{
-							type: "tree",
+			<div>
+				<Input
+					placeholder={"Entrypoint"}
+					value={entrypoint}
+					onChange={(e) => setEntrypoint(e.target.value)}
+				/>
 
-							data: [chartData],
-
-							top: "1%",
-							left: "7%",
-							bottom: "1%",
-							right: "20%",
-
-							symbolSize: 7,
-
-							label: {
-								position: "left",
-								verticalAlign: "middle",
-								align: "right",
-								fontSize: 9,
-							},
-
-							leaves: {
-								label: {
-									position: "right",
-									verticalAlign: "middle",
-									align: "left",
-								},
-							},
-
-							emphasis: {
-								focus: "descendant",
-							},
-
-							expandAndCollapse: true,
-							animationDuration: 550,
-							animationDurationUpdate: 750,
+				<ReactECharts
+					style={{ height: "50%" }}
+					option={{
+						tooltip: {
+							trigger: "item",
+							triggerOn: "mousemove",
 						},
-					],
-				}}
-			/>
+						series: [
+							{
+								type: "tree",
+
+								data: [chartData],
+
+								top: "1%",
+								left: "7%",
+								bottom: "1%",
+								right: "20%",
+
+								symbolSize: 12,
+
+								edgeShape: "polyline",
+
+								roam: true,
+
+								label: {
+									position: "left",
+									verticalAlign: "middle",
+									align: "right",
+								},
+
+								leaves: {
+									label: {
+										position: "right",
+										verticalAlign: "middle",
+										align: "left",
+									},
+								},
+
+								emphasis: {
+									focus: "descendant",
+								},
+
+								expandAndCollapse: true,
+								animationDuration: 550,
+								animationDurationUpdate: 750,
+							},
+						],
+					}}
+				/>
+			</div>
 		</>
 	);
 }

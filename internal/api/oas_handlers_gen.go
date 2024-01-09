@@ -123,9 +123,9 @@ func (s *Server) handleAstGetRequest(args [0]string, argsEscaped bool, w http.Re
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "sampleName",
+					Name: "policy",
 					In:   "query",
-				}: params.SampleName,
+				}: params.Policy,
 			},
 			Raw: r,
 		}
@@ -270,9 +270,9 @@ func (s *Server) handleAstPrettyGetRequest(args [0]string, argsEscaped bool, w h
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "sampleName",
+					Name: "policy",
 					In:   "query",
-				}: params.SampleName,
+				}: params.Policy,
 			},
 			Raw: r,
 		}
@@ -417,9 +417,9 @@ func (s *Server) handleCallTreeGetRequest(args [0]string, argsEscaped bool, w ht
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "sampleName",
+					Name: "policy",
 					In:   "query",
-				}: params.SampleName,
+				}: params.Policy,
 				{
 					Name: "entrypoint",
 					In:   "query",
@@ -580,9 +580,9 @@ func (s *Server) handleDepTreeTextGetRequest(args [0]string, argsEscaped bool, w
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "sampleName",
+					Name: "policy",
 					In:   "query",
-				}: params.SampleName,
+				}: params.Policy,
 			},
 			Raw: r,
 		}
@@ -727,9 +727,9 @@ func (s *Server) handleFlowchartGetRequest(args [0]string, argsEscaped bool, w h
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "sampleName",
+					Name: "policy",
 					In:   "query",
-				}: params.SampleName,
+				}: params.Policy,
 				{
 					Name: "edit",
 					In:   "query",
@@ -878,9 +878,9 @@ func (s *Server) handleIrGetRequest(args [0]string, argsEscaped bool, w http.Res
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "sampleName",
+					Name: "policy",
 					In:   "query",
-				}: params.SampleName,
+				}: params.Policy,
 			},
 			Raw: r,
 		}
@@ -1157,9 +1157,9 @@ func (s *Server) handleVarTracePostRequest(args [0]string, argsEscaped bool, w h
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "sampleName",
+					Name: "policy",
 					In:   "query",
-				}: params.SampleName,
+				}: params.Policy,
 				{
 					Name: "commands",
 					In:   "query",

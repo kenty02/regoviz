@@ -1,14 +1,14 @@
-import { selectedSampleAtom } from "@/App.tsx";
+import { policyAtom } from "@/App.tsx";
 import { useGetDepTreeTextSuspense } from "@/default/default.ts";
 import { useAtomValue } from "jotai/index";
 
 export function DepTreeViewer() {
-	const selectedSample = useAtomValue(selectedSampleAtom);
-	if (!selectedSample) {
-		throw new Error("selectedSample is null");
+	const policy = useAtomValue(policyAtom);
+	if (policy === "") {
+		return <></>;
 	}
 	const { data: depTreeData } = useGetDepTreeTextSuspense({
-		sampleName: selectedSample.file_name,
+		policy,
 	});
 
 	return (
