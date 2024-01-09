@@ -424,6 +424,18 @@ func (s *Server) handleCallTreeGetRequest(args [0]string, argsEscaped bool, w ht
 					Name: "entrypoint",
 					In:   "query",
 				}: params.Entrypoint,
+				{
+					Name: "input",
+					In:   "query",
+				}: params.Input,
+				{
+					Name: "data",
+					In:   "query",
+				}: params.Data,
+				{
+					Name: "query",
+					In:   "query",
+				}: params.Query,
 			},
 			Raw: r,
 		}

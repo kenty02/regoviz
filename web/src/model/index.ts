@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
+export * from "./evalStep";
 export * from "./getAst200";
 export * from "./getAstDefault";
 export * from "./getAstParams";
@@ -23,6 +24,7 @@ export * from "./getIrParams";
 export * from "./getVarTrace200";
 export * from "./getVarTraceParams";
 export * from "./nodeBase";
+export * from "./nodeLocation";
 export * from "./postVarTrace200";
 export * from "./postVarTraceParams";
 export * from "./ruleChild";

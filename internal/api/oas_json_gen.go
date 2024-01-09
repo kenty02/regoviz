@@ -217,10 +217,21 @@ func (s *CallTreeGetOK) encodeFields(e *jx.Encoder) {
 		e.FieldStart("entrypoint")
 		s.Entrypoint.Encode(e)
 	}
+	{
+		if s.Steps != nil {
+			e.FieldStart("steps")
+			e.ArrStart()
+			for _, elem := range s.Steps {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
 }
 
-var jsonFieldsNameOfCallTreeGetOK = [1]string{
+var jsonFieldsNameOfCallTreeGetOK = [2]string{
 	0: "entrypoint",
+	1: "steps",
 }
 
 // Decode decodes CallTreeGetOK from json.
@@ -241,6 +252,23 @@ func (s *CallTreeGetOK) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"entrypoint\"")
+			}
+		case "steps":
+			if err := func() error {
+				s.Steps = make([]EvalStep, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem EvalStep
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Steps = append(s.Steps, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"steps\"")
 			}
 		default:
 			return d.Skip()
@@ -390,6 +418,136 @@ func (s *DepTreeTextGetOK) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *DepTreeTextGetOK) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *EvalStep) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *EvalStep) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("index")
+		e.Int(s.Index)
+	}
+	{
+		e.FieldStart("message")
+		e.Str(s.Message)
+	}
+	{
+		e.FieldStart("targetNodeUid")
+		e.Str(s.TargetNodeUid)
+	}
+}
+
+var jsonFieldsNameOfEvalStep = [3]string{
+	0: "index",
+	1: "message",
+	2: "targetNodeUid",
+}
+
+// Decode decodes EvalStep from json.
+func (s *EvalStep) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode EvalStep to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "index":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Int()
+				s.Index = int(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"index\"")
+			}
+		case "message":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.Message = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"message\"")
+			}
+		case "targetNodeUid":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Str()
+				s.TargetNodeUid = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"targetNodeUid\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode EvalStep")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfEvalStep) {
+					name = jsonFieldsNameOfEvalStep[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *EvalStep) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *EvalStep) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -587,6 +745,152 @@ func (s *IrGetOK) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
+func (s *NodeLocation) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *NodeLocation) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("row")
+		e.Int(s.Row)
+	}
+	{
+		e.FieldStart("col")
+		e.Int(s.Col)
+	}
+}
+
+var jsonFieldsNameOfNodeLocation = [2]string{
+	0: "row",
+	1: "col",
+}
+
+// Decode decodes NodeLocation from json.
+func (s *NodeLocation) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode NodeLocation to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "row":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Int()
+				s.Row = int(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"row\"")
+			}
+		case "col":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Int()
+				s.Col = int(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"col\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode NodeLocation")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfNodeLocation) {
+					name = jsonFieldsNameOfNodeLocation[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *NodeLocation) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *NodeLocation) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes NodeLocation as json.
+func (o OptNodeLocation) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	o.Value.Encode(e)
+}
+
+// Decode decodes NodeLocation from json.
+func (o *OptNodeLocation) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptNodeLocation to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptNodeLocation) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptNodeLocation) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
 func (s *RuleChild) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -602,6 +906,12 @@ func (s *RuleChild) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("uid")
 		e.Str(s.UID)
+	}
+	{
+		if s.Location.Set {
+			e.FieldStart("location")
+			s.Location.Encode(e)
+		}
 	}
 	{
 		e.FieldStart("type")
@@ -621,12 +931,13 @@ func (s *RuleChild) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfRuleChild = [5]string{
+var jsonFieldsNameOfRuleChild = [6]string{
 	0: "name",
 	1: "uid",
-	2: "type",
-	3: "value",
-	4: "statements",
+	2: "location",
+	3: "type",
+	4: "value",
+	5: "statements",
 }
 
 // Decode decodes RuleChild from json.
@@ -662,8 +973,18 @@ func (s *RuleChild) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"uid\"")
 			}
+		case "location":
+			if err := func() error {
+				s.Location.Reset()
+				if err := s.Location.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"location\"")
+			}
 		case "type":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				if err := s.Type.Decode(d); err != nil {
 					return err
@@ -673,7 +994,7 @@ func (s *RuleChild) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"type\"")
 			}
 		case "value":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				v, err := d.Str()
 				s.Value = string(v)
@@ -685,7 +1006,7 @@ func (s *RuleChild) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"value\"")
 			}
 		case "statements":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				s.Statements = make([]RuleStatement, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -712,7 +1033,7 @@ func (s *RuleChild) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00011111,
+		0b00111011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -776,6 +1097,12 @@ func (s *RuleChildElse) encodeFields(e *jx.Encoder) {
 		e.Str(s.UID)
 	}
 	{
+		if s.Location.Set {
+			e.FieldStart("location")
+			s.Location.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("type")
 		s.Type.Encode(e)
 	}
@@ -789,11 +1116,12 @@ func (s *RuleChildElse) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfRuleChildElse = [4]string{
+var jsonFieldsNameOfRuleChildElse = [5]string{
 	0: "name",
 	1: "uid",
-	2: "type",
-	3: "children",
+	2: "location",
+	3: "type",
+	4: "children",
 }
 
 // Decode decodes RuleChildElse from json.
@@ -829,8 +1157,18 @@ func (s *RuleChildElse) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"uid\"")
 			}
+		case "location":
+			if err := func() error {
+				s.Location.Reset()
+				if err := s.Location.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"location\"")
+			}
 		case "type":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				if err := s.Type.Decode(d); err != nil {
 					return err
@@ -840,7 +1178,7 @@ func (s *RuleChildElse) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"type\"")
 			}
 		case "children":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				s.Children = make([]RuleChild, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -867,7 +1205,7 @@ func (s *RuleChildElse) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00001111,
+		0b00011011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1007,6 +1345,12 @@ func (s *RuleParent) encodeFields(e *jx.Encoder) {
 		e.Str(s.UID)
 	}
 	{
+		if s.Location.Set {
+			e.FieldStart("location")
+			s.Location.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("type")
 		s.Type.Encode(e)
 	}
@@ -1022,14 +1366,20 @@ func (s *RuleParent) encodeFields(e *jx.Encoder) {
 		}
 		e.ArrEnd()
 	}
+	{
+		e.FieldStart("ref")
+		e.Str(s.Ref)
+	}
 }
 
-var jsonFieldsNameOfRuleParent = [5]string{
+var jsonFieldsNameOfRuleParent = [7]string{
 	0: "name",
 	1: "uid",
-	2: "type",
-	3: "default",
-	4: "children",
+	2: "location",
+	3: "type",
+	4: "default",
+	5: "children",
+	6: "ref",
 }
 
 // Decode decodes RuleParent from json.
@@ -1065,8 +1415,18 @@ func (s *RuleParent) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"uid\"")
 			}
+		case "location":
+			if err := func() error {
+				s.Location.Reset()
+				if err := s.Location.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"location\"")
+			}
 		case "type":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				if err := s.Type.Decode(d); err != nil {
 					return err
@@ -1076,7 +1436,7 @@ func (s *RuleParent) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"type\"")
 			}
 		case "default":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				v, err := d.Str()
 				s.Default = string(v)
@@ -1088,7 +1448,7 @@ func (s *RuleParent) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"default\"")
 			}
 		case "children":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				s.Children = make([]RuleParentChildrenItem, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -1105,6 +1465,18 @@ func (s *RuleParent) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"children\"")
 			}
+		case "ref":
+			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				v, err := d.Str()
+				s.Ref = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"ref\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -1115,7 +1487,7 @@ func (s *RuleParent) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00011111,
+		0b01111011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1311,6 +1683,12 @@ func (s *RuleStatement) encodeFields(e *jx.Encoder) {
 		e.Str(s.UID)
 	}
 	{
+		if s.Location.Set {
+			e.FieldStart("location")
+			s.Location.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("dependencies")
 		e.ArrStart()
 		for _, elem := range s.Dependencies {
@@ -1320,10 +1698,11 @@ func (s *RuleStatement) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfRuleStatement = [3]string{
+var jsonFieldsNameOfRuleStatement = [4]string{
 	0: "name",
 	1: "uid",
-	2: "dependencies",
+	2: "location",
+	3: "dependencies",
 }
 
 // Decode decodes RuleStatement from json.
@@ -1359,8 +1738,18 @@ func (s *RuleStatement) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"uid\"")
 			}
+		case "location":
+			if err := func() error {
+				s.Location.Reset()
+				if err := s.Location.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"location\"")
+			}
 		case "dependencies":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				s.Dependencies = make([]RuleStatementDependenciesItem, 0)
 				if err := d.Arr(func(d *jx.Decoder) error {
@@ -1387,7 +1776,7 @@ func (s *RuleStatement) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00001011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

@@ -6,11 +6,11 @@ import { DepTreeViewer } from "@/components/DepTreeViewer.tsx";
 import { FlowchartViewer } from "@/components/FlowchartViewer.tsx";
 import { IrViewer } from "@/components/IrViewer.tsx";
 import { SampleFileViewer } from "@/components/SampleFileViewer.tsx";
+import { ToolCardContent } from "@/components/ToolCardContent";
 import { VarTraceViewer } from "@/components/VarTraceViewer.tsx";
 import { Fallback } from "@/components/fallback.tsx";
 import {
 	Card,
-	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
@@ -69,9 +69,9 @@ function AppInner() {
 										関数の呼び出し関係を木構造で表示します
 									</CardDescription>
 								</CardHeader>
-								<CardContent>
+								<ToolCardContent>
 									<CallTreeViewer />
-								</CardContent>
+								</ToolCardContent>
 							</Card>
 						</TabsContent>
 						<TabsContent value={"varTrace"}>
@@ -82,9 +82,9 @@ function AppInner() {
 										特定の変数の値を表示・固定できます
 									</CardDescription>
 								</CardHeader>
-								<CardContent>
+								<ToolCardContent>
 									<VarTraceViewer />
-								</CardContent>
+								</ToolCardContent>
 							</Card>
 						</TabsContent>
 						<TabsContent value={"depTree"}>
@@ -95,9 +95,9 @@ function AppInner() {
 										変数の依存関係を木構造で表示します
 									</CardDescription>
 								</CardHeader>
-								<CardContent>
+								<ToolCardContent>
 									<DepTreeViewer />
-								</CardContent>
+								</ToolCardContent>
 							</Card>
 						</TabsContent>
 						<TabsContent value={"flowchart"}>
@@ -108,9 +108,9 @@ function AppInner() {
 										変数の依存関係をフローチャートで表示します
 									</CardDescription>
 								</CardHeader>
-								<CardContent>
+								<ToolCardContent>
 									<FlowchartViewer />
-								</CardContent>
+								</ToolCardContent>
 							</Card>
 						</TabsContent>
 						<TabsContent value={"ast"}>
@@ -119,9 +119,9 @@ function AppInner() {
 									<CardTitle>AST</CardTitle>
 									<CardDescription>抽象構文木を表示します</CardDescription>
 								</CardHeader>
-								<CardContent>
+								<ToolCardContent>
 									<AstViewer />
-								</CardContent>
+								</ToolCardContent>
 							</Card>
 						</TabsContent>
 						<TabsContent value={"ir"}>
@@ -130,9 +130,9 @@ function AppInner() {
 									<CardTitle>IR</CardTitle>
 									<CardDescription>中間表現を表示します</CardDescription>
 								</CardHeader>
-								<CardContent>
+								<ToolCardContent>
 									<IrViewer />
-								</CardContent>
+								</ToolCardContent>
 							</Card>
 						</TabsContent>
 					</Tabs>

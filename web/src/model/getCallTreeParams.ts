@@ -15,4 +15,16 @@ export type GetCallTreeParams = {
 	 * The entrypoint rule to analyze
 	 */
 	entrypoint: string;
+	/**
+	 * The input to policy
+	 */
+	input?: string;
+	/**
+	 * The data to policy
+	 */
+	data?: string;
+	/**
+	 * The query to policy
+	 */
+	query?: string;
 };

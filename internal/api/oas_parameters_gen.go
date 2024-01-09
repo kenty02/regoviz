@@ -134,6 +134,12 @@ type CallTreeGetParams struct {
 	SampleName string
 	// The entrypoint rule to analyze.
 	Entrypoint string
+	// The input to policy.
+	Input OptString
+	// The data to policy.
+	Data OptString
+	// The query to policy.
+	Query OptString
 }
 
 func unpackCallTreeGetParams(packed middleware.Parameters) (params CallTreeGetParams) {
@@ -150,6 +156,33 @@ func unpackCallTreeGetParams(packed middleware.Parameters) (params CallTreeGetPa
 			In:   "query",
 		}
 		params.Entrypoint = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "input",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Input = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "data",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Data = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "query",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Query = v.(OptString)
+		}
 	}
 	return params
 }
@@ -224,6 +257,129 @@ func decodeCallTreeGetParams(args [0]string, argsEscaped bool, r *http.Request) 
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "entrypoint",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: input.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "input",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotInputVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotInputVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Input.SetTo(paramsDotInputVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "input",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: data.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "data",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotDataVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotDataVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Data.SetTo(paramsDotDataVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "data",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: query.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "query",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotQueryVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotQueryVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Query.SetTo(paramsDotQueryVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "query",
 			In:   "query",
 			Err:  err,
 		}

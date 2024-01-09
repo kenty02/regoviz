@@ -15,6 +15,7 @@ import (
 	"github.com/open-policy-agent/opa/rego"
 	"github.com/open-policy-agent/opa/storage/inmem"
 	"github.com/open-policy-agent/opa/topdown"
+	"github.com/open-policy-agent/opa/topdown/print"
 	treemap "github.com/xlab/treeprint"
 	"math/rand"
 	"reflect"
@@ -25,7 +26,7 @@ import (
 	"strings"
 )
 
-func CompileModuleStringToAst(moduleCode string) (*ast.Module, *ast.Compiler, error) {
+func CompileModuleStringToAst(moduleCode string, withPrintStatements bool, withStrict bool) (*ast.Module, *ast.Compiler, error) {
 	const moduleName = "my_module"
 	// Parse the input module to obtain the AST representation.
 	mod, err := ast.ParseModule(moduleName, moduleCode)
@@ -34,7 +35,7 @@ func CompileModuleStringToAst(moduleCode string) (*ast.Module, *ast.Compiler, er
 	}
 
 	// Create a new compiler instance and compile the module.
-	c := ast.NewCompiler()
+	c := ast.NewCompiler().WithEnablePrintStatements(withPrintStatements).WithStrict(withStrict)
 
 	mods := map[string]*ast.Module{
 		moduleName: mod,
@@ -43,11 +44,6 @@ func CompileModuleStringToAst(moduleCode string) (*ast.Module, *ast.Compiler, er
 	if c.Compile(mods); c.Failed() {
 		return nil, nil, c.Errors
 	}
-	//
-	//fmt.Println("Expr 1:", c.Modules[moduleName].Rules[0].Body[0])
-	//fmt.Println("Expr 2:", c.Modules[moduleName].Rules[0].Body[1])
-	//fmt.Println("Expr 3:", c.Modules[moduleName].Rules[0].Body[2])
-	//fmt.Println("Expr 4:", c.Modules[moduleName].Rules[0].Body[3])
 
 	return c.Modules[moduleName], c, nil
 }
@@ -74,7 +70,7 @@ func PlanModuleAndGetIr(ctx context.Context, rego string, print bool, autoDeterm
 		WithRegoAnnotationEntrypoints(true).
 		WithEnablePrintStatements(print)
 	if autoDetermineEntrypoints {
-		moduleAst, _, err := CompileModuleStringToAst(rego)
+		moduleAst, _, err := CompileModuleStringToAst(rego, false, true)
 
 		if err != nil {
 			return nil, err
@@ -360,6 +356,40 @@ func evalRegoWithPrint(code, query string, input, data map[string]interface{}) (
 	return &rs, buf.String(), nil
 }
 
+func EvalRegoWithPrintAndTrace(code, query string, input, data map[string]interface{}, p print.Hook, t topdown.QueryTracer) (*rego.ResultSet, error) {
+
+	maybeInputFunc := func(r *rego.Rego) {}
+	maybeStoreFunc := func(r *rego.Rego) {}
+
+	if input != nil {
+		maybeInputFunc = rego.Input(input)
+	}
+	if data != nil {
+		// Manually create the storage layer. inmem.NewFromObject returns an
+		// in-memory store containing the supplied data.
+		store := inmem.NewFromObject(data)
+		maybeStoreFunc = rego.Store(store)
+	}
+	r := rego.New(
+		rego.Query(query),
+		rego.Module("example.rego", code),
+		maybeInputFunc,
+		rego.EnablePrintStatements(true),
+		rego.PrintHook(p),
+		rego.QueryTracer(t),
+		rego.Trace(true),
+		maybeStoreFunc,
+		rego.UnsafeBuiltins(map[string]struct{}{"http.send": {}}),
+	)
+
+	rs, err := r.Eval(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return &rs, nil
+}
+
 type CodeInject struct {
 	line    int
 	code    string
@@ -566,20 +596,47 @@ func DoVarTrace(code, query string, input, data map[string]interface{}, commands
 	return sb.String(), nil
 }
 
-func GetStaticCallTree(code, entrypoint string, useEmptyUID bool) (*api.RuleParent, error) {
-	moduleAst, moduleAstCompiler, err := CompileModuleStringToAst(code)
+type UIDType int
+
+const (
+	UIDTypeEmpty UIDType = iota
+	UIDTypeRandom
+	UIDTypeRandomWithLocation
+	UIDTypeDeterministicWithLocation
+)
+
+func GetStaticCallTree(code, entrypoint string, uidType UIDType) (*api.RuleParent, []interface{}, error) {
+	moduleAst, moduleAstCompiler, err := CompileModuleStringToAst(code, true, true)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	maybeGenerateUID := func() string {
-		if useEmptyUID {
+	uidCounter := 0
+	maybeGenerateUID := func(locationOrNil *ast.Location) string {
+		if uidType == UIDTypeEmpty {
 			return ""
-		} else {
+		} else if uidType == UIDTypeRandom {
 			return utils.GenerateId()
+		} else if uidType == UIDTypeRandomWithLocation {
+			locationString := "nil"
+			if locationOrNil != nil {
+				locationString = locationOrNil.String()
+			}
+			return fmt.Sprintf("%s_%s", locationString, utils.GenerateId())
+		} else if uidType == UIDTypeDeterministicWithLocation {
+			locationString := "nil"
+			if locationOrNil != nil {
+				locationString = locationOrNil.String()
+			}
+			uid := fmt.Sprintf("%s_%d", locationString, uidCounter)
+			uidCounter++
+			return uid
+		} else {
+			panic("unknown uidType")
 		}
 	}
 
+	var nodes []interface{}
 	var getRuleParent func(ruleRef ast.Ref) (*api.RuleParent, error)
 	getRuleName := func(rule *ast.Rule) string {
 		return rule.Head.Name.String()
@@ -625,11 +682,17 @@ func GetStaticCallTree(code, entrypoint string, useEmptyUID bool) (*api.RulePare
 			}
 			prependedExprs = nil
 
-			statements = append(statements, api.RuleStatement{
+			statement := api.RuleStatement{
 				Name:         string(expr.Location.Text),
-				UID:          maybeGenerateUID(),
+				UID:          maybeGenerateUID(expr.Location),
 				Dependencies: deps,
-			})
+				Location: api.NewOptNodeLocation(api.NodeLocation{
+					Row: expr.Location.Row,
+					Col: expr.Location.Col,
+				}),
+			}
+			statements = append(statements, statement)
+			nodes = append(nodes, &statement)
 
 		}
 		value := ""
@@ -638,11 +701,16 @@ func GetStaticCallTree(code, entrypoint string, useEmptyUID bool) (*api.RulePare
 		}
 		result := &api.RuleChild{
 			Name:       fmt.Sprintf("%s:%d", getRuleName(rule), rule.Head.Location.Row),
-			UID:        maybeGenerateUID(),
+			UID:        maybeGenerateUID(rule.Head.Location),
 			Type:       api.RuleChildTypeChild,
 			Value:      value,
 			Statements: statements,
+			Location: api.NewOptNodeLocation(api.NodeLocation{
+				Row: rule.Head.Location.Row,
+				Col: rule.Head.Location.Col,
+			}),
 		}
+		nodes = append(nodes, result)
 		return result, nil
 	}
 
@@ -663,22 +731,29 @@ func GetStaticCallTree(code, entrypoint string, useEmptyUID bool) (*api.RulePare
 			ruleChildElseChildren = append(ruleChildElseChildren, *ruleChild)
 			current = current.Else
 		}
+		var result *api.RuleParentChildrenItem
 		if len(ruleChildElseChildren) > 1 {
-			return &api.RuleParentChildrenItem{
+			result = &api.RuleParentChildrenItem{
 				Type: api.RuleChildElseRuleParentChildrenItem,
 				RuleChildElse: api.RuleChildElse{
 					Name:     getRuleName(rule),
-					UID:      maybeGenerateUID(),
+					UID:      maybeGenerateUID(nil),
 					Type:     api.RuleChildElseTypeChildElse,
 					Children: ruleChildElseChildren,
+					Location: api.NewOptNodeLocation(api.NodeLocation{
+						Row: ruleChild.Location.Value.Row,
+						Col: ruleChild.Location.Value.Col,
+					}),
 				},
-			}, nil
+			}
 		} else {
-			return &api.RuleParentChildrenItem{
+			result = &api.RuleParentChildrenItem{
 				Type:      api.RuleChildRuleParentChildrenItem,
 				RuleChild: *ruleChild,
-			}, nil
+			}
 		}
+		nodes = append(nodes, result)
+		return result, nil
 	}
 	getRuleParentChildren := func(rules []*ast.Rule) ([]api.RuleParentChildrenItem, error) {
 		var results []api.RuleParentChildrenItem
@@ -717,29 +792,32 @@ func GetStaticCallTree(code, entrypoint string, useEmptyUID bool) (*api.RulePare
 		}
 		result := &api.RuleParent{
 			Name:     getRuleName(nonDefaultRules[0]),
-			UID:      maybeGenerateUID(),
+			UID:      maybeGenerateUID(nil),
 			Type:     api.RuleParentTypeParent,
 			Default:  defaultRuleValue,
 			Children: children,
+			Ref:      ruleRef.String(),
 		}
+		nodes = append(nodes, result)
 		return result, nil
 	}
 
 	// get entrypoint rule
 	var entrypointRuleRef ast.Ref
 	for _, rule := range moduleAst.Rules {
+		// todo allow absolute name like "data.example.allow"
 		if rule.Head.Name.String() == entrypoint {
 			entrypointRuleRef = rule.Ref()
 			break
 		}
 	}
 	if entrypointRuleRef == nil {
-		return nil, fmt.Errorf("entrypoint rule not found: %s", entrypoint)
+		return nil, nil, fmt.Errorf("entrypoint rule not found: %s", entrypoint)
 	}
 	result, err := getRuleParent(entrypointRuleRef)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return result, nil
+	return result, nodes, nil
 }

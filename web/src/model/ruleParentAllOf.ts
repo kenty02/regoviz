@@ -11,5 +11,6 @@ import type { RuleParentAllOfType } from "./ruleParentAllOfType";
 export type RuleParentAllOf = {
 	children: RuleParentAllOfChildrenItem[];
 	default: string;
+	ref: string;
 	type: RuleParentAllOfType;
 };

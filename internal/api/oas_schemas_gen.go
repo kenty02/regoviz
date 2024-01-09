@@ -52,6 +52,7 @@ func (s *BearerAuth) SetToken(val string) {
 
 type CallTreeGetOK struct {
 	Entrypoint RuleParent `json:"entrypoint"`
+	Steps      []EvalStep `json:"steps"`
 }
 
 // GetEntrypoint returns the value of Entrypoint.
@@ -59,9 +60,19 @@ func (s *CallTreeGetOK) GetEntrypoint() RuleParent {
 	return s.Entrypoint
 }
 
+// GetSteps returns the value of Steps.
+func (s *CallTreeGetOK) GetSteps() []EvalStep {
+	return s.Steps
+}
+
 // SetEntrypoint sets the value of Entrypoint.
 func (s *CallTreeGetOK) SetEntrypoint(val RuleParent) {
 	s.Entrypoint = val
+}
+
+// SetSteps sets the value of Steps.
+func (s *CallTreeGetOK) SetSteps(val []EvalStep) {
+	s.Steps = val
 }
 
 type DepTreeTextGetOK struct {
@@ -77,6 +88,43 @@ func (s *DepTreeTextGetOK) GetResult() string {
 // SetResult sets the value of Result.
 func (s *DepTreeTextGetOK) SetResult(val string) {
 	s.Result = val
+}
+
+// Ref: #/components/schemas/EvalStep
+type EvalStep struct {
+	Index         int    `json:"index"`
+	Message       string `json:"message"`
+	TargetNodeUid string `json:"targetNodeUid"`
+}
+
+// GetIndex returns the value of Index.
+func (s *EvalStep) GetIndex() int {
+	return s.Index
+}
+
+// GetMessage returns the value of Message.
+func (s *EvalStep) GetMessage() string {
+	return s.Message
+}
+
+// GetTargetNodeUid returns the value of TargetNodeUid.
+func (s *EvalStep) GetTargetNodeUid() string {
+	return s.TargetNodeUid
+}
+
+// SetIndex sets the value of Index.
+func (s *EvalStep) SetIndex(val int) {
+	s.Index = val
+}
+
+// SetMessage sets the value of Message.
+func (s *EvalStep) SetMessage(val string) {
+	s.Message = val
+}
+
+// SetTargetNodeUid sets the value of TargetNodeUid.
+func (s *EvalStep) SetTargetNodeUid(val string) {
+	s.TargetNodeUid = val
 }
 
 type FlowchartGetOK struct {
@@ -107,6 +155,32 @@ func (s *IrGetOK) GetResult() string {
 // SetResult sets the value of Result.
 func (s *IrGetOK) SetResult(val string) {
 	s.Result = val
+}
+
+// Ref: #/components/schemas/NodeLocation
+type NodeLocation struct {
+	Row int `json:"row"`
+	Col int `json:"col"`
+}
+
+// GetRow returns the value of Row.
+func (s *NodeLocation) GetRow() int {
+	return s.Row
+}
+
+// GetCol returns the value of Col.
+func (s *NodeLocation) GetCol() int {
+	return s.Col
+}
+
+// SetRow sets the value of Row.
+func (s *NodeLocation) SetRow(val int) {
+	s.Row = val
+}
+
+// SetCol sets the value of Col.
+func (s *NodeLocation) SetCol(val int) {
+	s.Col = val
 }
 
 // NewOptBool returns new OptBool with value set to v.
@@ -149,6 +223,52 @@ func (o OptBool) Get() (v bool, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptBool) Or(d bool) bool {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptNodeLocation returns new OptNodeLocation with value set to v.
+func NewOptNodeLocation(v NodeLocation) OptNodeLocation {
+	return OptNodeLocation{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNodeLocation is optional NodeLocation.
+type OptNodeLocation struct {
+	Value NodeLocation
+	Set   bool
+}
+
+// IsSet returns true if OptNodeLocation was set.
+func (o OptNodeLocation) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNodeLocation) Reset() {
+	var v NodeLocation
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptNodeLocation) SetTo(v NodeLocation) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNodeLocation) Get() (v NodeLocation, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNodeLocation) Or(d NodeLocation) NodeLocation {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -206,6 +326,7 @@ func (o OptString) Or(d string) string {
 type RuleChild struct {
 	Name       string          `json:"name"`
 	UID        string          `json:"uid"`
+	Location   OptNodeLocation `json:"location"`
 	Type       RuleChildType   `json:"type"`
 	Value      string          `json:"value"`
 	Statements []RuleStatement `json:"statements"`
@@ -219,6 +340,11 @@ func (s *RuleChild) GetName() string {
 // GetUID returns the value of UID.
 func (s *RuleChild) GetUID() string {
 	return s.UID
+}
+
+// GetLocation returns the value of Location.
+func (s *RuleChild) GetLocation() OptNodeLocation {
+	return s.Location
 }
 
 // GetType returns the value of Type.
@@ -246,6 +372,11 @@ func (s *RuleChild) SetUID(val string) {
 	s.UID = val
 }
 
+// SetLocation sets the value of Location.
+func (s *RuleChild) SetLocation(val OptNodeLocation) {
+	s.Location = val
+}
+
 // SetType sets the value of Type.
 func (s *RuleChild) SetType(val RuleChildType) {
 	s.Type = val
@@ -266,6 +397,7 @@ func (s *RuleChild) SetStatements(val []RuleStatement) {
 type RuleChildElse struct {
 	Name     string            `json:"name"`
 	UID      string            `json:"uid"`
+	Location OptNodeLocation   `json:"location"`
 	Type     RuleChildElseType `json:"type"`
 	Children []RuleChild       `json:"children"`
 }
@@ -278,6 +410,11 @@ func (s *RuleChildElse) GetName() string {
 // GetUID returns the value of UID.
 func (s *RuleChildElse) GetUID() string {
 	return s.UID
+}
+
+// GetLocation returns the value of Location.
+func (s *RuleChildElse) GetLocation() OptNodeLocation {
+	return s.Location
 }
 
 // GetType returns the value of Type.
@@ -298,6 +435,11 @@ func (s *RuleChildElse) SetName(val string) {
 // SetUID sets the value of UID.
 func (s *RuleChildElse) SetUID(val string) {
 	s.UID = val
+}
+
+// SetLocation sets the value of Location.
+func (s *RuleChildElse) SetLocation(val OptNodeLocation) {
+	s.Location = val
 }
 
 // SetType sets the value of Type.
@@ -383,9 +525,11 @@ func (s *RuleChildType) UnmarshalText(data []byte) error {
 type RuleParent struct {
 	Name     string                   `json:"name"`
 	UID      string                   `json:"uid"`
+	Location OptNodeLocation          `json:"location"`
 	Type     RuleParentType           `json:"type"`
 	Default  string                   `json:"default"`
 	Children []RuleParentChildrenItem `json:"children"`
+	Ref      string                   `json:"ref"`
 }
 
 // GetName returns the value of Name.
@@ -396,6 +540,11 @@ func (s *RuleParent) GetName() string {
 // GetUID returns the value of UID.
 func (s *RuleParent) GetUID() string {
 	return s.UID
+}
+
+// GetLocation returns the value of Location.
+func (s *RuleParent) GetLocation() OptNodeLocation {
+	return s.Location
 }
 
 // GetType returns the value of Type.
@@ -413,6 +562,11 @@ func (s *RuleParent) GetChildren() []RuleParentChildrenItem {
 	return s.Children
 }
 
+// GetRef returns the value of Ref.
+func (s *RuleParent) GetRef() string {
+	return s.Ref
+}
+
 // SetName sets the value of Name.
 func (s *RuleParent) SetName(val string) {
 	s.Name = val
@@ -421,6 +575,11 @@ func (s *RuleParent) SetName(val string) {
 // SetUID sets the value of UID.
 func (s *RuleParent) SetUID(val string) {
 	s.UID = val
+}
+
+// SetLocation sets the value of Location.
+func (s *RuleParent) SetLocation(val OptNodeLocation) {
+	s.Location = val
 }
 
 // SetType sets the value of Type.
@@ -436,6 +595,11 @@ func (s *RuleParent) SetDefault(val string) {
 // SetChildren sets the value of Children.
 func (s *RuleParent) SetChildren(val []RuleParentChildrenItem) {
 	s.Children = val
+}
+
+// SetRef sets the value of Ref.
+func (s *RuleParent) SetRef(val string) {
+	s.Ref = val
 }
 
 // RuleParentChildrenItem represents sum type.
@@ -543,6 +707,7 @@ func (s *RuleParentType) UnmarshalText(data []byte) error {
 type RuleStatement struct {
 	Name         string                          `json:"name"`
 	UID          string                          `json:"uid"`
+	Location     OptNodeLocation                 `json:"location"`
 	Dependencies []RuleStatementDependenciesItem `json:"dependencies"`
 }
 
@@ -554,6 +719,11 @@ func (s *RuleStatement) GetName() string {
 // GetUID returns the value of UID.
 func (s *RuleStatement) GetUID() string {
 	return s.UID
+}
+
+// GetLocation returns the value of Location.
+func (s *RuleStatement) GetLocation() OptNodeLocation {
+	return s.Location
 }
 
 // GetDependencies returns the value of Dependencies.
@@ -569,6 +739,11 @@ func (s *RuleStatement) SetName(val string) {
 // SetUID sets the value of UID.
 func (s *RuleStatement) SetUID(val string) {
 	s.UID = val
+}
+
+// SetLocation sets the value of Location.
+func (s *RuleStatement) SetLocation(val OptNodeLocation) {
+	s.Location = val
 }
 
 // SetDependencies sets the value of Dependencies.

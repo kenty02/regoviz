@@ -8,6 +8,7 @@ import (
 	"github.com/open-policy-agent/opa/ir"
 	"regoviz/internal/analyzer"
 	"regoviz/internal/analyzer/astprint"
+	"regoviz/internal/analyzer/evalTrace"
 	"regoviz/internal/api"
 	"regoviz/internal/samples"
 	"strconv"
@@ -23,11 +24,31 @@ func (s *RegovizService) CallTreeGet(ctx context.Context, params api.CallTreeGet
 	if err != nil {
 		return nil, err
 	}
-	result, err := analyzer.GetStaticCallTree(sample, params.Entrypoint, true)
+	callTree, callTreeNodes, err := analyzer.GetStaticCallTree(sample, params.Entrypoint, analyzer.UIDTypeEmpty)
 	if err != nil {
 		return nil, err
 	}
-	return &api.CallTreeGetOK{Entrypoint: *result}, nil
+	var evalSteps []api.EvalStep
+	if params.Query.Set {
+		var input map[string]interface{}
+		if inputParam, ok := params.Input.Get(); ok {
+			if err := json.Unmarshal([]byte(inputParam), &input); err != nil {
+				return nil, err
+			}
+		}
+		var data map[string]interface{}
+		if dataParam, ok := params.Data.Get(); ok {
+			if err := json.Unmarshal([]byte(dataParam), &data); err != nil {
+				return nil, err
+			}
+		}
+		evalSteps, err = evalTrace.DoEvalTrace(sample, params.Query.Value, input, data, callTree, callTreeNodes, nil)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &api.CallTreeGetOK{Entrypoint: *callTree, Steps: evalSteps}, nil
 }
 
 func (s *RegovizService) IrGet(ctx context.Context, params api.IrGetParams) (*api.IrGetOK, error) {
@@ -147,7 +168,7 @@ func (s *RegovizService) AstGet(_ context.Context, params api.AstGetParams) (*ap
 	if err != nil {
 		return nil, err
 	}
-	mod, _, err := analyzer.CompileModuleStringToAst(sample)
+	mod, _, err := analyzer.CompileModuleStringToAst(sample, false, true)
 
 	if err != nil {
 		return nil, err
@@ -171,7 +192,7 @@ func (s *RegovizService) AstPrettyGet(_ context.Context, params api.AstPrettyGet
 		return nil, err
 	}
 	// compile module
-	mod, _, err := analyzer.CompileModuleStringToAst(sample)
+	mod, _, err := analyzer.CompileModuleStringToAst(sample, false, true)
 
 	if err != nil {
 		return nil, err

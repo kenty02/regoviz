@@ -194,6 +194,25 @@ paths:
             type: string
           description: The entrypoint rule to analyze
           required: true
+        # provide query at least to get eval steps
+        - in: query
+          name: input
+          schema:
+            type: string
+          description: The input to policy
+          required: false
+        - in: query
+          name: data
+          schema:
+            type: string
+          description: The data to policy
+          required: false
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: The query to policy
+          required: false
       responses:
         '200':
           description: Call tree of given module
@@ -204,6 +223,10 @@ paths:
                 properties:
                   entrypoint:
                     $ref: '#/components/schemas/RuleParent'
+                  steps:
+                      type: array
+                      items:
+                          $ref: '#/components/schemas/EvalStep'
                 required: [ entrypoint ]
 
 components:
@@ -250,6 +273,14 @@ components:
             type: string
       required: [ file_name, content, input_examples, data_examples, query_examples ]
 
+    NodeLocation:
+        type: object
+        properties:
+          row:
+            type: integer
+          col:
+            type: integer
+        required: [ row, col ]
     NodeBase:
       type: object
       properties:
@@ -257,6 +288,8 @@ components:
           type: string
         uid:
           type: string
+        location:
+            $ref: '#/components/schemas/NodeLocation'
       required: [ name, uid ]
 
     RuleParent:
@@ -275,7 +308,9 @@ components:
                 oneOf:
                   - $ref: '#/components/schemas/RuleChild'
                   - $ref: '#/components/schemas/RuleChildElse'
-          required: [ type, default, children ]
+            ref:
+              type: string
+          required: [ type, default, children, ref ]
 
     RuleChild:
       allOf:
@@ -319,6 +354,17 @@ components:
                   - $ref: '#/components/schemas/RuleParent'
                   - type: string
           required: [ dependencies ]
+
+    EvalStep:
+      type: object
+      properties:
+        index:
+          type: integer
+        message:
+          type: string
+        targetNodeUid:
+          type: string
+      required: [ index, message, targetNodeUid ]
 
   securitySchemes:
     bearerAuth: # arbitrary name for the security scheme

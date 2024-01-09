@@ -14,7 +14,7 @@ var rbacRego string
 
 func TestCompileStringToAst(t *testing.T) {
 	rego := rbacRego
-	mod, _, err := CompileModuleStringToAst(rego)
+	mod, _, err := CompileModuleStringToAst(rego, false, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -333,18 +333,18 @@ func TestGetDepTreePretty(t *testing.T) {
 }
 
 type staticCallTreeTestData struct {
-	description string
-	rego        string
-	entrypoint  string
-	expected    *api.RuleParent
+	note       string
+	rego       string
+	entrypoint string
+	expected   *api.RuleParent
 }
 
 func TestGetStaticCallTree(t *testing.T) {
 	testData := []staticCallTreeTestData{
 		{
-			description: "rbac.rego",
-			rego:        rbacRego,
-			entrypoint:  "allow",
+			note:       "rbac.rego",
+			rego:       rbacRego,
+			entrypoint: "allow",
 			expected: &api.RuleParent{
 				Name:    "allow",
 				UID:     "",
@@ -482,7 +482,7 @@ func TestGetStaticCallTree(t *testing.T) {
 				},
 			}},
 		{
-			description: "deps to nested documents",
+			note: "deps to nested documents",
 			rego: `package test
 import future.keywords.if
 import data.foo
@@ -527,7 +527,7 @@ allow if data.a.b.c[_] = input.a.b.c[foo]`,
 			},
 		},
 		{
-			description: "else blocks",
+			note: "else blocks",
 			rego: `package test
 import future.keywords.if
 allow if {
@@ -599,14 +599,14 @@ allow if {
 	}
 
 	for _, data := range testData {
-		result, err := GetStaticCallTree(data.rego, data.entrypoint, true)
+		result, _, err := GetStaticCallTree(data.rego, data.entrypoint, UIDTypeEmpty)
 		if err != nil {
-			t.Fatal(data.description, err)
+			t.Fatal(data.note, err)
 		}
 
 		// Compare the result and expected objects
 		if d := cmp.Diff(data.expected, result); d != "" {
-			t.Errorf("Result and expected objects differ for \"%s\": (-want +got)\n%s", data.description, d)
+			t.Errorf("Result and expected objects differ for \"%s\": (-want +got)\n%s", data.note, d)
 		}
 	}
 }
