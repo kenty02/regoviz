@@ -10,3 +10,6 @@ pre-commit:
     backend-lint:
       glob: '*.go'
       run: golangci-lint run
+    actionlint:
+      glob: '.github/workflows/*.yml'
+      run: actionlint
