@@ -1,20 +1,38 @@
-import { policyAtom } from "@/App.tsx";
-import { ReactECharts } from "@/components/React-ECharts.tsx";
+import { dataJsonAtom, inputJsonAtom, policyAtom } from "@/App.tsx";
 import {
-	useGetCallTreeAvailableEntrypointsSuspense,
-	useGetCallTreeSuspense,
-} from "@/default/default.ts";
-import { RuleChild, RuleChildElse, RuleParent, RuleStatement } from "@/model";
-import { TreeSeriesNodeItemOption } from "echarts/types/src/chart/tree/TreeSeries";
-import { useAtomValue } from "jotai/index";
-import { useMemo, useState } from "react";
+	ReactECharts,
+	ReactEChartsProps,
+} from "@/components/React-ECharts.tsx";
+import { Button } from "@/components/ui/button.tsx";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
-import { Button } from "@/components/ui/button.tsx";
+import {
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form.tsx";
+import { Input } from "@/components/ui/input.tsx";
+import {
+	useGetCallTreeAvailableEntrypointsSuspense,
+	useGetCallTreeSuspense,
+} from "@/default/default.ts";
+import { RuleChild, RuleChildElse, RuleParent, RuleStatement } from "@/model";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Separator } from "@radix-ui/react-dropdown-menu";
+import { TreeSeriesNodeItemOption } from "echarts/types/src/chart/tree/TreeSeries";
+import { useAtomValue } from "jotai/index";
+import { useCallback, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { ScrollArea } from "./ui/scroll-area";
 
 const convertRules = (
 	node: RuleParent | RuleChild | RuleChildElse,
@@ -56,6 +74,16 @@ export function CallTreeViewer() {
 		throw new Error("No entrypoints found");
 	}
 	const [entrypoint, setEntrypoint] = useState<string | null>(null);
+	const [query, setQuery] = useState("data");
+	const form = useForm<z.infer<typeof formSchema>>({
+		resolver: zodResolver(formSchema),
+		defaultValues: {
+			query: "data",
+		},
+	});
+	function onSubmit(values: z.infer<typeof formSchema>) {
+		setQuery(values.query);
+	}
 	if (entrypoint === null || !entrypoints.includes(entrypoint)) {
 		setEntrypoint(entrypoints[0]);
 		return <></>;
@@ -63,6 +91,31 @@ export function CallTreeViewer() {
 	return (
 		<>
 			<div>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+						<FormField
+							control={form.control}
+							name="query"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Query</FormLabel>
+									<FormControl>
+										<Input placeholder="data.example.allow" {...field} />
+									</FormControl>
+									{query === "data" ? (
+										<FormDescription>
+											Currently I am evaluating all rules. Edit query to get
+											more specific steps.
+										</FormDescription>
+									) : null}
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<Button type="submit">Submit Query</Button>
+					</form>
+				</Form>
+				<Separator className="my-2" />
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button variant="outline">Tree root: "{entrypoint}"</Button>
@@ -82,70 +135,130 @@ export function CallTreeViewer() {
 						})}
 					</DropdownMenuContent>
 				</DropdownMenu>
-				<CallTreeGraph policy={policy} entrypoint={entrypoint} />
+				<CallTreeGraph policy={policy} entrypoint={entrypoint} query={query} />
 			</div>
 		</>
 	);
 }
-const CallTreeGraph = (props: { policy: string; entrypoint: string }) => {
-	const { data } = useGetCallTreeSuspense({
+
+const formSchema = z.object({
+	query: z.string(),
+});
+const CallTreeGraph = (props: {
+	policy: string;
+	entrypoint: string;
+	query: string;
+}) => {
+	const data = useAtomValue(dataJsonAtom);
+	const input = useAtomValue(inputJsonAtom);
+	const { data: data2 } = useGetCallTreeSuspense({
 		policy: props.policy,
 		entrypoint: props.entrypoint,
+		data: data.length > 0 ? data : undefined,
+		input: input.length > 0 ? input : undefined,
+		query: props.query.length > 0 ? props.query : undefined,
 	});
-	const first = data.data.entrypoint;
+	const first = data2.data.entrypoint;
+	const steps = data2.data.steps;
 	const chartData: TreeSeriesNodeItemOption = useMemo(
 		() => convertRules(first),
 		[first],
 	);
-	return (
-		<ReactECharts
-			style={{ height: "50%" }}
-			option={{
-				tooltip: {
-					trigger: "item",
-					triggerOn: "mousemove",
-				},
-				series: [
-					{
-						type: "tree",
+	const [hoveredNodeUid, setHoveredNodeUid] = useState<string | null>(null);
 
-						data: [chartData],
+	const onReactEChartsMouseOver = useCallback((e: { data: unknown }) => {
+		// @ts-ignore
+		setHoveredNodeUid(e.data.id as string);
+	}, []);
 
-						top: "1%",
-						left: "7%",
-						bottom: "1%",
-						right: "20%",
+	const onReactEChartsMouseOut = useCallback(() => {
+		setHoveredNodeUid(null);
+	}, []);
 
-						symbolSize: 12,
+	const option = useMemo<ReactEChartsProps["option"]>(
+		() => ({
+			tooltip: {
+				trigger: "item",
+				triggerOn: "mousemove",
+			},
+			series: [
+				{
+					type: "tree",
 
-						edgeShape: "polyline",
+					data: [chartData],
 
-						roam: true,
+					top: "1%",
+					left: "7%",
+					bottom: "1%",
+					right: "20%",
 
-						label: {
-							position: "left",
-							verticalAlign: "middle",
-							align: "right",
-						},
+					symbolSize: 12,
 
-						leaves: {
-							label: {
-								position: "right",
-								verticalAlign: "middle",
-								align: "left",
-							},
-						},
+					edgeShape: "polyline",
 
-						emphasis: {
-							focus: "descendant",
-						},
+					roam: true,
 
-						expandAndCollapse: true,
-						animationDuration: 550,
-						animationDurationUpdate: 750,
+					label: {
+						position: "left",
+						verticalAlign: "middle",
+						align: "right",
 					},
-				],
-			}}
-		/>
+
+					leaves: {
+						label: {
+							position: "right",
+							verticalAlign: "middle",
+							align: "left",
+						},
+					},
+
+					emphasis: {
+						focus: "descendant",
+					},
+
+					expandAndCollapse: true,
+					animationDuration: 550,
+					animationDurationUpdate: 750,
+				},
+			],
+		}),
+		[chartData],
+	);
+	return (
+		<>
+			{props.query ? (
+				steps != null && steps.length > 0 ? (
+					<ScrollArea className="h-72 w-full rounded-md border">
+						<div className="p-4">
+							<h4 className="mb-4 text-sm font-medium leading-none">
+								Steps{hoveredNodeUid != null ? " for selected node" : ""}
+							</h4>
+							{steps
+								.filter(
+									(step) =>
+										hoveredNodeUid == null ||
+										step.targetNodeUid === hoveredNodeUid,
+								)
+								.map((step) => (
+									<>
+										<div key={step.index} className="text-sm">
+											[{step.index}] {step.message}
+										</div>
+										<Separator className="my-2" />
+									</>
+								))}
+						</div>
+					</ScrollArea>
+				) : (
+					<p className="text-sm">No steps found</p>
+				)
+			) : null}
+			<ReactECharts
+				onMouseOver={onReactEChartsMouseOver}
+				onMouseOut={onReactEChartsMouseOut}
+				style={{ height: "50%" }}
+				option={option}
+			/>
+		</>
 	);
 };

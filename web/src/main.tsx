@@ -27,7 +27,7 @@ Sentry.init({
 	enabled: import.meta.env.PROD,
 });
 async function enableMocking() {
-	if (process.env.NODE_ENV !== "development") {
+	if (process.env.NODE_ENV !== "development-mocked") {
 		return;
 	}
 

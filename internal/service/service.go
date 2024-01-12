@@ -28,7 +28,7 @@ func (s *RegovizService) CallTreeAvailableEntrypointsGet(ctx context.Context, pa
 }
 
 func (s *RegovizService) CallTreeGet(ctx context.Context, params api.CallTreeGetParams) (*api.CallTreeGetOK, error) {
-	callTree, callTreeNodes, err := analyzer.GetStaticCallTree(params.Policy, params.Entrypoint, analyzer.UIDTypeEmpty)
+	callTree, callTreeNodes, err := analyzer.GetStaticCallTree(params.Policy, params.Entrypoint, analyzer.UIDTypeDeterministicWithLocation)
 	if err != nil {
 		return nil, err
 	}

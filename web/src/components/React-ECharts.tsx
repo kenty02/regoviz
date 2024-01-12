@@ -1,8 +1,8 @@
 import { ECOption } from "@/lib/echarts.ts";
+import type { ECElementEvent, ECharts, SetOptionOpts } from "echarts";
 import { getInstanceByDom, init } from "echarts";
-import type { ECharts, SetOptionOpts } from "echarts";
-import { JSX, useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 
 export interface ReactEChartsProps {
 	option: ECOption;
@@ -11,18 +11,43 @@ export interface ReactEChartsProps {
 	loading?: boolean;
 	theme?: "light" | "dark";
 	className?: string;
+
+	onMouseOver?: (e: ECElementEvent) => void;
+	onMouseOut?: (e: ECElementEvent) => void;
 }
 
-export function ReactECharts({
-	option,
-	style,
-	settings,
-	loading,
-	theme,
-	className,
-}: ReactEChartsProps): JSX.Element {
+export interface ReactEChartsRef {
+	focusNode: (nodeId: string) => void;
+}
+
+export const ReactECharts = forwardRef<ReactEChartsRef, ReactEChartsProps>((
+	{ option, style, settings, loading, theme, className
+	, onMouseOver, onMouseOut
+	},
+	ref,
+) => {
 	const chartRef = useRef<HTMLDivElement>(null);
 
+	useImperativeHandle(
+		ref,
+		() => ({
+			focusNode: (nodeId: string) => {
+				if (chartRef.current === null) {
+					return;
+				}
+				const chart = getInstanceByDom(chartRef.current);
+				if (chart === undefined) {
+					return;
+				}
+				chart.dispatchAction({
+					type: "highlight",
+					seriesIndex: 0,
+					dataName: nodeId,
+				});
+			},
+		}),
+		[],
+	);
 	useEffect(() => {
 		// Initialize chart
 		let chart: ECharts | undefined;
@@ -63,6 +88,27 @@ export function ReactECharts({
 		}
 	}, [loading, theme]);
 
+	useEffect(() => {
+		if (chartRef.current !== null) {
+			const chart = getInstanceByDom(chartRef.current);
+			if (chart === undefined) {
+				return;
+			}
+			const onChartMouseOver = (e: ECElementEvent) => {
+				onMouseOver?.(e);
+			}
+			chart.on("mouseover", onChartMouseOver)
+			const onChartMouseOut = (e: ECElementEvent) => {
+				onMouseOut?.(e);
+			}
+			chart.on("mouseout", onChartMouseOut)
+			return () => {
+				chart.off("mouseover", onChartMouseOver)
+				chart.off("mouseout", onChartMouseOut)
+			}
+		}
+	}, [onMouseOver, onMouseOut])
+
 	return (
 		<div
 			ref={chartRef}
@@ -70,4 +116,4 @@ export function ReactECharts({
 			className={className}
 		/>
 	);
-}
+})

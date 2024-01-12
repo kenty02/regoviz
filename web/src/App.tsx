@@ -26,6 +26,7 @@ import {
 import { Textarea } from "@/components/ui/textarea.tsx";
 import { useGetSamplesSuspense } from "@/default/default.ts";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { atom } from "jotai";
 import { useAtom } from "jotai/index";
 import { atomWithStorage } from "jotai/utils";
@@ -44,11 +45,18 @@ export const selectedToolKeyAtom = atomWithStorage<string | null>(
 );
 
 export function App() {
-	const queryClient = new QueryClient();
+	const queryClient = new QueryClient({
+		defaultOptions: {
+			queries: {
+				retry: false,
+			},
+		},
+	});
 	return (
 		<Suspense fallback={"Loading..."}>
 			<ErrorBoundary FallbackComponent={Fallback}>
 				<QueryClientProvider client={queryClient}>
+					<ReactQueryDevtools initialIsOpen={true} />
 					<AppInner />
 				</QueryClientProvider>
 			</ErrorBoundary>
