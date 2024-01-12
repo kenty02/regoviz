@@ -4,6 +4,7 @@ pre-commit:
     frontend-check-apply:
       root: web
       run: npx @biomejs/biome check --apply {staged_files}
+      stage_fixed: true
     frontend-tsc:
         root: web
         run: npx tsc --noEmit
