@@ -19,6 +19,14 @@ type RegovizService struct {
 	SampleDir string
 }
 
+func (s *RegovizService) CallTreeAvailableEntrypointsGet(ctx context.Context, params api.CallTreeAvailableEntrypointsGetParams) (*api.CallTreeAvailableEntrypointsGetOK, error) {
+	entrypoints, err := analyzer.GetAvailableEntrypointsForCallTree(params.Policy)
+	if err != nil {
+		return nil, err
+	}
+	return &api.CallTreeAvailableEntrypointsGetOK{Entrypoints: entrypoints}, nil
+}
+
 func (s *RegovizService) CallTreeGet(ctx context.Context, params api.CallTreeGetParams) (*api.CallTreeGetOK, error) {
 	callTree, callTreeNodes, err := analyzer.GetStaticCallTree(params.Policy, params.Entrypoint, analyzer.UIDTypeEmpty)
 	if err != nil {

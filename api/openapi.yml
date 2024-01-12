@@ -228,6 +228,28 @@ paths:
                       items:
                           $ref: '#/components/schemas/EvalStep'
                 required: [ entrypoint ]
+  /callTree/availableEntrypoints:
+    get:
+      parameters:
+        - in: query
+          name: policy
+          schema:
+            type: string
+          description: The rego code to analyze
+          required: true
+      responses:
+        '200':
+          description: Available entrypoints of given module
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entrypoints:
+                    type: array
+                    items:
+                      type: string
+                required: [ entrypoints ]
 
 components:
   schemas:

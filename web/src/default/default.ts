@@ -31,6 +31,8 @@ import type { GetAstParams } from "../model/getAstParams";
 import type { GetAstPretty200 } from "../model/getAstPretty200";
 import type { GetAstPrettyParams } from "../model/getAstPrettyParams";
 import type { GetCallTree200 } from "../model/getCallTree200";
+import type { GetCallTreeAvailableEntrypoints200 } from "../model/getCallTreeAvailableEntrypoints200";
+import type { GetCallTreeAvailableEntrypointsParams } from "../model/getCallTreeAvailableEntrypointsParams";
 import type { GetCallTreeParams } from "../model/getCallTreeParams";
 import type { GetDepTreeText200 } from "../model/getDepTreeText200";
 import type { GetDepTreeTextParams } from "../model/getDepTreeTextParams";
@@ -1465,6 +1467,243 @@ export const useGetCallTreeSuspenseInfinite = <
 		params,
 		options,
 	);
+
+	const query = useSuspenseInfiniteQuery(
+		queryOptions,
+	) as UseSuspenseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey };
+
+	query.queryKey = queryOptions.queryKey;
+
+	return query;
+};
+
+export const getCallTreeAvailableEntrypoints = (
+	params: GetCallTreeAvailableEntrypointsParams,
+	options?: AxiosRequestConfig,
+): Promise<AxiosResponse<GetCallTreeAvailableEntrypoints200>> => {
+	return axios.default.get("/callTree/availableEntrypoints", {
+		...options,
+		params: { ...params, ...options?.params },
+	});
+};
+
+export const getGetCallTreeAvailableEntrypointsQueryKey = (
+	params: GetCallTreeAvailableEntrypointsParams,
+) => {
+	return [
+		"/callTree/availableEntrypoints",
+		...(params ? [params] : []),
+	] as const;
+};
+
+export const getGetCallTreeAvailableEntrypointsQueryOptions = <
+	TData = Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetCallTreeAvailableEntrypointsParams,
+	options?: {
+		query?: Partial<
+			UseQueryOptions<
+				Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>,
+				TError,
+				TData
+			>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+) => {
+	const { query: queryOptions, axios: axiosOptions } = options ?? {};
+
+	const queryKey =
+		queryOptions?.queryKey ??
+		getGetCallTreeAvailableEntrypointsQueryKey(params);
+
+	const queryFn: QueryFunction<
+		Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>
+	> = ({ signal }) =>
+		getCallTreeAvailableEntrypoints(params, { signal, ...axiosOptions });
+
+	return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+		Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>,
+		TError,
+		TData
+	> & { queryKey: QueryKey };
+};
+
+export type GetCallTreeAvailableEntrypointsQueryResult = NonNullable<
+	Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>
+>;
+export type GetCallTreeAvailableEntrypointsQueryError = AxiosError<unknown>;
+
+export const useGetCallTreeAvailableEntrypoints = <
+	TData = Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetCallTreeAvailableEntrypointsParams,
+	options?: {
+		query?: Partial<
+			UseQueryOptions<
+				Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>,
+				TError,
+				TData
+			>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+	const queryOptions = getGetCallTreeAvailableEntrypointsQueryOptions(
+		params,
+		options,
+	);
+
+	const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+		queryKey: QueryKey;
+	};
+
+	query.queryKey = queryOptions.queryKey;
+
+	return query;
+};
+
+export const getGetCallTreeAvailableEntrypointsSuspenseQueryOptions = <
+	TData = Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetCallTreeAvailableEntrypointsParams,
+	options?: {
+		query?: Partial<
+			UseSuspenseQueryOptions<
+				Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>,
+				TError,
+				TData
+			>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+) => {
+	const { query: queryOptions, axios: axiosOptions } = options ?? {};
+
+	const queryKey =
+		queryOptions?.queryKey ??
+		getGetCallTreeAvailableEntrypointsQueryKey(params);
+
+	const queryFn: QueryFunction<
+		Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>
+	> = ({ signal }) =>
+		getCallTreeAvailableEntrypoints(params, { signal, ...axiosOptions });
+
+	return { queryKey, queryFn, ...queryOptions } as UseSuspenseQueryOptions<
+		Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>,
+		TError,
+		TData
+	> & { queryKey: QueryKey };
+};
+
+export type GetCallTreeAvailableEntrypointsSuspenseQueryResult = NonNullable<
+	Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>
+>;
+export type GetCallTreeAvailableEntrypointsSuspenseQueryError =
+	AxiosError<unknown>;
+
+export const useGetCallTreeAvailableEntrypointsSuspense = <
+	TData = Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetCallTreeAvailableEntrypointsParams,
+	options?: {
+		query?: Partial<
+			UseSuspenseQueryOptions<
+				Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>,
+				TError,
+				TData
+			>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+): UseSuspenseQueryResult<TData, TError> & { queryKey: QueryKey } => {
+	const queryOptions = getGetCallTreeAvailableEntrypointsSuspenseQueryOptions(
+		params,
+		options,
+	);
+
+	const query = useSuspenseQuery(queryOptions) as UseSuspenseQueryResult<
+		TData,
+		TError
+	> & { queryKey: QueryKey };
+
+	query.queryKey = queryOptions.queryKey;
+
+	return query;
+};
+
+export const getGetCallTreeAvailableEntrypointsSuspenseInfiniteQueryOptions = <
+	TData = InfiniteData<
+		Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>
+	>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetCallTreeAvailableEntrypointsParams,
+	options?: {
+		query?: Partial<
+			UseSuspenseInfiniteQueryOptions<
+				Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>,
+				TError,
+				TData
+			>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+) => {
+	const { query: queryOptions, axios: axiosOptions } = options ?? {};
+
+	const queryKey =
+		queryOptions?.queryKey ??
+		getGetCallTreeAvailableEntrypointsQueryKey(params);
+
+	const queryFn: QueryFunction<
+		Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>
+	> = ({ signal }) =>
+		getCallTreeAvailableEntrypoints(params, { signal, ...axiosOptions });
+
+	return {
+		queryKey,
+		queryFn,
+		...queryOptions,
+	} as UseSuspenseInfiniteQueryOptions<
+		Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>,
+		TError,
+		TData
+	> & { queryKey: QueryKey };
+};
+
+export type GetCallTreeAvailableEntrypointsSuspenseInfiniteQueryResult =
+	NonNullable<Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>>;
+export type GetCallTreeAvailableEntrypointsSuspenseInfiniteQueryError =
+	AxiosError<unknown>;
+
+export const useGetCallTreeAvailableEntrypointsSuspenseInfinite = <
+	TData = InfiniteData<
+		Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>
+	>,
+	TError = AxiosError<unknown>,
+>(
+	params: GetCallTreeAvailableEntrypointsParams,
+	options?: {
+		query?: Partial<
+			UseSuspenseInfiniteQueryOptions<
+				Awaited<ReturnType<typeof getCallTreeAvailableEntrypoints>>,
+				TError,
+				TData
+			>
+		>;
+		axios?: AxiosRequestConfig;
+	},
+): UseSuspenseInfiniteQueryResult<TData, TError> & { queryKey: QueryKey } => {
+	const queryOptions =
+		getGetCallTreeAvailableEntrypointsSuspenseInfiniteQueryOptions(
+			params,
+			options,
+		);
 
 	const query = useSuspenseInfiniteQuery(
 		queryOptions,

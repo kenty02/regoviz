@@ -104,7 +104,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				}
 
 				if len(elem) == 0 {
-					// Leaf node.
 					switch r.Method {
 					case "GET":
 						s.handleCallTreeGetRequest([0]string{}, elemIsEscaped, w, r)
@@ -113,6 +112,26 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					}
 
 					return
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/availableEntrypoints"
+					if l := len("/availableEntrypoints"); len(elem) >= l && elem[0:l] == "/availableEntrypoints" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "GET":
+							s.handleCallTreeAvailableEntrypointsGetRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
+					}
 				}
 			case 'd': // Prefix: "depTreeText"
 				if l := len("depTreeText"); len(elem) >= l && elem[0:l] == "depTreeText" {
@@ -351,7 +370,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				if len(elem) == 0 {
 					switch method {
 					case "GET":
-						// Leaf: CallTreeGet
 						r.name = "CallTreeGet"
 						r.summary = ""
 						r.operationID = ""
@@ -361,6 +379,30 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						return r, true
 					default:
 						return
+					}
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/availableEntrypoints"
+					if l := len("/availableEntrypoints"); len(elem) >= l && elem[0:l] == "/availableEntrypoints" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						switch method {
+						case "GET":
+							// Leaf: CallTreeAvailableEntrypointsGet
+							r.name = "CallTreeAvailableEntrypointsGet"
+							r.summary = ""
+							r.operationID = ""
+							r.pathPattern = "/callTree/availableEntrypoints"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
 					}
 				}
 			case 'd': // Prefix: "depTreeText"

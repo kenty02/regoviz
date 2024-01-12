@@ -128,6 +128,64 @@ func decodeAstPrettyGetParams(args [0]string, argsEscaped bool, r *http.Request)
 	return params, nil
 }
 
+// CallTreeAvailableEntrypointsGetParams is parameters of GET /callTree/availableEntrypoints operation.
+type CallTreeAvailableEntrypointsGetParams struct {
+	// The rego code to analyze.
+	Policy string
+}
+
+func unpackCallTreeAvailableEntrypointsGetParams(packed middleware.Parameters) (params CallTreeAvailableEntrypointsGetParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "policy",
+			In:   "query",
+		}
+		params.Policy = packed[key].(string)
+	}
+	return params
+}
+
+func decodeCallTreeAvailableEntrypointsGetParams(args [0]string, argsEscaped bool, r *http.Request) (params CallTreeAvailableEntrypointsGetParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode query: policy.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "policy",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.Policy = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "policy",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // CallTreeGetParams is parameters of GET /callTree operation.
 type CallTreeGetParams struct {
 	// The rego code to analyze.

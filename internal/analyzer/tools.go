@@ -23,6 +23,7 @@ import (
 	"regoviz/internal/analyzer/directDeps"
 	"regoviz/internal/api"
 	"regoviz/internal/utils"
+	"slices"
 	"strings"
 )
 
@@ -604,6 +605,26 @@ const (
 	UIDTypeRandomWithLocation
 	UIDTypeDeterministicWithLocation
 )
+
+func GetAvailableEntrypointsForCallTree(code string) ([]string, error) {
+	moduleAst, _, err := CompileModuleStringToAst(code, false, false)
+	if err != nil {
+		return nil, err
+	}
+	entrypointsSet := map[string]struct{}{}
+	for _, rule := range moduleAst.Rules {
+		entrypointsSet[rule.Head.Name.String()] = struct{}{}
+	}
+	var entrypoints []string
+	for entrypoint := range entrypointsSet {
+		entrypoints = append(entrypoints, entrypoint)
+	}
+	slices.SortFunc(entrypoints, func(a, b string) int {
+		return strings.Compare(a, b)
+	})
+
+	return entrypoints, nil
+}
 
 func GetStaticCallTree(code, entrypoint string, uidType UIDType) (*api.RuleParent, []interface{}, error) {
 	moduleAst, moduleAstCompiler, err := CompileModuleStringToAst(code, true, true)

@@ -27,6 +27,13 @@ func (UnimplementedHandler) AstPrettyGet(ctx context.Context, params AstPrettyGe
 	return r, ht.ErrNotImplemented
 }
 
+// CallTreeAvailableEntrypointsGet implements GET /callTree/availableEntrypoints operation.
+//
+// GET /callTree/availableEntrypoints
+func (UnimplementedHandler) CallTreeAvailableEntrypointsGet(ctx context.Context, params CallTreeAvailableEntrypointsGetParams) (r *CallTreeAvailableEntrypointsGetOK, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CallTreeGet implements GET /callTree operation.
 //
 // GET /callTree

@@ -50,6 +50,20 @@ func (s *BearerAuth) SetToken(val string) {
 	s.Token = val
 }
 
+type CallTreeAvailableEntrypointsGetOK struct {
+	Entrypoints []string `json:"entrypoints"`
+}
+
+// GetEntrypoints returns the value of Entrypoints.
+func (s *CallTreeAvailableEntrypointsGetOK) GetEntrypoints() []string {
+	return s.Entrypoints
+}
+
+// SetEntrypoints sets the value of Entrypoints.
+func (s *CallTreeAvailableEntrypointsGetOK) SetEntrypoints(val []string) {
+	s.Entrypoints = val
+}
+
 type CallTreeGetOK struct {
 	Entrypoint RuleParent `json:"entrypoint"`
 	Steps      []EvalStep `json:"steps"`

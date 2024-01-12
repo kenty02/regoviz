@@ -44,3 +44,5 @@ export * from "./sample";
 export * from "./sampleDataExamples";
 export * from "./sampleInputExamples";
 export * from "./sampleQueryExamples";
+export * from "./getCallTreeAvailableEntrypoints200";
+export * from "./getCallTreeAvailableEntrypointsParams";
