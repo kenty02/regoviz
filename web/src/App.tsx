@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import { AstViewer } from "@/components/AstViewer.tsx";
 import { CallTreeViewer } from "@/components/CallTreeViewer.tsx";
@@ -35,8 +35,8 @@ import { Sample } from "./model";
 
 export const selectedSampleAtom = atom<Sample | null>(null);
 export const policyAtom = atom<string>("");
-export const inputJsonAtom = atom<string>("");
-export const dataJsonAtom = atom<string>("");
+export const inputJsonAtom = atom<string>("{\n}");
+export const dataJsonAtom = atom<string>("{\n}");
 export const selectedToolKeyAtom = atomWithStorage<string | null>(
 	"selectedToolKey",
 	null,
@@ -79,6 +79,27 @@ function AppInner() {
 	if (dataJson === "") {
 		setDataJson(sampleFiles[0].data_examples.default);
 	}
+	const [policyText, setPolicyText] = useState(policy);
+	const [inputJsonText, setInputJsonText] = useState(inputJson);
+	const [dataJsonText, setDataJsonText] = useState(dataJson);
+	const needApply =
+		policyText !== policy ||
+		inputJsonText !== inputJson ||
+		dataJsonText !== dataJson;
+	const apply = () => {
+		setPolicy(policyText);
+		setInputJson(inputJsonText);
+		setDataJson(dataJsonText);
+	};
+	useEffect(() => {
+		setPolicyText(policy);
+	}, [policy]);
+	useEffect(() => {
+		setInputJsonText(inputJson);
+	}, [inputJson]);
+	useEffect(() => {
+		setDataJsonText(dataJson);
+	}, [dataJson]);
 	const tools: { key: string; name: string; component: JSX.Element }[] = [
 		{
 			key: "readme",
@@ -87,7 +108,7 @@ function AppInner() {
 		},
 		{
 			key: "callTree",
-			name: "CallTree",
+			name: "EvalTree(CallTree)",
 			component: <CallTreeViewer />,
 		},
 		{
@@ -129,7 +150,13 @@ function AppInner() {
 			<header className="flex items-center justify-between px-4 py-2 border-b bg-gray-100 dark:bg-gray-800">
 				<h1 className="text-lg font-semibold">regoviz</h1>
 				<div className="flex items-center gap-4">
-					<Button variant="outline">Apply</Button>
+					{needApply ? (
+						<Button variant="outline" onClick={() => apply()}>
+							Apply
+						</Button>
+					) : (
+						<></>
+					)}
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button variant="outline">Examples</Button>
@@ -161,8 +188,8 @@ function AppInner() {
 					<div className="flex-1 overflow-auto bg-white dark:bg-gray-900">
 						<Textarea
 							className="h-full"
-							value={policy}
-							onChange={(e) => setPolicy(e.target.value)}
+							value={policyText}
+							onChange={(e) => setPolicyText(e.target.value)}
 						/>
 					</div>
 				</div>
@@ -171,16 +198,16 @@ function AppInner() {
 					<div className="flex-1 overflow-auto bg-white dark:bg-gray-900">
 						<Textarea
 							className="h-full resize-none"
-							value={inputJson}
-							onChange={(e) => setInputJson(e.target.value)}
+							value={inputJsonText}
+							onChange={(e) => setInputJsonText(e.target.value)}
 						/>
 					</div>
 					<h2 className="px-4 py-2 bg-gray-100 dark:bg-gray-800">Data JSON</h2>
 					<div className="flex-1 overflow-auto bg-white dark:bg-gray-900">
 						<Textarea
 							className="h-full resize-none"
-							value={dataJson}
-							onChange={(e) => setDataJson(e.target.value)}
+							value={dataJsonText}
+							onChange={(e) => setDataJsonText(e.target.value)}
 						/>
 					</div>
 				</div>
@@ -190,7 +217,7 @@ function AppInner() {
 					className="w-full"
 					defaultValue={selectedToolKey}
 					onValueChange={(value) => {
-						setSelectedToolKey(value);
+						void setSelectedToolKey(value);
 					}}
 				>
 					<TabsList className="flex justify-start">

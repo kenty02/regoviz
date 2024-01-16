@@ -84,7 +84,9 @@ func addBracketToRuleBody(rule *ast.Rule, target string) string {
 	if strings.HasPrefix(string(match[1]), "{") {
 		return target
 	}
-	newText := fmt.Sprintf("%s if {%s}", match[1], match[2])
+
+	// It's very hackey, but by not putting a space between the if and the {, we make sure that the start of the first expr doesn't change.
+	newText := fmt.Sprintf("%s if{%s}", match[1], match[2])
 	return strings.Replace(target, string(text), newText, 1)
 }
 func Apply(o Opts) (string, []VarTraceFoundVars, error) {

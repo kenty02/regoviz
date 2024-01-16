@@ -1,11 +1,11 @@
 package evalTrace
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/topdown"
 	"github.com/open-policy-agent/opa/topdown/print"
+	"os"
 	"regoviz/internal/analyzer"
 	"regoviz/internal/analyzer/regomod"
 	"regoviz/internal/api"
@@ -53,6 +53,7 @@ type tracer struct {
 	steps         *[]*step
 	nodeLocToStep map[string]*step
 	depths        *depths
+	filter        func(*topdown.Event) bool
 }
 
 func (t tracer) Enabled() bool {
@@ -60,6 +61,9 @@ func (t tracer) Enabled() bool {
 }
 
 func (t tracer) TraceEvent(event topdown.Event) {
+	if t.filter != nil && !t.filter(&event) {
+		return
+	}
 	step := &step{
 		index: len(*t.steps) + 1,
 		depth: t.depths.GetOrSet(event.QueryID, event.ParentID),
@@ -114,20 +118,25 @@ func DoEvalTrace(rego, query string, input, data map[string]interface{}, callTre
 	}
 
 	tracer := newTracer()
+	tracer.filter = func(event *topdown.Event) bool {
+		return event.Op != topdown.UnifyOp
+	}
+
 	_, err = analyzer.EvalRegoWithPrintAndTrace(modifiedRego, query, input, data, tracer, tracer)
 	if err != nil {
 		return nil, err
 	}
 
 	//debug
-	var events []*topdown.Event
-	for _, step := range *tracer.steps {
-		if step.printEvent == nil {
-			events = append(events, step.event)
-		}
-	}
-	var buf bytes.Buffer
-	topdown.PrettyTraceWithLocation(&buf, events)
+	//var events []*topdown.Event
+	//for _, step := range *tracer.steps {
+	//	if step.printEvent == nil {
+	//		events = append(events, step.event)
+	//	}
+	//}
+	//var buf bytes.Buffer
+	//buf.Grow(1024 * 1024)
+	//topdown.PrettyTraceWithLocation(&buf, events)
 	//fmt.Println(buf.String())
 
 	isEventInQuery := func(event *topdown.Event) bool {
@@ -135,94 +144,112 @@ func DoEvalTrace(rego, query string, input, data map[string]interface{}, callTre
 	}
 
 	var evalSteps []api.EvalStep
-	var previousNonPrintStep *step
+	var previousTargetNodeUid string
 	for _, step := range *tracer.steps {
 		if step.printEvent != nil {
-			if previousNonPrintStep == nil {
-				return nil, fmt.Errorf("unexpected print event")
-			}
 			evalStep := &api.EvalStep{
 				Index:         step.index,
 				Message:       "(print) " + step.printEvent.message,
-				TargetNodeUid: "TODO",
+				TargetNodeUid: previousTargetNodeUid,
 			}
 			evalSteps = append(evalSteps, *evalStep)
 			continue
 		}
+		matched := false
 		switch step.event.Op {
-		case topdown.EnterOp:
-			match := 0
+		case topdown.EnterOp, topdown.ExitOp, topdown.FailOp, topdown.RedoOp, topdown.EvalOp:
 			for _, callTreeNode := range callTreeNodes {
-				ruleChild, ok := callTreeNode.(*api.RuleChild)
-				if !ok {
-					continue
-				}
-				if !ruleChild.Location.Set {
-					return nil, fmt.Errorf("location not set for %T", ruleChild)
-				}
-				if !isEventInQuery(step.event) && locationRowColEqual(ruleChild.Location.Value, step.event.Node.Loc()) {
-					evalStep := &api.EvalStep{
-						Index:         step.index,
-						Message:       step.event.String(),
-						TargetNodeUid: ruleChild.UID,
+				var callTreeNodeLocation *api.OptNodeLocation
+				var callTreeNodeUid string
+				var callTreeNodeLocationText string
+				switch callTreeNode := callTreeNode.(type) {
+				case *api.RuleChild:
+					callTreeNodeLocation = &callTreeNode.Location
+					callTreeNodeUid = callTreeNode.UID
+					rule, ok := step.event.Node.(*ast.Rule)
+					if !ok {
+						continue
 					}
-					evalSteps = append(evalSteps, *evalStep)
-					match++
-				}
-			}
-			// todo check match
-		case topdown.EvalOp:
-			if isEventInQuery(step.event) {
-				continue
-			}
-			match := 0
-			for _, callTreeNode := range callTreeNodes {
-				ruleStatement, ok := callTreeNode.(*api.RuleStatement)
-				if !ok {
+					callTreeNodeLocationText = fmt.Sprintf("RULE `%s` at row %d", rule.Head.Name, rule.Head.Loc().Row)
+				case *api.RuleStatement:
+					callTreeNodeLocation = &callTreeNode.Location
+					callTreeNodeUid = callTreeNode.UID
+					expr, ok := step.event.Node.(*ast.Expr)
+					if !ok {
+						continue
+					}
+					callTreeNodeLocationText = fmt.Sprintf("STATEMENT `%s` at row %d", expr.Location.Text, expr.Location.Row)
+				default:
 					continue
 				}
-				expr, ok := step.event.Node.(*ast.Expr)
-				if !ok {
+				if !callTreeNodeLocation.Set {
+					return nil, fmt.Errorf("location not set for %T", callTreeNode)
+				}
+				if isEventInQuery(step.event) || !locationRowColEqual(callTreeNodeLocation.Value, step.event.Node.Loc()) {
+					continue
+				}
+				message := ""
+				switch step.event.Op {
+				case topdown.EnterOp:
+					message = fmt.Sprintf("Evaluating %s", callTreeNodeLocationText)
+				case topdown.ExitOp:
+					message = fmt.Sprintf("Evaluated to be TRUTHY: %s", callTreeNodeLocationText)
+				case topdown.RedoOp:
+					message = fmt.Sprintf("Re-evaluating %s", callTreeNodeLocationText)
+				case topdown.EvalOp:
+					message = fmt.Sprintf("Evaluating %s", callTreeNodeLocationText)
+				case topdown.FailOp:
+					message = fmt.Sprintf("Evaluated to be FALSY: %s", callTreeNodeLocationText)
+				default:
 					panic("unexpected")
 				}
-				if !ruleStatement.Location.Set {
-					return nil, fmt.Errorf("location not set for %T", ruleStatement)
+				evalStep := &api.EvalStep{
+					Index:         step.index,
+					Message:       message,
+					TargetNodeUid: callTreeNodeUid,
 				}
-				if locationRowColEqual(ruleStatement.Location.Value, expr.Loc()) {
-					evalStep := &api.EvalStep{
-						Index:         step.index,
-						Message:       step.event.String(),
-						TargetNodeUid: ruleStatement.UID,
-					}
-					evalSteps = append(evalSteps, *evalStep)
-					match++
-				}
+				previousTargetNodeUid = callTreeNodeUid
+				evalSteps = append(evalSteps, *evalStep)
+				matched = true
 			}
-			// todo check match
 		case topdown.NoteOp:
-			// todo
+			matched = true
+			evalStep := &api.EvalStep{
+				Index:         step.index,
+				Message:       fmt.Sprintf("(trace) %s", step.event.Message),
+				TargetNodeUid: previousTargetNodeUid,
+			}
+			evalSteps = append(evalSteps, *evalStep)
 		case topdown.IndexOp:
 			for _, callTreeNode := range callTreeNodes {
-				match := 0
 				ruleParent, ok := callTreeNode.(*api.RuleParent)
 				if !ok {
 					continue
 				}
-				if ruleParent.Ref == step.event.Ref.String() {
-					evalStep := &api.EvalStep{
-						Index:         step.index,
-						Message:       step.event.String(),
-						TargetNodeUid: ruleParent.UID,
-					}
-					evalSteps = append(evalSteps, *evalStep)
-					match++
+				if ruleParent.Ref != step.event.Ref.String() {
+					continue
 				}
-				// todo check match
+				evalStep := &api.EvalStep{
+					Index:         step.index,
+					Message:       "Looking up " + step.event.Ref.String(),
+					TargetNodeUid: ruleParent.UID,
+				}
+				previousTargetNodeUid = ruleParent.UID
+				evalSteps = append(evalSteps, *evalStep)
+				matched = true
 			}
 		default:
 			//unimplemented
 		}
-		previousNonPrintStep = step
+		addUnsupported := os.Getenv("ADD_UNSUPPORTED_STEP") == "true"
+		if !matched && addUnsupported {
+			evalStep := &api.EvalStep{
+				Index:         step.index,
+				Message:       fmt.Sprintf("(unsupported at %s) %s", fmt.Sprintf("%s %d:%d `%s`", step.event.Location.File, step.event.Location.Row, step.event.Location.Col, string(step.event.Location.Text)), step.event.String()),
+				TargetNodeUid: "",
+			}
+			evalSteps = append(evalSteps, *evalStep)
+		}
 	}
 	return evalSteps, nil
 }

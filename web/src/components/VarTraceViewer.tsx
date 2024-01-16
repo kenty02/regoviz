@@ -9,7 +9,7 @@ import { useState } from "react";
 export function VarTraceViewer() {
 	const policy = useAtomValue(policyAtom);
 	if (policy === "") {
-		return <></>;
+		throw new Error("Policy is empty");
 	}
 	const [input] = useAtomValue(inputJsonAtom);
 	const [data] = useAtomValue(dataJsonAtom);
