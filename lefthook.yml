@@ -3,7 +3,8 @@ pre-commit:
   commands:
     frontend-check-apply:
       root: web
-      run: npx @biomejs/biome check --apply {staged_files}
+      glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
+      run: npx @biomejs/biome check --apply --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
       stage_fixed: true
     frontend-tsc:
         root: web
