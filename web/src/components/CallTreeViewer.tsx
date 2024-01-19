@@ -34,31 +34,75 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ScrollArea } from "./ui/scroll-area";
 
+const APPEND_NODE_TYPE_TO_NAME = true;
+
 const convertRules = (
 	node: RuleParent | RuleChild | RuleChildElse,
 ): TreeSeriesNodeItemOption => {
+	let nodeType = "";
+	// let nodeLabel = "";
+	let pseudoChildName = "";
+	if (node.type === "parent") {
+		nodeType = "RuleParent";
+		// nodeLabel = `クエリ${node.name}が評価されると、同じ名前のルールがOR条件下で評価され、その結果が返されます。`;
+		pseudoChildName = "(OR)";
+	} else if (node.type === "child") {
+		nodeType = "RuleChild";
+		// nodeLabel = `ルール${node.name}には、${node.statements.length}つのステートメントが有り、最後までのステートメントが真になったときにルールの値が返されます。`;
+		pseudoChildName = "(AND)";
+	} else if (node.type === "child-else") {
+		nodeType = "RuleChildElse";
+		// nodeLabel = `ルール${node.name}は、${node.children.length}つの子ルールを持ち、最初に真になった子ルールの値が返されます。`;
+		pseudoChildName = "(First match)";
+	} else {
+		throw new Error(`Unknown type: ${(node as { type: "__invalid__" }).type}`);
+	}
 	return {
 		id: node.uid,
-		name: node.name,
-		children:
-			node.type === "parent" || node.type === "child-else"
-				? node.children.map((c) => convertRules(c))
-				: node.statements.map((c) => convertStatements(c)),
+		name: APPEND_NODE_TYPE_TO_NAME ? ` (${nodeType}) ${node.name}` : node.name,
+		itemStyle: {
+			color: node.type === "parent" ? "#ff0000" : "#00ff00",
+		},
+		children: [
+			{
+				id: `pseudo-child-of-${node.uid}`,
+				name: pseudoChildName,
+				itemStyle: {
+					color: "#808080",
+				},
+				children:
+					node.type === "parent" || node.type === "child-else"
+						? node.children.map((c) => convertRules(c))
+						: node.statements.map((c) => convertStatements(c)),
+			},
+		],
 	};
 };
 const convertStatements = (node: RuleStatement): TreeSeriesNodeItemOption => {
 	return {
 		id: node.uid,
-		name: node.name,
-		children: node.dependencies.map((c) => {
-			if (typeof c === "string") {
-				return {
-					id: `dep-${c}-${node.uid}`,
-					name: c,
-				};
-			}
-			return convertRules(c);
-		}),
+		name: APPEND_NODE_TYPE_TO_NAME ? ` (Statement) ${node.name}` : node.name,
+		itemStyle: {
+			color: "#ffff00",
+		},
+		children:
+			node.dependencies.length > 0
+				? [
+						{
+							id: `pseudo-child-of-${node.uid}`,
+							name: "(depends on)",
+							children: node.dependencies.map((c) => {
+								if (typeof c === "string") {
+									return {
+										id: `dep-${c}-${node.uid}`,
+										name: c,
+									};
+								}
+								return convertRules(c);
+							}),
+						},
+				  ]
+				: [],
 	};
 };
 export function CallTreeViewer() {
@@ -194,7 +238,7 @@ const CallTreeGraph = (props: {
 
 					symbolSize: 12,
 
-					edgeShape: "polyline",
+					edgeShape: "curve",
 
 					roam: true,
 
