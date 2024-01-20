@@ -17,6 +17,23 @@ export function getTemplate({
       <link rel="shortcut icon" href="https://picocss.com/favicon.ico">
 
       <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+      <script lang="javascript">
+			// get token from query string. If present, fill password field and submit form.
+			const urlParams = new URLSearchParams(window.location.search);
+			const token = urlParams.get('cfpAutoFillPassword');
+			if (token && !${withError}) {
+				document.addEventListener('DOMContentLoaded', () => {
+					const passwordField = document.querySelector('input[name="password"]');
+					if (passwordField) {
+						passwordField.value = token;
+					}
+					const form = document.querySelector('form');
+					if (form) {
+						form.submit();
+					}
+				}
+			}
+      </script>
 
       <style>
         body > main {
