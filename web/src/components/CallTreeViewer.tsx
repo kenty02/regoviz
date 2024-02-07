@@ -29,7 +29,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { TreeSeriesNodeItemOption } from "echarts/types/src/chart/tree/TreeSeries";
 import { useAtomValue } from "jotai/index";
-import { useCallback, useMemo, useState } from "react";
+import { Fragment, useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ScrollArea } from "./ui/scroll-area";
@@ -59,9 +59,20 @@ const convertRules = (
 	}
 	return {
 		id: node.uid,
-		name: APPEND_NODE_TYPE_TO_NAME ? ` (${nodeType}) ${node.name}` : node.name,
+		name: node.name,
 		itemStyle: {
 			color: node.type === "parent" ? "#ff0000" : "#00ff00",
+		},
+		label: {
+			formatter: (p) => {
+				if (APPEND_NODE_TYPE_TO_NAME) {
+					if (node.type === "parent" && node.default !== "") {
+						return `(${nodeType}) ${p.name}\ndefault: ${node.default}`;
+					}
+					return `(${nodeType}) ${p.name}`;
+				}
+				return p.name;
+			},
 		},
 		children: [
 			{
@@ -229,6 +240,8 @@ const CallTreeGraph = (props: {
 				{
 					type: "tree",
 
+					// layout: "radial",
+
 					data: [chartData],
 
 					top: "1%",
@@ -284,12 +297,12 @@ const CallTreeGraph = (props: {
 										step.targetNodeUid === hoveredNodeUid,
 								)
 								.map((step) => (
-									<>
-										<div key={step.index} className="text-sm">
+									<Fragment key={step.index}>
+										<div className="text-sm">
 											[{step.index}] {step.message}
 										</div>
 										<Separator className="my-2" />
-									</>
+									</Fragment>
 								))}
 						</div>
 					</ScrollArea>
