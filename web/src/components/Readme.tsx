@@ -28,13 +28,7 @@ export function Readme() {
 
 ### Call Tree Viewer
 
-Regoのコールツリーを[echarts](https://echarts.apache.org/en/index.html)ライブラリを用いて表示します。ルール名を入力する必要があります。ノードの多くが畳まれているのでクリックで開いてください。以下の情報が表示されます。
-
-- ルール
-  - ルールの名前
-  - ルールの中身(Expression)
-  - ルールが依存しているルール
-- 評価ステップ
+Regoの評価ツリー及び評価トレース解析を[echarts](https://echarts.apache.org/en/index.html)ライブラリを用いて表示します。ルール名を入力する必要があります。ノードの多くが畳まれているのでクリックで開いてください。
 
 ### Variable Tracer
 
