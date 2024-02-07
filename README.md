@@ -1,5 +1,11 @@
 # regoviz
 
+This is a very experimental tool to visualize policies written in Rego and their evaluation process.
+
+Currently available at [vizrego.pages.dev](https://vizrego.pages.dev).
+
+This is in very early stages of development and is not ready for production use.
+
 ## Getting Started
 
 ### Prerequisites
