@@ -31,7 +31,7 @@ import { atom } from "jotai";
 import { useAtom } from "jotai/index";
 import { atomWithStorage } from "jotai/utils";
 import { ErrorBoundary } from "react-error-boundary";
-import { Sample } from "./model";
+import type { Sample } from "./model";
 
 export const selectedSampleAtom = atom<Sample | null>(null);
 export const policyAtom = atom<string>("");

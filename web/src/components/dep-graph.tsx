@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { GraphView, SelectionT } from "react-digraph";
+import { GraphView, type SelectionT } from "react-digraph";
 
 const GraphConfig = {
 	NodeTypes: {

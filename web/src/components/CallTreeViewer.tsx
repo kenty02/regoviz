@@ -1,7 +1,7 @@
 import { dataJsonAtom, inputJsonAtom, policyAtom } from "@/App.tsx";
 import {
 	ReactECharts,
-	ReactEChartsProps,
+	type ReactEChartsProps,
 } from "@/components/React-ECharts.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import {
@@ -24,10 +24,15 @@ import {
 	useGetCallTreeAvailableEntrypointsSuspense,
 	useGetCallTreeSuspense,
 } from "@/default/default.ts";
-import { RuleChild, RuleChildElse, RuleParent, RuleStatement } from "@/model";
+import type {
+	RuleChild,
+	RuleChildElse,
+	RuleParent,
+	RuleStatement,
+} from "@/model";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Separator } from "@radix-ui/react-dropdown-menu";
-import { TreeSeriesNodeItemOption } from "echarts/types/src/chart/tree/TreeSeries";
+import type { TreeSeriesNodeItemOption } from "echarts/types/src/chart/tree/TreeSeries";
 import { useAtomValue } from "jotai/index";
 import { Fragment, useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -112,7 +117,7 @@ const convertStatements = (node: RuleStatement): TreeSeriesNodeItemOption => {
 								return convertRules(c);
 							}),
 						},
-				  ]
+					]
 				: [],
 	};
 };

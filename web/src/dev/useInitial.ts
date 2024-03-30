@@ -1,4 +1,4 @@
-import { InitialHookStatus } from "@react-buddy/ide-toolbox";
+import type { InitialHookStatus } from "@react-buddy/ide-toolbox";
 import { useState } from "react";
 
 export const useInitial: () => InitialHookStatus = () => {
