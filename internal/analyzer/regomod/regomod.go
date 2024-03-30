@@ -18,6 +18,7 @@ type (
 		ValTarget
 		NewValue string
 	}
+	// Opts is the options for Apply. Only RuleStatementTrace is supported for now.
 	Opts struct {
 		Rego                           string
 		RuleParentTrace                bool
