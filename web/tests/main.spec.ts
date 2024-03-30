@@ -7,5 +7,5 @@ test.beforeEach(async ({ page }) => {
 
 test("has title", async ({ page }) => {
 	// Expect a title "to contain" a substring.
-	await expect(page).toHaveTitle(/Vite/);
+	await expect(page).toHaveTitle(/regoviz/);
 });
